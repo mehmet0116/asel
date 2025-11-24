@@ -42,6 +42,8 @@ import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import com.aikodasistani.aikodasistani.data.AppDatabase
 import com.aikodasistani.aikodasistani.data.ArchivedMessage
 import com.aikodasistani.aikodasistani.data.ModelConfig
@@ -894,11 +896,84 @@ class MainActivity : AppCompatActivity(),
         currentResponseJob = responseJob
     }
 
+    private fun initializeSecurePreferences(): SharedPreferences {
+        val legacyPrefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        return try {
+            val securePrefs = createEncryptedPreferences()
+            migrateLegacyPreferences(legacyPrefs, securePrefs)
+            securePrefs
+        } catch (e: Exception) {
+            Log.w(
+                "MainActivity",
+                "EncryptedSharedPreferences initialization failed, falling back to legacy storage",
+                e
+            )
+            legacyPrefs
+        }
+    }
+
+    private fun createEncryptedPreferences(): SharedPreferences {
+        val masterKey = MasterKey.Builder(this)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+        return EncryptedSharedPreferences.create(
+            this,
+            "secure_app_prefs",
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    }
+
+    private fun migrateLegacyPreferences(legacyPrefs: SharedPreferences, securePrefs: SharedPreferences) {
+        if (legacyPrefs == securePrefs) return
+
+        val keysToMigrate = listOf(
+            "user_openai_api_key",
+            "user_gemini_api_key",
+            "user_deepseek_api_key",
+            "user_dashscope_api_key",
+            "night_mode",
+            "thinking_level",
+            "last_session_id",
+            "current_provider",
+            "current_model"
+        )
+
+        val editor = securePrefs.edit()
+        var hasChanges = false
+
+        for (key in keysToMigrate) {
+            if (!securePrefs.contains(key) && legacyPrefs.contains(key)) {
+                when (val value = legacyPrefs.all[key]) {
+                    is String -> editor.putString(key, value)
+                    is Int -> editor.putInt(key, value)
+                    is Long -> editor.putLong(key, value)
+                    is Boolean -> editor.putBoolean(key, value)
+                    is Float -> editor.putFloat(key, value)
+                }
+                hasChanges = true
+            }
+        }
+
+        if (hasChanges) {
+            editor.apply()
+        }
+
+        val legacyEditor = legacyPrefs.edit()
+        keysToMigrate.forEach { key ->
+            if (legacyPrefs.contains(key)) {
+                legacyEditor.remove(key)
+            }
+        }
+        legacyEditor.apply()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         try {
-            sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE)
+            sharedPreferences = initializeSecurePreferences()
             val nightMode = sharedPreferences.getInt("night_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
             if (AppCompatDelegate.getDefaultNightMode() != nightMode) {
                 AppCompatDelegate.setDefaultNightMode(nightMode)
