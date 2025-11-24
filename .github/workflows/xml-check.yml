@@ -1,16 +1,25 @@
 name: XML Check
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
-    types: [opened, synchronize]
+    branches:
+      - main
 
 jobs:
   xml-check:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install xmllint
+        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
 
       - name: Validate XML Files
         run: |
-          echo 'Checking XML files...'
-          find ./ -name '*.xml' -print0 | xargs -0 xmllint --noout
+          echo "Checking XML files..."
+          find . -name "*.xml" -print0 | xargs -0 xmllint --noout
