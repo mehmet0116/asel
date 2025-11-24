@@ -1,0 +1,17 @@
+name: XML Layout Validation
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  xml-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Check XML structure
+        run: |
+          echo "Checking XML layout files..."
+          find app/src/main/res -name "*.xml" -print0 | xargs -0 xmllint --noout
