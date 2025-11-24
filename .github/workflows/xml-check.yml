@@ -1,0 +1,16 @@
+name: XML Check
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  xml-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Validate XML Files
+        run: |
+          echo 'Checking XML files...'
+          find ./ -name '*.xml' -print0 | xargs -0 xmllint --noout
