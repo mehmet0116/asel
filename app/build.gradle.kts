@@ -152,7 +152,7 @@ dependencies {
     implementation("org.jsoup:jsoup:1.17.2") // ✅ Yeni sürüm
 
     // Güvenli depolama için
-    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+    implementation("androidx.security:security-crypto:1.0.0")
 
     // Testing
     testImplementation("junit:junit:4.13.2")
