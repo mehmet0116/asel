@@ -1,0 +1,71 @@
+<resources>
+    <string name="app_name">AI Kod Asistanı</string>
+    <string name="navigation_drawer_open">Navigasyon menüsünü aç</string>
+    <string name="navigation_drawer_close">Navigasyon menüsünü kapat</string>
+    <string name="ai_message_placeholder">AI message here</string>
+    <string name="copy_icon_description">Mesajı kopyala</string>
+    <string name="message_hint">Mesajınızı yazın...</string>
+    <string name="send_button_description">Gönder</string>
+
+    <!-- YENİ STRINGLER -->
+    <string name="download">İndir</string>
+    <string name="share">Paylaş</string>
+    <string name="file_saved">Dosya kaydedildi: %s</string>
+    <string name="download_error">Dosya indirilemedi</string>
+    <string name="share_error">Paylaşım sırasında hata oluştu</string>
+    <string name="cancel_sending">Gönderimi iptal et</string>
+    <string name="file_actions_dialog_title">Dosya İşlemleri</string>
+    <string name="file_name_hint">dosya_adi</string>
+    <string name="set_file_name_prompt">Dosya adını belirleyin:</string>
+    <string name="share_code">Kodu Paylaş</string>
+    <string name="file_too_large">Dosya boyutu çok büyük (10MB limit)</string>
+    <string name="file_read_error">Dosya okunurken hata: %s</string>
+    <string name="unsupported_file_type">Desteklenmeyen dosya türü: %s</string>
+    <string name="powerpoint_not_supported">PowerPoint dosyaları desteklenmiyor. Lütfen dosyayı PDF formatında kaydedip tekrar deneyin.</string>
+
+    <!-- API KEY ALANLARI -->
+    <string name="openai_api_key_label">OpenAI API Anahtarı</string>
+    <string name="openai_api_key_hint">sk-...</string>
+    <string name="gemini_api_key_label">Gemini API Anahtarı</string>
+    <string name="gemini_api_key_hint">AIzaSy...</string>
+    <string name="deepseek_api_key_label">DeepSeek API Anahtarı</string>
+    <string name="deepseek_api_key_hint">sk-...</string>
+    <string name="qwen_api_key_label">Qwen (DashScope) API Anahtarı</string>
+    <string name="qwen_api_key_hint">sk-...</string>
+    <string name="file_name_prompt">Dosya adını belirleyin:</string>
+
+    <!-- OTURUM YÖNETİMİ -->
+    <string name="new_session">Yeni oturum</string>
+    <string name="edit_session">Oturumu düzenle</string>
+    <string name="delete_session">Oturumu sil</string>
+
+    <!-- MESAJ ARAYÜZÜ -->
+    <string name="msg_content_desc">Mesaj içeriği</string>
+    <string name="download_button_desc">Kodu indir</string>
+    <string name="empty_text">Boş mesaj</string>
+
+    <!-- DÜŞÜNME MODU STRING'LERİ -->
+    <string name="deep_thinking_description">Derin düşünme modu</string>
+    <string name="deep_thinking_enabled">🧠 Derin Düşünme Modu: AÇIK</string>
+    <string name="deep_thinking_disabled">Derin Düşünme Modu: KAPALI</string>
+    <string name="thinking_started">🤔 Derin düşünme başlıyor...</string>
+    <string name="analyzing_problem">🔍 Problemi analiz ediyorum...</string>
+    <string name="gathering_knowledge">📚 İlgili bilgileri topluyorum...</string>
+    <string name="generating_alternatives">💡 Alternatif çözümler üretiyorum...</string>
+    <string name="evaluating_options">⚖️ Seçenekleri değerlendiriyorum...</string>
+    <string name="selecting_solution">🎯 En iyi çözümü seçiyorum...</string>
+    <string name="thinking_in_progress">Beyin fırtınası yapıyorum...</string>
+
+    <!-- YENİ DÜŞÜNME SEVİYESİ STRING'LERİ -->
+    <string name="thinking_level_dialog_title">Derin Düşünme Seviyesi Seçin</string>
+    <string name="thinking_level_off">Kapalı</string>
+    <string name="thinking_level_light">Hafif</string>
+    <string name="thinking_level_medium">Orta</string>
+    <string name="thinking_level_deep">Derin</string>
+    <string name="thinking_level_very_deep">Çok Derin</string>
+
+    <string name="thinking_level_light_desc">Hızlı analiz</string>
+    <string name="thinking_level_medium_desc">Dengeli analiz</string>
+    <string name="thinking_level_deep_desc">Kapsamlı analiz</string>
+    <string name="thinking_level_very_deep_desc">Çok kapsamlı analiz</string>
+</resources>

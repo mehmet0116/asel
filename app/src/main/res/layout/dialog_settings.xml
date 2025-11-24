@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/openai_api_key_label"
+        style="@style/TextAppearance.Material3.LabelLarge"/>
+
+    <EditText
+        android:id="@+id/editTextOpenAiKey"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:layout_marginTop="8dp"
+        android:hint="@string/openai_api_key_hint"
+        android:inputType="textPassword"
+        android:autofillHints="password" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/gemini_api_key_label"
+        android:layout_marginTop="16dp"
+        style="@style/TextAppearance.Material3.LabelLarge" />
+
+    <EditText
+        android:id="@+id/editTextGeminiKey"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:layout_marginTop="8dp"
+        android:hint="@string/gemini_api_key_hint"
+        android:inputType="textPassword"
+        android:autofillHints="password" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/deepseek_api_key_label"
+        android:layout_marginTop="16dp"
+        style="@style/TextAppearance.Material3.LabelLarge" />
+
+    <EditText
+        android:id="@+id/editTextDeepSeekKey"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:layout_marginTop="8dp"
+        android:hint="@string/deepseek_api_key_hint"
+        android:inputType="textPassword"
+        android:autofillHints="password" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/qwen_api_key_label"
+        android:layout_marginTop="16dp"
+        style="@style/TextAppearance.Material3.LabelLarge" />
+
+    <EditText
+        android:id="@+id/editTextDashScopeKey"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:layout_marginTop="8dp"
+        android:hint="@string/qwen_api_key_hint"
+        android:inputType="textPassword"
+        android:autofillHints="password" />
+
+</LinearLayout>

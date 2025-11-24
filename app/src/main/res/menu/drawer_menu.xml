@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:id="@+id/group_main_actions" android:checkableBehavior="none">
+        <item
+            android:id="@+id/nav_sessions"
+            android:icon="@drawable/ic_history"
+            android:title="Oturumlar" />
+        <item
+            android:id="@+id/nav_change_provider"
+            android:icon="@drawable/ic_provider"
+            android:title="Sağlayıcı Değiştir" />
+        <item
+            android:id="@+id/nav_change_model"
+            android:icon="@drawable/ic_model"
+            android:title="Model Değiştir" />
+        <item
+            android:id="@+id/nav_new_chat"
+            android:icon="@drawable/ic_add"
+            android:title="Yeni Sohbet" />
+        <!-- BU SATIR KESİNLİKLE OLMALI -->
+        <item
+            android:id="@+id/nav_project_structure"
+            android:icon="@drawable/ic_folder"
+            android:title="Proje Yapısını Çıkar" />
+    </group>
+
+    <item android:title="Diğer">
+        <menu>
+            <group android:id="@+id/group_other_actions" android:checkableBehavior="none">
+                <item
+                    android:id="@+id/nav_toggle_theme"
+                    android:icon="@drawable/ic_dark_mode"
+                    android:title="Temayı Değiştir" />
+                <item
+                    android:id="@+id/nav_settings"
+                    android:icon="@drawable/ic_settings"
+                    android:title="Ayarlar" />
+            </group>
+        </menu>
+    </item>
+
+</menu>

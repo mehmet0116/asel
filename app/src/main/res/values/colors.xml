@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="teal_700">#018786</color>
+
+    <!-- YENİ RENKLER -->
+    <color name="green">#FF4CAF50</color>
+    <color name="light_blue">#E3F2FD</color>
+    <color name="gray">#FF757575</color>
+    <color name="dark_gray">#424242</color>
+
+    <!-- YENİ DÜŞÜNME SEVİYESİ RENKLERİ -->
+    <color name="orange">#FF9800</color>
+    <color name="deep_orange">#FF5722</color>
+    <color name="red">#F44336</color>
+</resources>
