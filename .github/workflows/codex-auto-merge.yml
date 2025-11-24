@@ -1,0 +1,28 @@
+name: Codex Auto PR Analysis & Merge
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  codex-analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Codex Analyze
+        uses: openai/codex-connector-action@v1
+        with:
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Auto Merge on Success
+        uses: pascalgn/automerge-action@v0.15.6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          mergeMethod: squash
+          deleteBranch: true
+          title: "Codex Auto Merge Completed"
