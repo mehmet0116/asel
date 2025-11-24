@@ -43,7 +43,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKeys
+import androidx.security.crypto.MasterKey
 import com.aikodasistani.aikodasistani.data.AppDatabase
 import com.aikodasistani.aikodasistani.data.ArchivedMessage
 import com.aikodasistani.aikodasistani.data.ModelConfig
