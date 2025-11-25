@@ -24,7 +24,8 @@
         <item
             android:id="@+id/nav_project_structure"
             android:icon="@drawable/ic_folder"
-            android:title="Proje Yapısını Çıkar" />
+            android:title="Proje Yapısını Çıkar"
+            android:visible="false" />
     </group>
 
     <item android:title="Diğer">
