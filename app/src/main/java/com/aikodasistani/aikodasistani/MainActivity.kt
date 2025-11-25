@@ -1192,10 +1192,12 @@ class MainActivity : AppCompatActivity(),
                 hideLoading()
                 if (addedCount > 0) {
                     refreshAttachmentPreviewVisibility()
-                    setTextSafely(
-                        editTextMessage,
-                        "🖼️ ${pendingImageBase64List.size} görsel eklendi. Mesajınızı yazıp gönderebilirsiniz."
-                    )
+                    // Don't set automatic message text, just show a quick toast
+                    Toast.makeText(
+                        this@MainActivity,
+                        "✓ ${pendingImageBase64List.size} görsel eklendi",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 } else {
                     Toast.makeText(
                         this@MainActivity,
@@ -1411,10 +1413,12 @@ class MainActivity : AppCompatActivity(),
 
                 if (showStatusMessage) {
                     hideLoading()
-                    setTextSafely(
-                        editTextMessage,
-                        "🖼️ ${pendingImageBase64List.size} görsel eklendi. Mesajınızı yazıp gönderebilirsiniz."
-                    )
+                    // Don't set automatic message text, just show a quick toast
+                    Toast.makeText(
+                        this@MainActivity,
+                        "✓ Görsel eklendi",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
@@ -1440,21 +1444,25 @@ class MainActivity : AppCompatActivity(),
 
         try {
             val videoInfo = VideoProcessingUtil.getVideoInfo(this, uri)
+            val durationSeconds = videoInfo.durationMs / 1000
 
-            if (videoInfo.durationMs > 30000) {
-                withContext(Dispatchers.Main) {
-                    hideLoading()
-                    AlertDialog.Builder(this@MainActivity)
-                        .setTitle("Uzun Video")
-                        .setMessage("Video 30 saniyeden uzun. Sadece ilk 30 saniyesi analiz edilecek. Devam etmek istiyor musunuz?")
-                        .setPositiveButton("Evet") { _, _ ->
-                            mainCoroutineScope.launch { startVideoAnalysis(uri) }
-                        }
-                        .setNegativeButton("Hayır", null)
-                        .show()
+            // Show info about video duration, but proceed with full video
+            withContext(Dispatchers.Main) {
+                hideLoading()
+                val message = if (durationSeconds > 60) {
+                    "Video uzunluğu: ${durationSeconds}s. Tüm video analiz edilecek. Bu işlem zaman alabilir."
+                } else {
+                    "Video uzunluğu: ${durationSeconds}s. Analiz başlatılıyor."
                 }
-            } else {
-                startVideoAnalysis(uri)
+                
+                AlertDialog.Builder(this@MainActivity)
+                    .setTitle("Video Analizi")
+                    .setMessage(message)
+                    .setPositiveButton("Devam") { _, _ ->
+                        mainCoroutineScope.launch { startVideoAnalysis(uri) }
+                    }
+                    .setNegativeButton("İptal", null)
+                    .show()
             }
         } catch (e: Exception) {
             Log.e("MainActivity", "Video info error", e)
@@ -2297,7 +2305,7 @@ class MainActivity : AppCompatActivity(),
     // Video çekme fonksiyonu:
     private fun recordVideo() {
         val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE).apply {
-            putExtra(MediaStore.EXTRA_DURATION_LIMIT, 30) // 30 saniye sınırı
+            // No duration limit - support full video duration
             putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1) // Yüksek kalite
         }
 
