@@ -52,6 +52,7 @@ import com.aikodasistani.aikodasistani.util.CodeAutoCompletionUtil
 import com.aikodasistani.aikodasistani.util.CodeDetectionUtil
 import com.aikodasistani.aikodasistani.util.FileDownloadUtil
 import com.aikodasistani.aikodasistani.util.VideoProcessingUtil
+import com.aikodasistani.aikodasistani.util.ZipFileAnalyzerUtil
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
 import com.google.android.material.navigation.NavigationView
@@ -1239,6 +1240,15 @@ class MainActivity : AppCompatActivity(),
                     return@launch
                 }
 
+                // ZIP dosyalarını kontrol et
+                if (mimeType == "application/zip" ||
+                    mimeType == "application/x-zip-compressed" ||
+                    mimeType == "application/x-zip" ||
+                    mimeType == "application/octet-stream" && getFileName(uri).endsWith(".zip", ignoreCase = true)) {
+                    processZipFile(uri)
+                    return@launch
+                }
+
                 val fileContent = when {
                     mimeType.startsWith("text/") ||
                             mimeType == "application/javascript" ||
@@ -1700,6 +1710,70 @@ class MainActivity : AppCompatActivity(),
                     }
                     .show()
             }
+        }
+    }
+
+    // ZIP dosyası işleme fonksiyonu
+    private suspend fun processZipFile(uri: Uri) {
+        showLoading("📦 ZIP dosyası analiz ediliyor...")
+
+        try {
+            val fileName = getFileName(uri)
+            Log.d("ZipAnalysis", "ZIP dosyası analiz ediliyor: $fileName")
+
+            val analysisResult = ZipFileAnalyzerUtil.analyzeZipFile(contentResolver, uri)
+            val formattedResult = ZipFileAnalyzerUtil.formatAnalysisResult(analysisResult)
+
+            withContext(Dispatchers.Main) {
+                hideLoading()
+
+                if (analysisResult.success) {
+                    // ZIP analiz sonucunu pendingFileContent'e ata
+                    pendingFileContent = formattedResult
+                    pendingFileName = fileName
+
+                    // Kullanıcıya bilgi ver
+                    val shortSummary = """
+                        ✅ ZIP Analiz Tamamlandı!
+                        
+                        📁 Dosya: $fileName
+                        📊 Toplam Dosya: ${analysisResult.totalFiles}
+                        💾 Toplam Boyut: ${formatFileSizeSimple(analysisResult.totalSize)}
+                        📱 Proje Tipi: ${analysisResult.projectType}
+                        
+                        Gönder butonuna basarak AI'ye detaylı analiz yaptırabilirsiniz.
+                    """.trimIndent()
+
+                    setTextSafely(editTextMessage, shortSummary)
+
+                    Log.d("ZipAnalysis", "ZIP analiz tamamlandı. Dosya sayısı: ${analysisResult.totalFiles}")
+                } else {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "❌ ZIP analiz hatası: ${analysisResult.errorMessage}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("ZipAnalysis", "ZIP dosyası işleme hatası", e)
+            withContext(Dispatchers.Main) {
+                hideLoading()
+                Toast.makeText(
+                    this@MainActivity,
+                    "❌ ZIP dosyası işlenemedi: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
+    // Basit dosya boyutu formatı
+    private fun formatFileSizeSimple(bytes: Long): String {
+        return when {
+            bytes < 1024 -> "$bytes B"
+            bytes < 1024 * 1024 -> "${bytes / 1024} KB"
+            else -> "${bytes / (1024 * 1024)} MB"
         }
     }
 
