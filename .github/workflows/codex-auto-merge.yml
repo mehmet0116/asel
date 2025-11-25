@@ -14,6 +14,40 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Ensure automerge label
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr) {
+              console.log('No pull_request in context, skipping label step.');
+              return;
+            }
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issue_number = pr.number;
+
+            // Mevcut etiketleri kontrol et, tekrar eklemeyi önle
+            const { data: labels } = await github.issues.listLabelsOnIssue({
+              owner,
+              repo,
+              issue_number
+            });
+            const has = labels.some(l => l.name.toLowerCase() === 'automerge');
+            if (!has) {
+              await github.issues.addLabels({
+                owner,
+                repo,
+                issue_number,
+                labels: ['automerge']
+              });
+              console.log(`Added 'automerge' label to PR #${issue_number}`);
+            } else {
+              console.log(`PR #${issue_number} already has 'automerge' label`);
+            }
+
       - name: Auto Merge PR
         uses: pascalgn/automerge-action@v0.16.3
         env:
