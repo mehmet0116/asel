@@ -1244,7 +1244,7 @@ class MainActivity : AppCompatActivity(),
                 if (mimeType == "application/zip" ||
                     mimeType == "application/x-zip-compressed" ||
                     mimeType == "application/x-zip" ||
-                    mimeType == "application/octet-stream" && getFileName(uri).endsWith(".zip", ignoreCase = true)) {
+                    (mimeType == "application/octet-stream" && getFileName(uri).endsWith(".zip", ignoreCase = true))) {
                     processZipFile(uri)
                     return@launch
                 }

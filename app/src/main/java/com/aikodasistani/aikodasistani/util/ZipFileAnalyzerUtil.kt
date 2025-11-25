@@ -23,6 +23,9 @@ object ZipFileAnalyzerUtil {
     private const val MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB per file
     private const val MAX_TOTAL_SIZE = 50 * 1024 * 1024 // 50MB total
     private const val MAX_FILES = 500 // Maksimum dosya sayısı
+    private const val MAX_CHARS_PER_FILE = 100000 // Maksimum karakter per dosya
+    private const val MAX_LANGUAGES_TO_SHOW = 10 // Gösterilecek maksimum dil sayısı
+    private const val MAX_CONTENT_DISPLAY_LENGTH = 3000 // İçerik gösterim limiti
 
     // Desteklenen kod dosya uzantıları
     private val CODE_EXTENSIONS = setOf(
@@ -180,18 +183,17 @@ object ZipFileAnalyzerUtil {
         entry: ZipEntry
     ): String {
         val stringBuilder = StringBuilder()
-        val maxChars = 100000 // Her dosya için maksimum karakter
 
         BufferedReader(InputStreamReader(zipInputStream, Charsets.UTF_8)).use { reader ->
             var line: String?
             var charCount = 0
 
-            while (reader.readLine().also { line = it } != null && charCount < maxChars) {
+            while (reader.readLine().also { line = it } != null && charCount < MAX_CHARS_PER_FILE) {
                 stringBuilder.append(line).append('\n')
                 charCount += line!!.length + 1
             }
 
-            if (charCount >= maxChars) {
+            if (charCount >= MAX_CHARS_PER_FILE) {
                 stringBuilder.append("\n[...dosya devamı kesildi - çok büyük...]")
             }
         }
@@ -266,8 +268,8 @@ object ZipFileAnalyzerUtil {
         return when {
             // Android projesi
             fileNames.contains("AndroidManifest.xml") ||
-            fileNames.any { it.endsWith(".gradle") || it.endsWith(".gradle.kts") } &&
-            directories.any { it.contains("app/src/main") } -> ProjectType.ANDROID
+            (fileNames.any { it.endsWith(".gradle") || it.endsWith(".gradle.kts") } &&
+            directories.any { it.contains("app/src/main") }) -> ProjectType.ANDROID
 
             // iOS projesi
             fileNames.any { it.endsWith(".xcodeproj") || it.endsWith(".xcworkspace") } ||
@@ -276,7 +278,7 @@ object ZipFileAnalyzerUtil {
             // React/React Native projesi
             fileNames.contains("package.json") &&
             (extensions.contains(".jsx") || extensions.contains(".tsx") ||
-             files.any { it.content?.contains("react") == true }) -> ProjectType.REACT
+             files.any { it.content?.contains("react", ignoreCase = true) == true }) -> ProjectType.REACT
 
             // Node.js projesi
             fileNames.contains("package.json") -> ProjectType.NODEJS
@@ -355,7 +357,7 @@ object ZipFileAnalyzerUtil {
             .sortedByDescending { it.second }
 
         sb.appendLine("💻 PROGRAMLAMA DİLLERİ:")
-        languageDistribution.take(10).forEach { (lang, count) ->
+        languageDistribution.take(MAX_LANGUAGES_TO_SHOW).forEach { (lang, count) ->
             val percentage = (count * 100.0 / result.files.size).toInt()
             sb.appendLine("• $lang: $count dosya ($percentage%)")
         }
@@ -398,9 +400,9 @@ object ZipFileAnalyzerUtil {
 
                 // İçeriği ekle (çok uzunsa kısalt)
                 val content = file.content!!
-                if (content.length > 3000) {
-                    sb.appendLine(content.take(3000))
-                    sb.appendLine("\n[...${content.length - 3000} karakter daha...]")
+                if (content.length > MAX_CONTENT_DISPLAY_LENGTH) {
+                    sb.appendLine(content.take(MAX_CONTENT_DISPLAY_LENGTH))
+                    sb.appendLine("\n[...${content.length - MAX_CONTENT_DISPLAY_LENGTH} karakter daha...]")
                 } else {
                     sb.appendLine(content)
                 }

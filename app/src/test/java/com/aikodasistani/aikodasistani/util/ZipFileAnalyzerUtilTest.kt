@@ -186,7 +186,7 @@ class ZipFileAnalyzerUtilTest {
 
     @Test
     fun `test project types enum values`() {
-        val types = ZipFileAnalyzerUtil.ProjectType.values()
+        val types = ZipFileAnalyzerUtil.ProjectType.entries
 
         assertTrue("Should contain ANDROID", types.contains(ZipFileAnalyzerUtil.ProjectType.ANDROID))
         assertTrue("Should contain IOS", types.contains(ZipFileAnalyzerUtil.ProjectType.IOS))
