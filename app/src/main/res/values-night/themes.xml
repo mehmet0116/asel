@@ -1,7 +1,37 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Base application theme for Dark Mode -->
     <style name="Base.Theme.AIKodAsistani" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <!-- Primary colors -->
+        <item name="colorPrimary">@color/primary_main</item>
+        <item name="colorPrimaryContainer">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/text_on_primary</item>
+
+        <!-- Secondary colors -->
+        <item name="colorSecondary">@color/secondary_main</item>
+        <item name="colorSecondaryContainer">@color/secondary_dark</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+        <!-- Background colors -->
+        <item name="android:colorBackground">@color/background_primary</item>
+        <item name="colorSurface">@color/surface_primary</item>
+        <item name="colorSurfaceVariant">@color/surface_elevated</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+
+        <!-- Other colors -->
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/white</item>
+        <item name="colorOutline">@color/border_color</item>
+
+        <!-- Status bar -->
+        <item name="android:statusBarColor">@color/background_primary</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+
+        <!-- Navigation bar -->
+        <item name="android:navigationBarColor">@color/background_primary</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">false</item>
+
+        <!-- Enable window content transitions -->
+        <item name="android:windowContentTransitions" tools:targetApi="lollipop">true</item>
     </style>
 </resources>

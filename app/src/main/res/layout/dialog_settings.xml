@@ -1,75 +1,184 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="24dp">
+    android:layout_height="wrap_content">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/openai_api_key_label"
-        style="@style/TextAppearance.Material3.LabelLarge"/>
-
-    <EditText
-        android:id="@+id/editTextOpenAiKey"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="48dp"
-        android:layout_marginTop="8dp"
-        android:hint="@string/openai_api_key_hint"
-        android:inputType="textPassword"
-        android:autofillHints="password" />
+        android:orientation="vertical"
+        android:padding="20dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/gemini_api_key_label"
-        android:layout_marginTop="16dp"
-        style="@style/TextAppearance.Material3.LabelLarge" />
+        <!-- Header -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🔑 API Anahtarları"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:fontFamily="sans-serif-medium"
+            android:layout_marginBottom="8dp" />
 
-    <EditText
-        android:id="@+id/editTextGeminiKey"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="48dp"
-        android:layout_marginTop="8dp"
-        android:hint="@string/gemini_api_key_hint"
-        android:inputType="textPassword"
-        android:autofillHints="password" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="API anahtarlarınızı güvenli bir şekilde saklayın"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginBottom="24dp" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/deepseek_api_key_label"
-        android:layout_marginTop="16dp"
-        style="@style/TextAppearance.Material3.LabelLarge" />
+        <!-- OpenAI Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/surface_elevated">
 
-    <EditText
-        android:id="@+id/editTextDeepSeekKey"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="48dp"
-        android:layout_marginTop="8dp"
-        android:hint="@string/deepseek_api_key_hint"
-        android:inputType="textPassword"
-        android:autofillHints="password" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/qwen_api_key_label"
-        android:layout_marginTop="16dp"
-        style="@style/TextAppearance.Material3.LabelLarge" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/openai_api_key_label"
+                    android:textColor="@color/text_primary"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-medium"
+                    style="@style/TextAppearance.Material3.LabelLarge"/>
 
-    <EditText
-        android:id="@+id/editTextDashScopeKey"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="48dp"
-        android:layout_marginTop="8dp"
-        android:hint="@string/qwen_api_key_hint"
-        android:inputType="textPassword"
-        android:autofillHints="password" />
+                <EditText
+                    android:id="@+id/editTextOpenAiKey"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/openai_api_key_hint"
+                    android:inputType="textPassword"
+                    android:background="@drawable/bg_input_field"
+                    android:textColor="@color/text_primary"
+                    android:autofillHints="password" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
-</LinearLayout>
+        <!-- Gemini Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/surface_elevated">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/gemini_api_key_label"
+                    android:textColor="@color/text_primary"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-medium"
+                    style="@style/TextAppearance.Material3.LabelLarge" />
+
+                <EditText
+                    android:id="@+id/editTextGeminiKey"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/gemini_api_key_hint"
+                    android:inputType="textPassword"
+                    android:background="@drawable/bg_input_field"
+                    android:textColor="@color/text_primary"
+                    android:autofillHints="password" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- DeepSeek Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/surface_elevated">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/deepseek_api_key_label"
+                    android:textColor="@color/text_primary"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-medium"
+                    style="@style/TextAppearance.Material3.LabelLarge" />
+
+                <EditText
+                    android:id="@+id/editTextDeepSeekKey"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/deepseek_api_key_hint"
+                    android:inputType="textPassword"
+                    android:background="@drawable/bg_input_field"
+                    android:textColor="@color/text_primary"
+                    android:autofillHints="password" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Qwen Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/surface_elevated">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/qwen_api_key_label"
+                    android:textColor="@color/text_primary"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-medium"
+                    style="@style/TextAppearance.Material3.LabelLarge" />
+
+                <EditText
+                    android:id="@+id/editTextDashScopeKey"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/qwen_api_key_hint"
+                    android:inputType="textPassword"
+                    android:background="@drawable/bg_input_field"
+                    android:textColor="@color/text_primary"
+                    android:autofillHints="password" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+</ScrollView>
