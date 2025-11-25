@@ -1713,58 +1713,318 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    // ZIP dosyası işleme fonksiyonu
+    // ==================== PROFESYONEl ZIP İŞLEME ====================
+    
+    // ZIP analiz sonucu ve URI'yi sakla
+    private var currentZipAnalysisResult: ZipFileAnalyzerUtil.ZipAnalysisResult? = null
+    private var currentZipUri: Uri? = null
+    private var zipAnalysisDialog: AlertDialog? = null
+    
     private suspend fun processZipFile(uri: Uri) {
-        showLoading("📦 ZIP dosyası analiz ediliyor...")
-
-        try {
-            val fileName = getFileName(uri)
-            Log.d("ZipAnalysis", "ZIP dosyası analiz ediliyor: $fileName")
-
-            val analysisResult = ZipFileAnalyzerUtil.analyzeZipFile(contentResolver, uri)
-            val formattedResult = ZipFileAnalyzerUtil.formatAnalysisResult(analysisResult)
-
-            withContext(Dispatchers.Main) {
-                hideLoading()
-
-                if (analysisResult.success) {
-                    // ZIP analiz sonucunu pendingFileContent'e ata
-                    pendingFileContent = formattedResult
-                    pendingFileName = fileName
-
-                    // Kullanıcıya bilgi ver
-                    val shortSummary = """
-                        ✅ ZIP Analiz Tamamlandı!
+        currentZipUri = uri
+        val fileName = getFileName(uri)
+        
+        withContext(Dispatchers.Main) {
+            showProfessionalZipAnalysisDialog(fileName, uri)
+        }
+    }
+    
+    /**
+     * Profesyonel ZIP Analiz Dialog'u
+     */
+    private fun showProfessionalZipAnalysisDialog(fileName: String, uri: Uri) {
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_zip_analysis, null)
+        
+        // View bağlantıları
+        val tvZipFileName = dialogView.findViewById<TextView>(R.id.tvZipFileName)
+        val tvZipFileInfo = dialogView.findViewById<TextView>(R.id.tvZipFileInfo)
+        val progressBar = dialogView.findViewById<android.widget.ProgressBar>(R.id.progressBarZip)
+        val tvProgressStatus = dialogView.findViewById<TextView>(R.id.tvProgressStatus)
+        val tvLiveAnalysis = dialogView.findViewById<TextView>(R.id.tvLiveAnalysis)
+        val statsSection = dialogView.findViewById<LinearLayout>(R.id.statsSection)
+        val tvFileCount = dialogView.findViewById<TextView>(R.id.tvFileCount)
+        val tvFolderCount = dialogView.findViewById<TextView>(R.id.tvFolderCount)
+        val tvTotalSize = dialogView.findViewById<TextView>(R.id.tvTotalSize)
+        val tvProjectType = dialogView.findViewById<TextView>(R.id.tvProjectType)
+        val actionButtons = dialogView.findViewById<LinearLayout>(R.id.actionButtons)
+        val btnFixErrors = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnFixErrors)
+        val btnAddFeature = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnAddFeature)
+        val btnDownloadZip = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnDownloadZip)
+        val btnCancel = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnCancel)
+        val btnAnalyze = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnAnalyze)
+        
+        // Başlangıç değerleri
+        tvZipFileName.text = fileName
+        tvZipFileInfo.text = "Analiz başlatılıyor..."
+        
+        // Dialog oluştur
+        zipAnalysisDialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+        
+        zipAnalysisDialog?.show()
+        
+        // Canlı log stringbuilder
+        val liveLog = StringBuilder()
+        
+        // Analiz başlat
+        mainCoroutineScope.launch {
+            try {
+                val analysisResult = ZipFileAnalyzerUtil.analyzeZipFile(
+                    contentResolver, 
+                    uri
+                ) { progress, currentFile, status ->
+                    // Canlı güncelleme - Main thread'de
+                    runOnUiThread {
+                        progressBar.progress = progress
+                        tvProgressStatus.text = "$progress% - $status"
                         
-                        📁 Dosya: $fileName
-                        📊 Toplam Dosya: ${analysisResult.totalFiles}
-                        💾 Toplam Boyut: ${formatFileSizeSimple(analysisResult.totalSize)}
-                        📱 Proje Tipi: ${analysisResult.projectType}
+                        // Canlı log'a ekle
+                        if (currentFile.isNotEmpty()) {
+                            liveLog.append("$status\n")
+                            tvLiveAnalysis.text = liveLog.toString()
+                            
+                            // Auto-scroll için parent'ı bul
+                            (tvLiveAnalysis.parent as? android.widget.ScrollView)?.fullScroll(View.FOCUS_DOWN)
+                        }
+                    }
+                }
+                
+                // Analiz tamamlandı
+                currentZipAnalysisResult = analysisResult
+                
+                withContext(Dispatchers.Main) {
+                    if (analysisResult.success) {
+                        // İstatistikleri güncelle
+                        tvZipFileInfo.text = "✅ Analiz tamamlandı"
+                        statsSection.visibility = View.VISIBLE
+                        actionButtons.visibility = View.VISIBLE
                         
-                        Gönder butonuna basarak AI'ye detaylı analiz yaptırabilirsiniz.
-                    """.trimIndent()
-
-                    setTextSafely(editTextMessage, shortSummary)
-
-                    Log.d("ZipAnalysis", "ZIP analiz tamamlandı. Dosya sayısı: ${analysisResult.totalFiles}")
-                } else {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "❌ ZIP analiz hatası: ${analysisResult.errorMessage}",
-                        Toast.LENGTH_LONG
-                    ).show()
+                        tvFileCount.text = analysisResult.totalFiles.toString()
+                        tvFolderCount.text = analysisResult.directoryStructure.size.toString()
+                        tvTotalSize.text = formatFileSizeSimple(analysisResult.totalSize)
+                        tvProjectType.text = getProjectTypeEmoji(analysisResult.projectType)
+                        
+                        // Progress'i tamamlandı olarak güncelle
+                        progressBar.progress = 100
+                        tvProgressStatus.text = "✅ Analiz tamamlandı"
+                        
+                        // Log'a özet ekle
+                        liveLog.append("\n" + "═".repeat(40) + "\n")
+                        liveLog.append("✅ ÖZET\n")
+                        liveLog.append("📁 ${analysisResult.totalFiles} dosya bulundu\n")
+                        liveLog.append("📂 ${analysisResult.directoryStructure.size} klasör\n")
+                        liveLog.append("💾 ${formatFileSizeSimple(analysisResult.totalSize)}\n")
+                        
+                        // Dil dağılımı
+                        val languages = analysisResult.files
+                            .filter { it.language != null }
+                            .groupBy { it.language!! }
+                            .mapValues { it.value.size }
+                            .toList()
+                            .sortedByDescending { it.second }
+                            .take(5)
+                        
+                        if (languages.isNotEmpty()) {
+                            liveLog.append("\n💻 Programlama Dilleri:\n")
+                            languages.forEach { (lang, count) ->
+                                liveLog.append("  • $lang: $count dosya\n")
+                            }
+                        }
+                        
+                        tvLiveAnalysis.text = liveLog.toString()
+                        
+                        // pendingFileContent'i ayarla
+                        pendingFileContent = ZipFileAnalyzerUtil.formatAnalysisResult(analysisResult)
+                        pendingFileName = fileName
+                        
+                    } else {
+                        tvZipFileInfo.text = "❌ Hata: ${analysisResult.errorMessage}"
+                        tvProgressStatus.text = "Analiz başarısız"
+                    }
+                }
+                
+            } catch (e: Exception) {
+                Log.e("ZipAnalysis", "Analiz hatası", e)
+                withContext(Dispatchers.Main) {
+                    tvZipFileInfo.text = "❌ Hata: ${e.message}"
+                    tvProgressStatus.text = "Analiz başarısız"
                 }
             }
-        } catch (e: Exception) {
-            Log.e("ZipAnalysis", "ZIP dosyası işleme hatası", e)
-            withContext(Dispatchers.Main) {
-                hideLoading()
-                Toast.makeText(
-                    this@MainActivity,
-                    "❌ ZIP dosyası işlenemedi: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+        }
+        
+        // Buton aksiyonları
+        btnCancel.setOnClickListener {
+            zipAnalysisDialog?.dismiss()
+            currentZipAnalysisResult = null
+            currentZipUri = null
+        }
+        
+        btnAnalyze.setOnClickListener {
+            zipAnalysisDialog?.dismiss()
+            currentZipAnalysisResult?.let { result ->
+                val content = ZipFileAnalyzerUtil.formatAnalysisResult(result)
+                pendingFileContent = content
+                pendingFileName = fileName
+                setTextSafely(editTextMessage, "📦 ZIP analiz edildi: $fileName\n\nAI analizi için gönder butonuna basın.")
             }
+        }
+        
+        btnFixErrors.setOnClickListener {
+            zipAnalysisDialog?.dismiss()
+            currentZipAnalysisResult?.let { result ->
+                val errorFixPrompt = ZipFileAnalyzerUtil.generateErrorFixPrompt(result)
+                pendingFileContent = errorFixPrompt
+                pendingFileName = fileName
+                setTextSafely(editTextMessage, "🔧 Hata düzeltme modu aktif!\n\nZIP içeriği AI'ye gönderilecek. Hatalar analiz edilip düzeltilecek.")
+                
+                // Otomatik gönder
+                mainCoroutineScope.launch {
+                    delay(500)
+                    buttonSend.performClick()
+                }
+            }
+        }
+        
+        btnAddFeature.setOnClickListener {
+            zipAnalysisDialog?.dismiss()
+            showAddFeatureDialog()
+        }
+        
+        btnDownloadZip.setOnClickListener {
+            currentZipAnalysisResult?.let { result ->
+                downloadModifiedZip(result)
+            }
+        }
+    }
+    
+    /**
+     * Özellik ekleme dialog'u
+     */
+    private fun showAddFeatureDialog() {
+        val input = EditText(this).apply {
+            hint = "Örn: Dark mode ekle, Login sayfası oluştur, API entegrasyonu yap..."
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
+            minLines = 3
+            maxLines = 5
+            setPadding(48, 32, 48, 32)
+        }
+        
+        AlertDialog.Builder(this)
+            .setTitle("➕ Hangi Özelliği Ekleyelim?")
+            .setMessage("Projenize eklemek istediğiniz özelliği detaylı şekilde açıklayın:")
+            .setView(input)
+            .setPositiveButton("Özellik Ekle") { _, _ ->
+                val featureRequest = input.text.toString().trim()
+                if (featureRequest.isNotEmpty()) {
+                    currentZipAnalysisResult?.let { result ->
+                        val featurePrompt = ZipFileAnalyzerUtil.generateAddFeaturePrompt(result, featureRequest)
+                        pendingFileContent = featurePrompt
+                        // fileName is already saved during ZIP analysis
+                        pendingFileName = pendingFileName ?: "project.zip"
+                        setTextSafely(editTextMessage, "➕ Özellik ekleme modu aktif!\n\nİstek: $featureRequest")
+                        
+                        // Otomatik gönder
+                        mainCoroutineScope.launch {
+                            delay(500)
+                            buttonSend.performClick()
+                        }
+                    }
+                } else {
+                    Toast.makeText(this, "Lütfen bir özellik açıklaması girin", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("İptal", null)
+            .show()
+    }
+    
+    /**
+     * Düzenlenmiş ZIP'i indir
+     */
+    private fun downloadModifiedZip(result: ZipFileAnalyzerUtil.ZipAnalysisResult) {
+        mainCoroutineScope.launch {
+            showLoading("📥 ZIP oluşturuluyor...")
+            
+            try {
+                val saveResult = ZipFileAnalyzerUtil.createModifiedZip(
+                    context = this@MainActivity,
+                    originalResult = result,
+                    modifiedFiles = emptyMap(), // Şu an için değişiklik yok, orijinal içerik
+                    outputFileName = "project_${System.currentTimeMillis()}.zip"
+                )
+                
+                withContext(Dispatchers.Main) {
+                    hideLoading()
+                    
+                    if (saveResult.success) {
+                        AlertDialog.Builder(this@MainActivity)
+                            .setTitle("✅ ZIP İndirildi!")
+                            .setMessage("Dosya kaydedildi:\n${saveResult.filePath}")
+                            .setPositiveButton("Tamam", null)
+                            .setNeutralButton("Paylaş") { _, _ ->
+                                shareZipFile(saveResult.filePath!!)
+                            }
+                            .show()
+                    } else {
+                        Toast.makeText(
+                            this@MainActivity, 
+                            "❌ ZIP oluşturulamadı: ${saveResult.errorMessage}", 
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    hideLoading()
+                    Toast.makeText(this@MainActivity, "❌ Hata: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+    
+    /**
+     * ZIP dosyasını paylaş
+     */
+    private fun shareZipFile(filePath: String) {
+        try {
+            val file = File(filePath)
+            val uri = FileProvider.getUriForFile(
+                this,
+                "${applicationContext.packageName}.fileprovider",
+                file
+            )
+            
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "application/zip"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            
+            startActivity(Intent.createChooser(shareIntent, "ZIP Dosyasını Paylaş"))
+        } catch (e: Exception) {
+            Toast.makeText(this, "Paylaşım hatası: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+    
+    /**
+     * Proje tipi için emoji döndür
+     */
+    private fun getProjectTypeEmoji(type: ZipFileAnalyzerUtil.ProjectType): String {
+        return when (type) {
+            ZipFileAnalyzerUtil.ProjectType.ANDROID -> "📱 Android"
+            ZipFileAnalyzerUtil.ProjectType.IOS -> "🍎 iOS"
+            ZipFileAnalyzerUtil.ProjectType.REACT -> "⚛️ React"
+            ZipFileAnalyzerUtil.ProjectType.NODEJS -> "🟢 Node.js"
+            ZipFileAnalyzerUtil.ProjectType.PYTHON -> "🐍 Python"
+            ZipFileAnalyzerUtil.ProjectType.JAVA_MAVEN -> "☕ Java"
+            ZipFileAnalyzerUtil.ProjectType.GRADLE -> "🐘 Gradle"
+            ZipFileAnalyzerUtil.ProjectType.DOTNET -> "💜 .NET"
+            ZipFileAnalyzerUtil.ProjectType.FLUTTER -> "🦋 Flutter"
+            ZipFileAnalyzerUtil.ProjectType.GO -> "🔵 Go"
+            ZipFileAnalyzerUtil.ProjectType.RUST -> "🦀 Rust"
+            ZipFileAnalyzerUtil.ProjectType.WEB -> "🌐 Web"
+            ZipFileAnalyzerUtil.ProjectType.UNKNOWN -> "❓ Bilinmiyor"
         }
     }
 
