@@ -2332,7 +2332,7 @@ class MainActivity : AppCompatActivity(),
 
     /**
      * Shows a dialog with the fixed code and options to copy or send to AI for review
-    */
+     */
     private fun showFixedCodeDialog(
         originalCode: String,
         fixedCode: String,
