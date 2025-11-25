@@ -14,9 +14,9 @@
         android:clickable="true"
         android:focusable="true"
         android:foreground="?attr/selectableItemBackground"
-        app:cardBackgroundColor="?attr/colorPrimary"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="6dp"
         app:cardUseCompatPadding="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -24,20 +24,29 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintWidth_default="wrap">
 
-        <TextView
-            android:id="@+id/textViewMessage"
+        <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="48dp"
-            android:minHeight="48dp"
-            android:paddingStart="20dp"
-            android:paddingTop="16dp"
-            android:paddingEnd="20dp"
-            android:paddingBottom="16dp"
-            android:textColor="?attr/colorOnPrimary"
-            android:textSize="16sp"
-            android:textIsSelectable="true"
-            android:contentDescription="@string/msg_content_desc" />
+            android:background="@drawable/bg_message_user">
+
+            <TextView
+                android:id="@+id/textViewMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="48dp"
+                android:minHeight="48dp"
+                android:paddingStart="20dp"
+                android:paddingTop="16dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="16dp"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:lineSpacingExtra="4dp"
+                android:fontFamily="sans-serif"
+                android:textIsSelectable="true"
+                android:contentDescription="@string/msg_content_desc" />
+
+        </FrameLayout>
 
     </androidx.cardview.widget.CardView>
 

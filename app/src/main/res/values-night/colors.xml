@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- DARK MODE COLOR PALETTE -->
+    <!-- Primary Colors - Softer versions for dark mode -->
+    <color name="primary_gradient_start">#7C3AED</color> <!-- Purple -->
+    <color name="primary_gradient_end">#A78BFA</color> <!-- Light purple -->
+    <color name="primary_main">#8B5CF6</color> <!-- Main purple -->
+    <color name="primary_light">#A78BFA</color> <!-- Light purple -->
+    <color name="primary_dark">#6D28D9</color> <!-- Dark purple -->
+
+    <!-- Secondary Colors -->
+    <color name="secondary_main">#2DD4BF</color> <!-- Teal -->
+    <color name="secondary_light">#5EEAD4</color> <!-- Light teal -->
+    <color name="secondary_dark">#14B8A6</color> <!-- Dark teal -->
+
+    <!-- Background Colors for Dark Mode -->
+    <color name="background_primary">#111827</color> <!-- Dark gray -->
+    <color name="background_secondary">#1F2937</color> <!-- Slightly lighter -->
+    <color name="background_tertiary">#374151</color> <!-- Medium gray -->
+
+    <!-- Surface Colors for Dark Mode -->
+    <color name="surface_primary">#1F2937</color>
+    <color name="surface_elevated">#374151</color>
+    <color name="surface_chat_user">#312E81</color> <!-- Dark purple for user -->
+    <color name="surface_chat_ai">#134E4A</color> <!-- Dark teal for AI -->
+
+    <!-- Text Colors for Dark Mode -->
+    <color name="text_primary">#F9FAFB</color>
+    <color name="text_secondary">#D1D5DB</color>
+    <color name="text_tertiary">#9CA3AF</color>
+    <color name="text_on_primary">#FFFFFF</color>
+
+    <!-- Border & Divider -->
+    <color name="border_color">#4B5563</color>
+    <color name="divider_color">#374151</color>
+
+    <!-- Overlay -->
+    <color name="overlay_dark">#90000000</color>
+    <color name="overlay_light">#60000000</color>
+</resources>

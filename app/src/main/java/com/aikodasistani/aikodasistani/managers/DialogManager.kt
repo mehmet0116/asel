@@ -54,7 +54,7 @@ class DialogManager(private val activity: Activity) {
         levels: List<String>,
         onLevelSelected: (Int) -> Unit
     ) {
-        AlertDialog.Builder(activity)
+        AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
             .setTitle("🧠 Derin Düşünme Seviyesi Seçin")
             .setItems(levels.toTypedArray()) { _, which ->
                 onLevelSelected(which)
@@ -70,8 +70,8 @@ class DialogManager(private val activity: Activity) {
         providers: Array<String>,
         onProviderSelected: (String) -> Unit
     ) {
-        AlertDialog.Builder(activity)
-            .setTitle("Sağlayıcı Seç")
+        AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
+            .setTitle("🔌 Sağlayıcı Seç")
             .setItems(providers) { _, which ->
                 onProviderSelected(providers[which])
             }
@@ -89,8 +89,8 @@ class DialogManager(private val activity: Activity) {
             Toast.makeText(activity, "Bu sağlayıcı için model bulunamadı.", Toast.LENGTH_SHORT).show()
             return
         }
-        AlertDialog.Builder(activity)
-            .setTitle("Model Seç")
+        AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
+            .setTitle("🤖 Model Seç")
             .setItems(models) { _, which ->
                 onModelSelected(models[which])
             }
@@ -118,10 +118,9 @@ class DialogManager(private val activity: Activity) {
         editTextDeepSeek.setText(currentDeepSeekKey)
         editTextDashScope.setText(currentDashScopeKey)
 
-        AlertDialog.Builder(activity)
-            .setTitle("API Anahtarlarını Ayarla")
+        AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
             .setView(dialogView)
-            .setPositiveButton("Kaydet") { _, _ ->
+            .setPositiveButton("💾 Kaydet") { _, _ ->
                 val newOpenAiKey = editTextOpenAi.text.toString().trim()
                 val newGeminiKey = editTextGemini.text.toString().trim()
                 val newDeepSeekKey = editTextDeepSeek.text.toString().trim()
@@ -137,8 +136,8 @@ class DialogManager(private val activity: Activity) {
      * Show URL input dialog
      */
     fun showUrlInputDialog(onUrlEntered: (String) -> Unit) {
-        val builder = AlertDialog.Builder(activity)
-        builder.setTitle("Web Sitesi URL'sini Girin")
+        val builder = AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
+        builder.setTitle("🌐 Web Sitesi URL'sini Girin")
 
         val input = EditText(activity)
         input.hint = "https://ornek.com"
@@ -164,8 +163,8 @@ class DialogManager(private val activity: Activity) {
      * Show new chat confirmation dialog
      */
     fun showNewChatConfirmation(onConfirm: () -> Unit) {
-        AlertDialog.Builder(activity)
-            .setTitle("Yeni Sohbet")
+        AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
+            .setTitle("💬 Yeni Sohbet")
             .setMessage("Yeni bir sohbet başlatmak istediğinizden emin misiniz? Mevcut sohbet kaydedilecek.")
             .setPositiveButton("Evet") { _, _ -> onConfirm() }
             .setNegativeButton("Hayır", null)
@@ -190,8 +189,8 @@ class DialogManager(private val activity: Activity) {
             "🌐 URL'den İçerik Al"
         )
 
-        AlertDialog.Builder(activity)
-            .setTitle("Dosya Ekle")
+        AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
+            .setTitle("📎 Dosya Ekle")
             .setItems(options) { _, which ->
                 when (which) {
                     0 -> onCameraSelected()
@@ -211,10 +210,10 @@ class DialogManager(private val activity: Activity) {
         errorDescription: String,
         onAnalyzeClick: () -> Unit
     ) {
-        AlertDialog.Builder(activity)
+        AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
             .setTitle("🔧 Kod Hatası Tespit Edildi")
             .setMessage(errorDescription)
-            .setPositiveButton("Analiz Et ve Düzelt") { _, _ ->
+            .setPositiveButton("🔍 Analiz Et ve Düzelt") { _, _ ->
                 onAnalyzeClick()
             }
             .setNegativeButton("İptal", null)
@@ -228,10 +227,10 @@ class DialogManager(private val activity: Activity) {
         fixedCode: String,
         onApplyClick: (String) -> Unit
     ) {
-        AlertDialog.Builder(activity)
+        AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
             .setTitle("✅ Düzeltilmiş Kod")
             .setMessage(fixedCode)
-            .setPositiveButton("Uygula") { _, _ ->
+            .setPositiveButton("✔️ Uygula") { _, _ ->
                 onApplyClick(fixedCode)
             }
             .setNegativeButton("İptal", null)
@@ -242,7 +241,7 @@ class DialogManager(private val activity: Activity) {
      * Show add feature dialog
      */
     fun showAddFeatureDialog(onFeatureEntered: (String) -> Unit) {
-        val builder = AlertDialog.Builder(activity)
+        val builder = AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
         builder.setTitle("✨ Yeni Özellik Ekle")
         builder.setMessage("Eklemek istediğiniz özelliği detaylı açıklayın:")
 
