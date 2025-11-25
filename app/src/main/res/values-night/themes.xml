@@ -3,12 +3,12 @@
     <style name="Base.Theme.AIKodAsistani" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Primary colors -->
         <item name="colorPrimary">@color/primary_main</item>
-        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorPrimaryContainer">@color/primary_dark</item>
         <item name="colorOnPrimary">@color/text_on_primary</item>
 
         <!-- Secondary colors -->
         <item name="colorSecondary">@color/secondary_main</item>
-        <item name="colorSecondaryVariant">@color/secondary_dark</item>
+        <item name="colorSecondaryContainer">@color/secondary_dark</item>
         <item name="colorOnSecondary">@color/white</item>
 
         <!-- Background colors -->

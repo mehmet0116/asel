@@ -49,6 +49,7 @@
     <color name="text_secondary">#6B7280</color>
     <color name="text_tertiary">#9CA3AF</color>
     <color name="text_on_primary">#FFFFFF</color>
+    <color name="text_on_primary_secondary">#E0FFFFFF</color>
 
     <!-- Border & Divider -->
     <color name="border_color">#E5E7EB</color>

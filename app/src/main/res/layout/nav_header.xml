@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:text="Yapay zeka destekli kod geliştirme"
         android:textSize="14sp"
-        android:textColor="#E0FFFFFF"
+        android:textColor="@color/text_on_primary_secondary"
         android:fontFamily="sans-serif" />
 
 </LinearLayout>

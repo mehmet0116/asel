@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:contentDescription="@string/app_name" />
+            android:contentDescription="@string/image_preview_description" />
 
         <View
             android:layout_width="match_parent"

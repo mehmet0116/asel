@@ -43,6 +43,7 @@
     <string name="msg_content_desc">Mesaj içeriği</string>
     <string name="download_button_desc">Kodu indir</string>
     <string name="empty_text">Boş mesaj</string>
+    <string name="image_preview_description">Mesaja eklenecek görsel önizleme</string>
 
     <!-- DÜŞÜNME MODU STRING'LERİ -->
     <string name="deep_thinking_description">Derin düşünme modu</string>
