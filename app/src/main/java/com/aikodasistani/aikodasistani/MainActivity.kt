@@ -48,6 +48,7 @@ import com.aikodasistani.aikodasistani.data.AppDatabase
 import com.aikodasistani.aikodasistani.data.ArchivedMessage
 import com.aikodasistani.aikodasistani.data.ModelConfig
 import com.aikodasistani.aikodasistani.data.Session
+import com.aikodasistani.aikodasistani.util.CodeAutoCompletionUtil
 import com.aikodasistani.aikodasistani.util.CodeDetectionUtil
 import com.aikodasistani.aikodasistani.util.FileDownloadUtil
 import com.aikodasistani.aikodasistani.util.VideoProcessingUtil
@@ -132,7 +133,8 @@ class MessageAdapter(
     private val context: Context,
     private val messages: List<Message>,
     private val markwon: Markwon,
-    private val onDownloadClick: (String) -> Unit
+    private val onDownloadClick: (String) -> Unit,
+    private val onAnalyzeCodeClick: ((String) -> Unit)? = null
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         private const val VIEW_TYPE_USER = 1
@@ -233,18 +235,32 @@ class MessageAdapter(
                     val codeBlocks = extractCodeBlocks(message.text)
                     if (codeBlocks.isNotEmpty()) {
                         popup.menu.add("Kodu Kopyala")
+                        popup.menu.add("🔧 Kodu Analiz Et")
                     }
 
                     popup.setOnMenuItemClickListener { menuItem ->
-                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                        val textToCopy = when {
-                            menuItem.title == "Kodu Kopyala" && codeBlocks.isNotEmpty() -> codeBlocks.joinToString("\n\n")
-                            else -> message.text
+                        when (menuItem.title) {
+                            "🔧 Kodu Analiz Et" -> {
+                                if (codeBlocks.isNotEmpty()) {
+                                    onAnalyzeCodeClick?.invoke(codeBlocks.joinToString("\n\n"))
+                                }
+                                true
+                            }
+                            "Kodu Kopyala" -> {
+                                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                val clip = ClipData.newPlainText("Copied Text", codeBlocks.joinToString("\n\n"))
+                                clipboard.setPrimaryClip(clip)
+                                Toast.makeText(context, "Panoya kopyalandı", Toast.LENGTH_SHORT).show()
+                                true
+                            }
+                            else -> {
+                                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                val clip = ClipData.newPlainText("Copied Text", message.text)
+                                clipboard.setPrimaryClip(clip)
+                                Toast.makeText(context, "Panoya kopyalandı", Toast.LENGTH_SHORT).show()
+                                true
+                            }
                         }
-                        val clip = ClipData.newPlainText("Copied Text", textToCopy)
-                        clipboard.setPrimaryClip(clip)
-                        Toast.makeText(context, "Panoya kopyalandı", Toast.LENGTH_SHORT).show()
-                        true
                     }
                     if (popup.menu.size() > 0) popup.show()
                     true
@@ -1996,9 +2012,17 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun setupRecyclerView() {
-        messageAdapter = MessageAdapter(this, messageList, markwon) { messageText ->
-            FileDownloadUtil.showActionDialog(this, messageText, null)
-        }
+        messageAdapter = MessageAdapter(
+            context = this,
+            messages = messageList,
+            markwon = markwon,
+            onDownloadClick = { messageText ->
+                FileDownloadUtil.showActionDialog(this, messageText, null)
+            },
+            onAnalyzeCodeClick = { code ->
+                analyzeSelectedCode(code)
+            }
+        )
         recyclerView.adapter = messageAdapter
         val layoutManager = LinearLayoutManager(this)
         layoutManager.stackFromEnd = true
@@ -2248,6 +2272,131 @@ class MainActivity : AppCompatActivity(),
                 val messageToUpdate = db.sessionDao().getMessageById(lastMessage.id)
                 if (messageToUpdate != null) {
                     db.sessionDao().updateMessage(messageToUpdate.copy(text = lastMessage.text))
+                }
+            }
+            // Check for code errors and suggest auto-fix
+            checkAndSuggestCodeFix(lastMessage.text)
+        }
+    }
+
+    /**
+     * Analyzes AI-generated code for errors and suggests auto-fixes
+     */
+    private fun checkAndSuggestCodeFix(messageText: String) {
+        // Extract code blocks from the message
+        val codeBlockPattern = Regex("```(\\w+)?\\s*([\\s\\S]*?)```")
+        val codeBlocks = codeBlockPattern.findAll(messageText).toList()
+
+        if (codeBlocks.isEmpty()) return
+
+        mainCoroutineScope.launch {
+            codeBlocks.forEach { match ->
+                val languageHint = match.groupValues[1].ifBlank { null }
+                val codeContent = match.groupValues[2].trim()
+
+                if (codeContent.isNotBlank()) {
+                    val analysisResult = CodeAutoCompletionUtil.analyzeCode(codeContent, languageHint)
+
+                    if (analysisResult.hasErrors) {
+                        withContext(Dispatchers.Main) {
+                            showCodeFixSuggestionDialog(analysisResult, codeContent)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Shows a dialog with code error analysis and auto-fix suggestion
+     */
+    private fun showCodeFixSuggestionDialog(
+        analysisResult: CodeAutoCompletionUtil.CodeAnalysisResult,
+        originalCode: String
+    ) {
+        val errorSummary = CodeAutoCompletionUtil.generateErrorSummary(analysisResult)
+
+        val dialogBuilder = AlertDialog.Builder(this)
+            .setTitle("🔧 Kod Analizi")
+            .setMessage(errorSummary)
+            .setNegativeButton("Kapat", null)
+
+        if (analysisResult.fixedCode != null) {
+            dialogBuilder.setPositiveButton("Düzeltilmiş Kodu Göster") { _, _ ->
+                showFixedCodeDialog(originalCode, analysisResult.fixedCode, analysisResult.language)
+            }
+        }
+
+        dialogBuilder.show()
+    }
+
+    /**
+     * Shows a dialog with the fixed code and options to copy or send to AI for review
+     */
+    private fun showFixedCodeDialog(
+        originalCode: String,
+        fixedCode: String,
+        language: String?
+    ) {
+        val langLabel = language?.uppercase() ?: "CODE"
+        val langFormatted = language ?: ""
+        val formattedCode = "```$langFormatted\n$fixedCode\n```"
+
+        AlertDialog.Builder(this)
+            .setTitle("✨ Düzeltilmiş Kod ($langLabel)")
+            .setMessage(fixedCode)
+            .setPositiveButton("Kopyala") { _, _ ->
+                val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clip = ClipData.newPlainText("Fixed Code", fixedCode)
+                clipboard.setPrimaryClip(clip)
+                Toast.makeText(this, "Düzeltilmiş kod panoya kopyalandı", Toast.LENGTH_SHORT).show()
+            }
+            .setNeutralButton("AI'ye Gönder") { _, _ ->
+                // Send fixed code to AI for verification
+                val verificationPrompt = """
+                    Bu düzeltilmiş kodu kontrol edebilir misin? 
+                    Orijinal kodda tespit edilen hataları düzelttim.
+                    
+                    $formattedCode
+                    
+                    Kodda başka hata var mı? Derleme/çalıştırma için hazır mı?
+                """.trimIndent()
+
+                editTextMessage.setText(verificationPrompt)
+                Toast.makeText(this, "Kod doğrulama için hazır. Gönder butonuna basın.", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("İptal", null)
+            .show()
+    }
+
+    /**
+     * Manually trigger code analysis on selected text
+     */
+    private fun analyzeSelectedCode(code: String) {
+        mainCoroutineScope.launch {
+            showLoading("Kod analiz ediliyor...")
+            try {
+                val result = CodeAutoCompletionUtil.analyzeCode(code)
+                withContext(Dispatchers.Main) {
+                    hideLoading()
+                    if (result.hasErrors) {
+                        showCodeFixSuggestionDialog(result, code)
+                    } else {
+                        Toast.makeText(
+                            this@MainActivity,
+                            "✅ Kodda hata bulunamadı",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    hideLoading()
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Analiz hatası: ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
@@ -2605,4 +2754,3 @@ class MainActivity : AppCompatActivity(),
         mainCoroutineScope.cancel()
     }
 }
-    val               x=5
