@@ -2332,16 +2332,15 @@ class MainActivity : AppCompatActivity(),
 
     /**
      * Shows a dialog with the fixed code and options to copy or send to AI for review
-     */
+    */
     private fun showFixedCodeDialog(
         originalCode: String,
         fixedCode: String,
         language: String?
     ) {
         val langLabel = language?.uppercase() ?: "CODE"
-        val formattedCode = "```$language\n$fixedCode\n```"
-
-        val dialogView = layoutInflater.inflate(R.layout.dialog_file_actions, null)
+        val langFormatted = language ?: ""
+        val formattedCode = "```$langFormatted\n$fixedCode\n```"
 
         AlertDialog.Builder(this)
             .setTitle("✨ Düzeltilmiş Kod ($langLabel)")
