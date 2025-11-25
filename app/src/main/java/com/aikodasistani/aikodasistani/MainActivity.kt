@@ -268,6 +268,11 @@ class MessageAdapter(
 class MainActivity : AppCompatActivity(),
     NavigationView.OnNavigationItemSelectedListener {
 
+    companion object {
+        private const val THUMBNAIL_MAX_SIZE = 240
+        private const val MAX_OCR_IMAGES = 3
+    }
+
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navView: NavigationView
     private lateinit var recyclerView: RecyclerView
@@ -1460,10 +1465,9 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun createThumbnail(bitmap: Bitmap): Bitmap {
-        val maxSize = 240
         val scale = min(
-            maxSize.toFloat() / bitmap.width.toFloat(),
-            maxSize.toFloat() / bitmap.height.toFloat()
+            THUMBNAIL_MAX_SIZE.toFloat() / bitmap.width.toFloat(),
+            THUMBNAIL_MAX_SIZE.toFloat() / bitmap.height.toFloat()
         ).coerceAtMost(1f)
 
         val targetWidth = maxOf(1, (bitmap.width * scale).toInt())
@@ -2238,7 +2242,7 @@ class MainActivity : AppCompatActivity(),
                 // ✅ DeepSeek & Qwen: Önce OCR yap, metni gönder
                 appendChunkToLastMessage("📷 Görseller metne çevriliyor...")
 
-                val ocrTexts = base64Images.take(3).mapIndexed { index, image ->
+                val ocrTexts = base64Images.take(MAX_OCR_IMAGES).mapIndexed { index, image ->
                     val ocrText = simpleVisionToText(image)
                     "Görsel ${index + 1}: $ocrText"
                 }
