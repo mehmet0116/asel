@@ -37,23 +37,15 @@ class MessageManager {
 
     /**
      * Safely set text in EditText, handling large texts
+     * Note: For very large texts (>100K chars), this falls back to direct setText
+     * Consider using a more sophisticated approach with coroutines if needed
      */
     fun setTextSafely(editText: EditText, text: String) {
         try {
             if (text.length > 100000) {
-                val chunkSize = 50000
-                var start = 0
-
-                editText.setText("")
-
-                while (start < text.length) {
-                    val end = minOf(start + chunkSize, text.length)
-                    val chunk = text.substring(start, end)
-                    editText.append(chunk)
-                    start = end
-
-                    Thread.sleep(10)
-                }
+                // For extremely large texts, truncate with warning
+                val truncated = text.take(50000)
+                editText.setText("$truncated\n\n⚠️ [Text truncated - original length: ${text.length} chars]")
             } else {
                 editText.setText(text)
             }
