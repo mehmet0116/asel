@@ -8,7 +8,10 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.cardview.widget.CardView
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.aikodasistani.aikodasistani.R
 
 /**
@@ -54,13 +57,60 @@ class DialogManager(private val activity: Activity) {
         levels: List<String>,
         onLevelSelected: (Int) -> Unit
     ) {
-        AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
-            .setTitle("🧠 Derin Düşünme Seviyesi Seçin")
-            .setItems(levels.toTypedArray()) { _, which ->
-                onLevelSelected(which)
+        val dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_thinking_level, null)
+        val recyclerView = dialogView.findViewById<RecyclerView>(R.id.recyclerViewLevels)
+        
+        recyclerView.layoutManager = LinearLayoutManager(activity)
+        
+        val dialog = AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
+            .setView(dialogView)
+            .create()
+        
+        val adapter = ThinkingLevelAdapter(levels) { position ->
+            onLevelSelected(position)
+            dialog.dismiss()
+        }
+        recyclerView.adapter = adapter
+        
+        dialog.show()
+    }
+    
+    /**
+     * Adapter for thinking level items
+     */
+    private class ThinkingLevelAdapter(
+        private val levels: List<String>,
+        private val onItemClick: (Int) -> Unit
+    ) : RecyclerView.Adapter<ThinkingLevelAdapter.ViewHolder>() {
+        
+        class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            val card: CardView = view as CardView
+            val levelNumber: TextView = view.findViewById(R.id.tvLevelNumber)
+            val levelName: TextView = view.findViewById(R.id.tvLevelName)
+            val levelDescription: TextView = view.findViewById(R.id.tvLevelDescription)
+        }
+        
+        override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): ViewHolder {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_thinking_level_card, parent, false)
+            return ViewHolder(view)
+        }
+        
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            val levelText = levels[position]
+            holder.levelNumber.text = (position + 1).toString()
+            
+            // Parse the level text to extract name and description
+            val parts = levelText.split(" - ", limit = 2)
+            holder.levelName.text = parts.getOrNull(0) ?: levelText
+            holder.levelDescription.text = parts.getOrNull(1) ?: "Düşünme seviyesi ${position + 1}"
+            
+            holder.card.setOnClickListener {
+                onItemClick(position)
             }
-            .setNegativeButton("İptal", null)
-            .show()
+        }
+        
+        override fun getItemCount() = levels.size
     }
 
     /**
@@ -70,12 +120,79 @@ class DialogManager(private val activity: Activity) {
         providers: Array<String>,
         onProviderSelected: (String) -> Unit
     ) {
-        AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
-            .setTitle("🔌 Sağlayıcı Seç")
-            .setItems(providers) { _, which ->
-                onProviderSelected(providers[which])
+        val dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_provider_selection, null)
+        val recyclerView = dialogView.findViewById<RecyclerView>(R.id.recyclerViewProviders)
+        
+        recyclerView.layoutManager = LinearLayoutManager(activity)
+        
+        val dialog = AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
+            .setView(dialogView)
+            .create()
+        
+        val adapter = ProviderAdapter(providers) { provider ->
+            onProviderSelected(provider)
+            dialog.dismiss()
+        }
+        recyclerView.adapter = adapter
+        
+        dialog.show()
+    }
+    
+    /**
+     * Adapter for provider items
+     */
+    private class ProviderAdapter(
+        private val providers: Array<String>,
+        private val onItemClick: (String) -> Unit
+    ) : RecyclerView.Adapter<ProviderAdapter.ViewHolder>() {
+        
+        class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            val card: CardView = view as CardView
+            val icon: TextView = view.findViewById(R.id.tvProviderIcon)
+            val name: TextView = view.findViewById(R.id.tvProviderName)
+            val description: TextView = view.findViewById(R.id.tvProviderDescription)
+        }
+        
+        override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): ViewHolder {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_provider_card, parent, false)
+            return ViewHolder(view)
+        }
+        
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            val provider = providers[position]
+            holder.name.text = provider
+            
+            // Set icon and description based on provider
+            when (provider) {
+                "OpenAI" -> {
+                    holder.icon.text = "🤖"
+                    holder.description.text = "GPT-4 ve GPT-3.5 modelleri"
+                }
+                "Gemini" -> {
+                    holder.icon.text = "💎"
+                    holder.description.text = "Google'ın AI modelleri"
+                }
+                "DeepSeek" -> {
+                    holder.icon.text = "🔍"
+                    holder.description.text = "Derin öğrenme modelleri"
+                }
+                "DashScope" -> {
+                    holder.icon.text = "🌟"
+                    holder.description.text = "Alibaba Cloud AI modelleri"
+                }
+                else -> {
+                    holder.icon.text = "🤖"
+                    holder.description.text = "AI sağlayıcısı"
+                }
             }
-            .show()
+            
+            holder.card.setOnClickListener {
+                onItemClick(provider)
+            }
+        }
+        
+        override fun getItemCount() = providers.size
     }
 
     /**
@@ -89,12 +206,84 @@ class DialogManager(private val activity: Activity) {
             Toast.makeText(activity, "Bu sağlayıcı için model bulunamadı.", Toast.LENGTH_SHORT).show()
             return
         }
-        AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
-            .setTitle("🤖 Model Seç")
-            .setItems(models) { _, which ->
-                onModelSelected(models[which])
+        
+        val dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_model_selection, null)
+        val recyclerView = dialogView.findViewById<RecyclerView>(R.id.recyclerViewModels)
+        
+        recyclerView.layoutManager = LinearLayoutManager(activity)
+        
+        val dialog = AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
+            .setView(dialogView)
+            .create()
+        
+        val adapter = ModelAdapter(models) { model ->
+            onModelSelected(model)
+            dialog.dismiss()
+        }
+        recyclerView.adapter = adapter
+        
+        dialog.show()
+    }
+    
+    /**
+     * Adapter for model items
+     */
+    private class ModelAdapter(
+        private val models: Array<String>,
+        private val onItemClick: (String) -> Unit
+    ) : RecyclerView.Adapter<ModelAdapter.ViewHolder>() {
+        
+        class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            val card: CardView = view as CardView
+            val icon: TextView = view.findViewById(R.id.tvModelIcon)
+            val name: TextView = view.findViewById(R.id.tvModelName)
+            val description: TextView = view.findViewById(R.id.tvModelDescription)
+        }
+        
+        override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): ViewHolder {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_model_card, parent, false)
+            return ViewHolder(view)
+        }
+        
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            val model = models[position]
+            holder.name.text = model
+            
+            // Set icon and description based on model name
+            when {
+                model.contains("gpt-4", ignoreCase = true) -> {
+                    holder.icon.text = "🧠"
+                    holder.description.text = "En gelişmiş AI modeli"
+                }
+                model.contains("gpt-3.5", ignoreCase = true) -> {
+                    holder.icon.text = "💡"
+                    holder.description.text = "Hızlı ve etkili model"
+                }
+                model.contains("gemini", ignoreCase = true) -> {
+                    holder.icon.text = "💎"
+                    holder.description.text = "Google'ın güçlü modeli"
+                }
+                model.contains("deepseek", ignoreCase = true) -> {
+                    holder.icon.text = "🔍"
+                    holder.description.text = "Derin analiz modeli"
+                }
+                model.contains("qwen", ignoreCase = true) -> {
+                    holder.icon.text = "🌟"
+                    holder.description.text = "Çok dilli model"
+                }
+                else -> {
+                    holder.icon.text = "🤖"
+                    holder.description.text = "AI modeli"
+                }
             }
-            .show()
+            
+            holder.card.setOnClickListener {
+                onItemClick(model)
+            }
+        }
+        
+        override fun getItemCount() = models.size
     }
 
     /**
@@ -181,26 +370,38 @@ class DialogManager(private val activity: Activity) {
         onVideoSelected: () -> Unit,
         onUrlSelected: () -> Unit
     ) {
-        val options = arrayOf(
-            "📷 Fotoğraf Çek",
-            "🖼️ Galeriden Seç",
-            "📁 Dosya Seç",
-            "🎥 Video Seç",
-            "🌐 URL'den İçerik Al"
-        )
-
-        AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
-            .setTitle("📎 Dosya Ekle")
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> onCameraSelected()
-                    1 -> onGallerySelected()
-                    2 -> onFileSelected()
-                    3 -> onVideoSelected()
-                    4 -> onUrlSelected()
-                }
-            }
-            .show()
+        val dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_attachment_options, null)
+        
+        val dialog = AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
+            .setView(dialogView)
+            .create()
+        
+        dialogView.findViewById<CardView>(R.id.cardCamera).setOnClickListener {
+            onCameraSelected()
+            dialog.dismiss()
+        }
+        
+        dialogView.findViewById<CardView>(R.id.cardGallery).setOnClickListener {
+            onGallerySelected()
+            dialog.dismiss()
+        }
+        
+        dialogView.findViewById<CardView>(R.id.cardFile).setOnClickListener {
+            onFileSelected()
+            dialog.dismiss()
+        }
+        
+        dialogView.findViewById<CardView>(R.id.cardVideo).setOnClickListener {
+            onVideoSelected()
+            dialog.dismiss()
+        }
+        
+        dialogView.findViewById<CardView>(R.id.cardUrl).setOnClickListener {
+            onUrlSelected()
+            dialog.dismiss()
+        }
+        
+        dialog.show()
     }
 
     /**
