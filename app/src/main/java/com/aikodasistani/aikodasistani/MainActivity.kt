@@ -48,6 +48,15 @@ import com.aikodasistani.aikodasistani.data.AppDatabase
 import com.aikodasistani.aikodasistani.data.ArchivedMessage
 import com.aikodasistani.aikodasistani.data.ModelConfig
 import com.aikodasistani.aikodasistani.data.Session
+import com.aikodasistani.aikodasistani.managers.AIPromptManager
+import com.aikodasistani.aikodasistani.managers.DialogManager
+import com.aikodasistani.aikodasistani.managers.ImageManager
+import com.aikodasistani.aikodasistani.managers.MessageManager
+import com.aikodasistani.aikodasistani.managers.SettingsManager
+import com.aikodasistani.aikodasistani.models.Message
+import com.aikodasistani.aikodasistani.models.ThinkingLevel
+import com.aikodasistani.aikodasistani.models.TokenLimits
+import com.aikodasistani.aikodasistani.ui.MessageAdapter
 import com.aikodasistani.aikodasistani.util.CodeAutoCompletionUtil
 import com.aikodasistani.aikodasistani.util.CodeDetectionUtil
 import com.aikodasistani.aikodasistani.util.FileDownloadUtil
@@ -111,176 +120,7 @@ import com.itextpdf.kernel.pdf.PdfDocument
 import com.itextpdf.kernel.pdf.PdfReader
 import com.itextpdf.kernel.pdf.canvas.parser.PdfTextExtractor
 
-// YENİ: Kademeli derin düşünme seviyeleri
-data class ThinkingLevel(
-    val level: Int,
-    val name: String,
-    val color: Int,
-    val description: String,
-    val thinkingTime: Long, // ms cinsinden
-    val detailMultiplier: Double // Detay çarpanı
-)
-
-data class Message(var text: String, val isSentByUser: Boolean, var id: Long = 0, val isThinking: Boolean = false, val thinkingSteps: MutableList<String> = mutableListOf())
-
-// Token limitleri için data class
-data class TokenLimits(
-    val maxTokens: Int,
-    val maxContext: Int,
-    val historyMessages: Int
-)
-
-class MessageAdapter(
-    private val context: Context,
-    private val messages: List<Message>,
-    private val markwon: Markwon,
-    private val onDownloadClick: (String) -> Unit,
-    private val onAnalyzeCodeClick: ((String) -> Unit)? = null
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    companion object {
-        private const val VIEW_TYPE_USER = 1
-        private const val VIEW_TYPE_AI = 2
-        private const val VIEW_TYPE_THINKING = 3
-    }
-
-    class UserMessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val textView: TextView = view.findViewById(R.id.textViewMessage)
-    }
-
-    class AiMessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val textView: TextView = view.findViewById(R.id.textViewMessage)
-        val cardView: CardView = view.findViewById(R.id.cardViewMessage)
-        val downloadButton: ImageButton = view.findViewById(R.id.downloadButton)
-    }
-
-    class ThinkingMessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val textView: TextView = view.findViewById(R.id.textViewThinking)
-        val progressBar: android.widget.ProgressBar = view.findViewById(R.id.progressThinking)
-        val stepsContainer: android.widget.LinearLayout = view.findViewById(R.id.thinkingStepsContainer)
-
-        fun bind(thinkingSteps: List<String>) {
-            stepsContainer.removeAllViews()
-
-            thinkingSteps.forEachIndexed { index, step ->
-                val stepView = TextView(itemView.context).apply {
-                    text = "• $step"
-                    setTextColor(ContextCompat.getColor(itemView.context, R.color.dark_gray))
-                    textSize = 12f
-                    setPadding(0, 4, 0, 4)
-
-                    // Animasyon
-                    alpha = 0f
-                    animate()
-                        .alpha(1f)
-                        .setDuration(400L)
-                        .setStartDelay((index * 300).toLong())
-                        .start()
-                }
-                stepsContainer.addView(stepView)
-            }
-
-            // Progress bar'ı güncelle
-            val progress = minOf(100, (thinkingSteps.size * 100) / 6)
-            progressBar.progress = progress
-        }
-    }
-
-    override fun getItemViewType(position: Int): Int {
-        return when {
-            messages[position].isThinking -> VIEW_TYPE_THINKING
-            messages[position].isSentByUser -> VIEW_TYPE_USER
-            else -> VIEW_TYPE_AI
-        }
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return when (viewType) {
-            VIEW_TYPE_USER -> {
-                val view = LayoutInflater.from(parent.context).inflate(R.layout.item_message_user, parent, false)
-                UserMessageViewHolder(view)
-            }
-            VIEW_TYPE_AI -> {
-                val view = LayoutInflater.from(parent.context).inflate(R.layout.item_message_ai, parent, false)
-                AiMessageViewHolder(view).apply {
-                    textView.movementMethod = LinkMovementMethod.getInstance()
-                }
-            }
-            VIEW_TYPE_THINKING -> {
-                val view = LayoutInflater.from(parent.context).inflate(R.layout.item_thinking_message, parent, false)
-                ThinkingMessageViewHolder(view)
-            }
-            else -> throw IllegalArgumentException("Invalid view type")
-        }
-    }
-
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val message = messages[position]
-        when (holder) {
-            is UserMessageViewHolder -> {
-                markwon.setMarkdown(holder.textView, message.text)
-            }
-            is AiMessageViewHolder -> {
-                markwon.setMarkdown(holder.textView, message.text)
-
-                // Kod tespiti ve indir butonu görünürlüğü
-                val showDownload = CodeDetectionUtil.shouldShowDownloadButton(message.text)
-                holder.downloadButton.visibility = if (showDownload) View.VISIBLE else View.GONE
-
-                holder.downloadButton.setOnClickListener {
-                    onDownloadClick(message.text)
-                }
-
-                holder.cardView.setOnLongClickListener { view ->
-                    val popup = PopupMenu(context, view)
-                    popup.menu.add("Tümünü Kopyala")
-                    val codeBlocks = extractCodeBlocks(message.text)
-                    if (codeBlocks.isNotEmpty()) {
-                        popup.menu.add("Kodu Kopyala")
-                        popup.menu.add("🔧 Kodu Analiz Et")
-                    }
-
-                    popup.setOnMenuItemClickListener { menuItem ->
-                        when (menuItem.title) {
-                            "🔧 Kodu Analiz Et" -> {
-                                if (codeBlocks.isNotEmpty()) {
-                                    onAnalyzeCodeClick?.invoke(codeBlocks.joinToString("\n\n"))
-                                }
-                                true
-                            }
-                            "Kodu Kopyala" -> {
-                                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                val clip = ClipData.newPlainText("Copied Text", codeBlocks.joinToString("\n\n"))
-                                clipboard.setPrimaryClip(clip)
-                                Toast.makeText(context, "Panoya kopyalandı", Toast.LENGTH_SHORT).show()
-                                true
-                            }
-                            else -> {
-                                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                val clip = ClipData.newPlainText("Copied Text", message.text)
-                                clipboard.setPrimaryClip(clip)
-                                Toast.makeText(context, "Panoya kopyalandı", Toast.LENGTH_SHORT).show()
-                                true
-                            }
-                        }
-                    }
-                    if (popup.menu.size() > 0) popup.show()
-                    true
-                }
-            }
-            is ThinkingMessageViewHolder -> {
-                holder.textView.text = context.getString(R.string.thinking_started)
-                holder.bind(message.thinkingSteps)
-            }
-        }
-    }
-
-    override fun getItemCount() = messages.size
-
-    private fun extractCodeBlocks(text: String): List<String> {
-        val pattern = Regex("```(?:\\w+)?\\s*([\\s\\S]*?)```")
-        return pattern.findAll(text).map { it.groupValues[1].trim() }.toList()
-    }
-}
+// Data classes moved to models package
 
 class MainActivity : AppCompatActivity(),
     NavigationView.OnNavigationItemSelectedListener {
@@ -305,31 +145,31 @@ class MainActivity : AppCompatActivity(),
     private lateinit var loadingOverlay: FrameLayout
     private lateinit var loadingText: TextView
 
+    // Manager instances for clean architecture
+    private lateinit var settingsManager: SettingsManager
+    private lateinit var aiPromptManager: AIPromptManager
+    private lateinit var dialogManager: DialogManager
+    private lateinit var imageManager: ImageManager
+    private lateinit var messageManager: MessageManager
+
     private val messageList = mutableListOf<Message>()
     private lateinit var messageAdapter: MessageAdapter
 
+    // Properties (some delegated to managers but kept here for backward compatibility during refactor)
     private var modelConfig: Map<String, List<String>> = emptyMap()
     private var currentProvider: String = ""
     private var currentModel: String = ""
     private var photoURI: Uri? = null
     private val pendingImageBase64List = mutableListOf<String>()
-
     private var currentSessionId: Long = -1
     private var openAiApiKey = ""
     private var deepseekApiKey = ""
     private var geminiApiKey = ""
     private var dashscopeApiKey = ""
-
-    // YENİ: Kademeli derin düşünme seviyeleri
-    private val thinkingLevels = listOf(
-        ThinkingLevel(0, "Kapalı", R.color.purple_500, "Normal mod", 0, 1.0),
-        ThinkingLevel(1, "Hafif", R.color.green, "Hızlı analiz", 2000, 1.3),
-        ThinkingLevel(2, "Orta", R.color.orange, "Dengeli analiz", 4000, 1.7),
-        ThinkingLevel(3, "Derin", R.color.deep_orange, "Kapsamlı analiz", 7000, 2.2),
-        ThinkingLevel(4, "Çok Derin", R.color.red, "Çok kapsamlı analiz", 10000, 3.0)
-    )
-
     private var currentThinkingLevel = 0
+    
+    // Thinking levels now accessed from SettingsManager
+    private val thinkingLevels get() = settingsManager.thinkingLevels
 
     // 🔄 Coroutine scopes
     private val mainCoroutineScope = CoroutineScope(Dispatchers.Main + Job())
@@ -472,7 +312,8 @@ class MainActivity : AppCompatActivity(),
 
     // YENİ: Düşünme seviyesini ayarla
     private fun setThinkingLevel(level: Int) {
-        currentThinkingLevel = level
+        settingsManager.setThinkingLevel(level)
+        syncFromSettingsManager()
         val selectedLevel = thinkingLevels[level]
 
         // Buton rengini güncelle
@@ -484,13 +325,11 @@ class MainActivity : AppCompatActivity(),
             "🧠 ${selectedLevel.name} Mod: ${selectedLevel.description}",
             Toast.LENGTH_LONG
         ).show()
-
-        sharedPreferences.edit().putInt("thinking_level", level).apply()
     }
 
     // YENİ: Kaydedilmiş düşünme seviyesini yükle
     private fun loadThinkingLevel() {
-        currentThinkingLevel = sharedPreferences.getInt("thinking_level", 0)
+        currentThinkingLevel = settingsManager.loadThinkingLevel()
         setThinkingLevel(currentThinkingLevel)
     }
 
@@ -988,6 +827,21 @@ class MainActivity : AppCompatActivity(),
             }
 
             db = AppDatabase.getDatabase(this)
+            
+            // Initialize managers
+            settingsManager = SettingsManager(this)
+            aiPromptManager = AIPromptManager()
+            dialogManager = DialogManager(this)
+            imageManager = ImageManager(this)
+            messageManager = MessageManager()
+            
+            // Initialize settings manager asynchronously
+            mainCoroutineScope.launch {
+                settingsManager.initialize()
+                // Sync local variables with manager state
+                syncFromSettingsManager()
+            }
+            
             loadApiKeys()
 
             setContentView(R.layout.activity_main)
@@ -1089,6 +943,9 @@ class MainActivity : AppCompatActivity(),
         imagePreviewList = findViewById(R.id.imagePreviewList)
         loadingOverlay = findViewById(R.id.loadingOverlay)
         loadingText = findViewById(R.id.loadingText)
+        
+        // Initialize dialog manager with loading views
+        dialogManager.initializeLoadingViews(loadingOverlay, loadingText)
     }
 
     private fun showLoading(message: String, allowCancel: Boolean = false) {
@@ -2217,31 +2074,12 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun toggleTheme() {
-        val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        val newNightMode =
-            if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) AppCompatDelegate.MODE_NIGHT_NO
-            else AppCompatDelegate.MODE_NIGHT_YES
-        sharedPreferences.edit().putInt("night_mode", newNightMode).apply()
-        AppCompatDelegate.setDefaultNightMode(newNightMode)
+        settingsManager.toggleTheme()
     }
 
     private suspend fun fetchModelConfig() {
-        try {
-            val jsonString = withContext(Dispatchers.IO) {
-                assets.open("models.json").bufferedReader().use { it.readText() }
-            }
-            val json = Json { ignoreUnknownKeys = true }
-            val config = json.decodeFromString<ModelConfig>(jsonString)
-            modelConfig = config.providers.associate { it.provider to it.models }
-        } catch (e: Exception) {
-            Log.e("MainActivity", "Failed to load model config from assets", e)
-            modelConfig = mapOf(
-                "OPENAI" to listOf("gpt-4o-mini", "gpt-4o", "gpt-4-turbo", "gpt-3.5-turbo"),
-                "GEMINI" to listOf("gemini-2.5-flash", "gemini-2.5-pro"),
-                "DEEPSEEK" to listOf("deepseek-chat", "deepseek-coder"),
-                "QWEN" to listOf("qwen-turbo", "qwen-plus", "qwen-max")
-            )
-        }
+        settingsManager.fetchModelConfig()
+        syncFromSettingsManager()
     }
 
     private fun showProviderSelectionDialog() {
@@ -2265,23 +2103,20 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun setProvider(provider: String) {
-        currentProvider = provider
-        sharedPreferences.edit().putString("current_provider", provider).apply()
-        setModel(modelConfig[provider]?.firstOrNull() ?: "")
+        settingsManager.setProvider(provider)
+        syncFromSettingsManager()
+        updateTitle()
     }
 
     private fun setModel(model: String) {
-        currentModel = model
-        sharedPreferences.edit().putString("current_model", model).apply()
+        settingsManager.setModel(model)
+        syncFromSettingsManager()
         updateTitle()
     }
 
     private fun loadProviderAndModel() {
-        currentProvider = sharedPreferences.getString("current_provider", "OPENAI") ?: "OPENAI"
-        if (modelConfig.isNotEmpty()) {
-            val defaultModel = modelConfig[currentProvider]?.firstOrNull() ?: ""
-            currentModel = sharedPreferences.getString("current_model", defaultModel) ?: defaultModel
-        }
+        settingsManager.loadProviderAndModel()
+        syncFromSettingsManager()
         updateTitle()
     }
 
@@ -2323,26 +2158,27 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun saveApiKeys(openAI: String, gemini: String, deepSeek: String, dashScope: String) {
-        sharedPreferences.edit().apply {
-            putString("user_openai_api_key", openAI)
-            putString("user_gemini_api_key", gemini)
-            putString("user_deepseek_api_key", deepSeek)
-            putString("user_dashscope_api_key", dashScope)
-            apply()
-        }
-        loadApiKeys()
+        settingsManager.saveApiKeys(openAI, gemini, deepSeek, dashScope)
+        syncFromSettingsManager()
     }
 
     private fun loadApiKeys() {
-        openAiApiKey = sharedPreferences.getString("user_openai_api_key", "") ?: ""
-        geminiApiKey = sharedPreferences.getString("user_gemini_api_key", "") ?: ""
-        deepseekApiKey = sharedPreferences.getString("user_deepseek_api_key", "") ?: ""
-        dashscopeApiKey = sharedPreferences.getString("user_dashscope_api_key", "") ?: ""
-
-        if (openAiApiKey.isEmpty()) openAiApiKey = ""
-        if (geminiApiKey.isEmpty()) geminiApiKey = ""
-        if (deepseekApiKey.isEmpty()) deepseekApiKey = ""
-        if (dashscopeApiKey.isEmpty()) dashscopeApiKey = ""
+        settingsManager.loadApiKeys()
+        syncFromSettingsManager()
+    }
+    
+    /**
+     * Sync local variables from SettingsManager
+     */
+    private fun syncFromSettingsManager() {
+        modelConfig = settingsManager.modelConfig
+        currentProvider = settingsManager.currentProvider
+        currentModel = settingsManager.currentModel
+        openAiApiKey = settingsManager.openAiApiKey
+        geminiApiKey = settingsManager.geminiApiKey
+        deepseekApiKey = settingsManager.deepseekApiKey
+        dashscopeApiKey = settingsManager.dashscopeApiKey
+        currentThinkingLevel = settingsManager.currentThinkingLevel
     }
 
     private fun setupRecyclerView() {
