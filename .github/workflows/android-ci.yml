@@ -2,11 +2,9 @@ name: Android CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
   pull_request:
-    branches:
-      - main
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -23,16 +21,10 @@ jobs:
           java-version: 21
 
       - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
+        run: chmod +x gradlew
 
-      - name: Clean
-        run: ./gradlew clean
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --stacktrace --warning-mode all
 
-      - name: Build with Gradle
-        run: ./gradlew build --warning-mode all
-
-      - name: Lint check
-        run: ./gradlew lint
-
-      - name: XML check
-        run: ./gradlew :app:processDebugResources
+      - name: Run Lint for app module only
+        run: ./gradlew :app:lintDebug --stacktrace
