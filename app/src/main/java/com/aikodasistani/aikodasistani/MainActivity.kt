@@ -25,6 +25,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
@@ -95,6 +97,7 @@ import java.util.Locale
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlin.math.min
 
 // Office dosyaları için import'lar
 import org.apache.poi.xwpf.usermodel.XWPFDocument
@@ -273,6 +276,8 @@ class MainActivity : AppCompatActivity(),
     private lateinit var buttonAttachment: ImageButton
     private lateinit var buttonDeepThink: ImageButton
     private lateinit var cancelSendButton: Button
+    private lateinit var attachmentPreviewContainer: View
+    private lateinit var imagePreviewList: LinearLayout
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var db: AppDatabase
     private lateinit var loadingOverlay: FrameLayout
@@ -285,7 +290,7 @@ class MainActivity : AppCompatActivity(),
     private var currentProvider: String = ""
     private var currentModel: String = ""
     private var photoURI: Uri? = null
-    private var pendingImageBase64: String? = null
+    private val pendingImageBase64List = mutableListOf<String>()
 
     private var currentSessionId: Long = -1
     private var openAiApiKey = ""
@@ -392,8 +397,23 @@ class MainActivity : AppCompatActivity(),
     private val galleryLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
-                result.data?.data?.let { uri ->
-                    readContentFromUri(uri, isImage = true)
+                val data = result.data
+                val uris = mutableListOf<Uri>()
+
+                data?.clipData?.let { clipData ->
+                    for (i in 0 until clipData.itemCount) {
+                        clipData.getItemAt(i).uri?.let { uris.add(it) }
+                    }
+                }
+
+                data?.data?.let { uri ->
+                    if (uris.isEmpty()) {
+                        uris.add(uri)
+                    }
+                }
+
+                if (uris.isNotEmpty()) {
+                    handleSelectedImages(uris)
                 }
             }
         }
@@ -599,7 +619,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     // YENİ: Gerçek AI çağrısı için kademeli derin düşünme modu
-    private fun getRealDeepThinkingResponse(userMessage: String?, base64Image: String?) {
+    private fun getRealDeepThinkingResponse(userMessage: String?, base64Images: List<String>?) {
         val currentLevel = thinkingLevels[currentThinkingLevel]
 
         val thinkingMessage = Message(
@@ -645,7 +665,7 @@ class MainActivity : AppCompatActivity(),
                     val deepThinkingPrompt = getLeveledThinkingPrompt(userMessage, currentThinkingLevel)
 
                     // ✅ DÜZELTME: Resim durumunu koru ve doğru parametreleri ilet
-                    getRealAiResponse(deepThinkingPrompt, base64Image, isDeepThinking = true)
+                    getRealAiResponse(deepThinkingPrompt, base64Images, isDeepThinking = true)
                 }
 
             } catch (e: Exception) {
@@ -745,10 +765,11 @@ class MainActivity : AppCompatActivity(),
     }
 
     // YENİ: Gerçek AI yanıtı (derin düşünme modu için)
-    private fun getRealAiResponse(userMessage: String?, base64Image: String?, isDeepThinking: Boolean = false) {
+    private fun getRealAiResponse(userMessage: String?, base64Images: List<String>?, isDeepThinking: Boolean = false) {
         // ✅ DÜZELTME: Video analiz hatası için validasyon
+        val hasImages = !base64Images.isNullOrEmpty()
         val validatedMessage = when {
-            userMessage.isNullOrBlank() && base64Image.isNullOrBlank() -> {
+            userMessage.isNullOrBlank() && !hasImages -> {
                 Log.e("AI_RESPONSE", "Hem mesaj hem görsel boş")
                 appendChunkToLastMessage("\n❌ Hata: Gönderilecek içerik bulunamadı")
                 hideLoading()
@@ -758,7 +779,10 @@ class MainActivity : AppCompatActivity(),
             else -> userMessage
         }
 
-        Log.d("AI_RESPONSE", "AI'ye gönderilen mesaj: ${validatedMessage.take(100)}..., görsel: ${!base64Image.isNullOrBlank()}")
+        Log.d(
+            "AI_RESPONSE",
+            "AI'ye gönderilen mesaj: ${validatedMessage.take(100)}..., görsel: $hasImages"
+        )
 
         addMessage("...", false)
 
@@ -815,14 +839,14 @@ class MainActivity : AppCompatActivity(),
                     getSystemPrompt(currentProvider)
                 }
 
-                val (finalPrompt, finalImage) = when {
-                    !base64Image.isNullOrBlank() -> {
-                        processImageForModel(base64Image, validatedMessage, currentProvider)
+                val (finalPrompt, finalImages) = when {
+                    hasImages -> {
+                        processImageForModel(base64Images!!, validatedMessage, currentProvider)
                     }
                     else -> Pair(validatedMessage, null)
                 }
 
-                if (finalPrompt.isBlank() && finalImage == null) {
+                if (finalPrompt.isBlank() && finalImages.isNullOrEmpty()) {
                     throw Exception("Geçersiz istek: boş mesaj ve görsel")
                 }
 
@@ -846,7 +870,7 @@ class MainActivity : AppCompatActivity(),
                             apiKey = apiKey,
                             model = currentModel,
                             prompt = finalPrompt,
-                            base64Image = finalImage,
+                            base64Images = finalImages,
                             base = baseUrl,
                             history = conversationHistory,
                             systemPrompt = systemPrompt
@@ -855,12 +879,12 @@ class MainActivity : AppCompatActivity(),
 
                     "GEMINI" -> {
                         if (geminiApiKey.isNotBlank()) {
-                            val bmp = if (finalImage != null) base64ToBitmap(finalImage) else null
+                            val bmpList = finalImages?.mapNotNull { base64ToBitmap(it) }
                             callGeminiMultiTurn(
                                 apiKey = geminiApiKey,
                                 model = currentModel,
                                 prompt = finalPrompt,
-                                image = bmp,
+                                images = bmpList,
                                 history = conversationHistory,
                                 systemPrompt = systemPrompt
                             )
@@ -1002,6 +1026,8 @@ class MainActivity : AppCompatActivity(),
         buttonSend = findViewById(R.id.buttonSend)
         buttonAttachment = findViewById(R.id.buttonAttachment)
         cancelSendButton = findViewById(R.id.buttonCancelSend)
+        attachmentPreviewContainer = findViewById(R.id.attachmentPreviewContainer)
+        imagePreviewList = findViewById(R.id.imagePreviewList)
         loadingOverlay = findViewById(R.id.loadingOverlay)
         loadingText = findViewById(R.id.loadingText)
     }
@@ -1215,6 +1241,47 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
+    private fun handleSelectedImages(uris: List<Uri>) {
+        if (uris.isEmpty()) return
+
+        currentFileReadingJob?.cancel()
+
+        currentFileReadingJob = fileReadingScope.launch {
+            withContext(Dispatchers.Main) {
+                showLoading("Görseller yükleniyor...")
+            }
+
+            var addedCount = 0
+
+            uris.forEach { uri ->
+                try {
+                    if (processImageFile(uri, showStatusMessage = false)) {
+                        addedCount++
+                    }
+                } catch (e: Exception) {
+                    Log.e("FileReading", "Çoklu görsel yükleme hatası", e)
+                }
+            }
+
+            withContext(Dispatchers.Main) {
+                hideLoading()
+                if (addedCount > 0) {
+                    refreshAttachmentPreviewVisibility()
+                    setTextSafely(
+                        editTextMessage,
+                        "🖼️ ${pendingImageBase64List.size} görsel eklendi. Mesajınızı yazıp gönderebilirsiniz."
+                    )
+                } else {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Hiçbir görsel eklenemedi",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
+
     private suspend fun readTextFileSafe(uri: Uri): String {
         val stringBuilder = StringBuilder()
         var lineCount = 0
@@ -1362,34 +1429,84 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    private suspend fun processImageFile(uri: Uri) {
-        try {
-            val bitmap = uriToBitmap(uri)
-            if (bitmap != null) {
-                // Resim boyutunu optimize et
-                val optimizedBitmap = optimizeBitmapSize(bitmap)
-                pendingImageBase64 = bitmapToBase64(optimizedBitmap)
+    private fun refreshAttachmentPreviewVisibility() {
+        attachmentPreviewContainer.isVisible = pendingImageBase64List.isNotEmpty()
+        if (pendingImageBase64List.isEmpty()) {
+            imagePreviewList.removeAllViews()
+        }
+    }
 
-                if (pendingImageBase64.isNullOrEmpty()) {
-                    throw Exception("Resim base64'e dönüştürülemedi")
-                }
+    private fun clearPendingImages() {
+        pendingImageBase64List.clear()
+        imagePreviewList.removeAllViews()
+        refreshAttachmentPreviewVisibility()
+    }
 
-                withContext(Dispatchers.Main) {
+    private fun addImagePreview(base64Image: String, previewBitmap: Bitmap) {
+        val previewView = LayoutInflater.from(this).inflate(R.layout.item_image_preview, imagePreviewList, false)
+        val imageView = previewView.findViewById<ImageView>(R.id.imagePreview)
+        val removeButton = previewView.findViewById<ImageButton>(R.id.buttonRemovePreview)
+
+        imageView.setImageBitmap(previewBitmap)
+
+        removeButton.setOnClickListener {
+            pendingImageBase64List.remove(base64Image)
+            imagePreviewList.removeView(previewView)
+            refreshAttachmentPreviewVisibility()
+        }
+
+        imagePreviewList.addView(previewView)
+        refreshAttachmentPreviewVisibility()
+    }
+
+    private fun createThumbnail(bitmap: Bitmap): Bitmap {
+        val maxSize = 240
+        val scale = min(
+            maxSize.toFloat() / bitmap.width.toFloat(),
+            maxSize.toFloat() / bitmap.height.toFloat()
+        ).coerceAtMost(1f)
+
+        val targetWidth = maxOf(1, (bitmap.width * scale).toInt())
+        val targetHeight = maxOf(1, (bitmap.height * scale).toInt())
+        return Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true)
+    }
+
+    private suspend fun processImageFile(uri: Uri, showStatusMessage: Boolean = true): Boolean {
+        return try {
+            val bitmap = uriToBitmap(uri) ?: throw Exception("Resim bitmap'e dönüştürülemedi")
+
+            val optimizedBitmap = optimizeBitmapSize(bitmap)
+            val base64Image = bitmapToBase64(optimizedBitmap)
+                ?: throw Exception("Resim base64'e dönüştürülemedi")
+
+            val thumbnail = createThumbnail(optimizedBitmap)
+
+            withContext(Dispatchers.Main) {
+                pendingImageBase64List.add(base64Image)
+                addImagePreview(base64Image, thumbnail)
+
+                if (showStatusMessage) {
                     hideLoading()
-                    setTextSafely(editTextMessage, "🖼️ Resim yüklendi! Göndermek için mesaj yazın veya direkt gönder butonuna basın.")
+                    setTextSafely(
+                        editTextMessage,
+                        "🖼️ ${pendingImageBase64List.size} görsel eklendi. Mesajınızı yazıp gönderebilirsiniz."
+                    )
                 }
-
-                Log.d("IMAGE_DEBUG", "Resim başarıyla yüklendi, boyut: ${pendingImageBase64!!.length} karakter")
-            } else {
-                throw Exception("Resim bitmap'e dönüştürülemedi")
             }
+
+            Log.d(
+                "IMAGE_DEBUG",
+                "Resim başarıyla yüklendi, boyut: ${base64Image.length} karakter, toplam: ${pendingImageBase64List.size}"
+            )
+
+            true
         } catch (e: Exception) {
             Log.e("FileReading", "Resim işleme hatası", e)
             withContext(Dispatchers.Main) {
-                hideLoading()
+                if (showStatusMessage) hideLoading()
                 Toast.makeText(this@MainActivity, "❌ Resim yüklenemedi: ${e.message}", Toast.LENGTH_LONG).show()
-                pendingImageBase64 = null
             }
+            false
         }
     }
 
@@ -1882,7 +1999,7 @@ class MainActivity : AppCompatActivity(),
                 pendingFileContent = null
                 pendingFileName = null
 
-            } else if (text.isNotEmpty() || pendingImageBase64 != null) {
+            } else if (text.isNotEmpty() || pendingImageBase64List.isNotEmpty()) {
                 val messageToSend = if (text.isNotEmpty()) text else "Bu görseli analiz et"
 
                 Log.d("SEND_DEBUG", "Normal mesaj gönderiliyor: ${messageToSend.take(50)}...")
@@ -1891,13 +2008,13 @@ class MainActivity : AppCompatActivity(),
 
                 // ✅ KADEMELİ derin düşünme çağrısı
                 if (currentThinkingLevel > 0) {
-                    getRealDeepThinkingResponse(messageToSend, pendingImageBase64)
+                    getRealDeepThinkingResponse(messageToSend, pendingImageBase64List)
                 } else {
-                    getRealAiResponse(messageToSend, pendingImageBase64, false)
+                    getRealAiResponse(messageToSend, pendingImageBase64List, false)
                 }
 
                 editTextMessage.text.clear()
-                pendingImageBase64 = null
+                clearPendingImages()
             } else {
                 Toast.makeText(this@MainActivity, "❌ Lütfen bir mesaj yazın veya dosya/resim ekleyin", Toast.LENGTH_SHORT).show()
             }
@@ -2001,8 +2118,12 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun openGallery() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        galleryLauncher.launch(intent)
+        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+            type = "image/*"
+            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            addCategory(Intent.CATEGORY_OPENABLE)
+        }
+        galleryLauncher.launch(Intent.createChooser(intent, "Görselleri seç"))
     }
 
     private fun openFiles() {
@@ -2100,26 +2221,32 @@ class MainActivity : AppCompatActivity(),
 
     // ✅ YENİ: Model-bazlı görsel işleme fonksiyonu
     private suspend fun processImageForModel(
-        base64Image: String,
+        base64Images: List<String>,
         userMessage: String?,
         provider: String
-    ): Pair<String, String?> {
+    ): Pair<String, List<String>?> {
+        if (base64Images.isEmpty()) return Pair(userMessage ?: "", null)
+
         return when (provider) {
             "OPENAI", "GEMINI" -> {
-                // ✅ OpenAI & Gemini: Doğrudan görsel gönder
+                // ✅ OpenAI & Gemini: Doğrudan çoklu görsel gönder
                 val prompt = userMessage ?: "Bu görseli analiz et"
-                Pair(prompt, base64Image)
+                Pair(prompt, base64Images)
             }
 
             "DEEPSEEK", "QWEN" -> {
                 // ✅ DeepSeek & Qwen: Önce OCR yap, metni gönder
-                appendChunkToLastMessage("📷 Görsel metne çevriliyor...")
-                val ocrText = simpleVisionToText(base64Image)
+                appendChunkToLastMessage("📷 Görseller metne çevriliyor...")
+
+                val ocrTexts = base64Images.take(3).mapIndexed { index, image ->
+                    val ocrText = simpleVisionToText(image)
+                    "Görsel ${index + 1}: $ocrText"
+                }
 
                 val prompt = if (!userMessage.isNullOrBlank()) {
-                    "$userMessage\n\nGörsel Analizi: $ocrText"
+                    "$userMessage\n\nGörsel Analizi:\n${ocrTexts.joinToString("\n\n")}"
                 } else {
-                    "Görsel Analizi: $ocrText\n\nLütfen bu görselde ne olduğunu detaylıca açıkla."
+                    "Görsel Analizi:\n${ocrTexts.joinToString("\n\n")}\n\nLütfen bu görsellerde ne olduğunu detaylıca açıkla."
                 }
                 Pair(prompt, null) // Görsel yok, sadece metin
             }
@@ -2176,7 +2303,7 @@ class MainActivity : AppCompatActivity(),
         apiKey: String,
         model: String,
         prompt: String?,
-        base64Image: String?,
+        base64Images: List<String>?,
         base: String,
         history: List<Message>,
         systemPrompt: String = ""
@@ -2209,11 +2336,11 @@ class MainActivity : AppCompatActivity(),
             }
 
             val currentUserContent = buildJsonArray {
-                if (!base64Image.isNullOrEmpty()) {
+                base64Images?.forEach { image ->
                     add(buildJsonObject {
                         put("type", JsonPrimitive("image_url"))
                         put("image_url", buildJsonObject {
-                            put("url", JsonPrimitive("data:image/jpeg;base64,$base64Image"))
+                            put("url", JsonPrimitive("data:image/jpeg;base64,$image"))
                         })
                     })
                 }
@@ -2229,7 +2356,7 @@ class MainActivity : AppCompatActivity(),
                             prompt
                         }
                     }
-                    !base64Image.isNullOrBlank() -> "Bu resmi analiz et ve Türkçe kısa özet ver."
+                    !base64Images.isNullOrEmpty() -> "Bu görselleri analiz et ve Türkçe kısa özet ver."
                     else -> "Lütfen bir metin veya görsel paylaş."
                 }
 
@@ -2307,7 +2434,7 @@ class MainActivity : AppCompatActivity(),
         apiKey: String,
         model: String,
         prompt: String?,
-        image: Bitmap?,
+        images: List<Bitmap>?,
         history: List<Message>,
         systemPrompt: String = ""
     ) {
@@ -2327,8 +2454,8 @@ class MainActivity : AppCompatActivity(),
         )
 
         val inputContent = content {
-            if (image != null) {
-                image(image)
+            images?.forEach { bmp ->
+                image(bmp)
             }
             // ✅ SİSTEM PROMPT'U + USER PROMPT'u birleştir
             val fullPrompt = if (systemPrompt.isNotBlank()) {
