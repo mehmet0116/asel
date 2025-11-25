@@ -2042,6 +2042,7 @@ class MainActivity : AppCompatActivity(),
 
             } else if (text.isNotEmpty() || pendingImageBase64List.isNotEmpty()) {
                 val messageToSend = if (text.isNotEmpty()) text else "Bu görseli analiz et"
+                val imagesToSend = pendingImageBase64List.toList()
 
                 Log.d("SEND_DEBUG", "Normal mesaj gönderiliyor: ${messageToSend.take(50)}...")
 
@@ -2049,9 +2050,9 @@ class MainActivity : AppCompatActivity(),
 
                 // ✅ KADEMELİ derin düşünme çağrısı
                 if (currentThinkingLevel > 0) {
-                    getRealDeepThinkingResponse(messageToSend, pendingImageBase64List)
+                    getRealDeepThinkingResponse(messageToSend, imagesToSend)
                 } else {
-                    getRealAiResponse(messageToSend, pendingImageBase64List, false)
+                    getRealAiResponse(messageToSend, imagesToSend, false)
                 }
 
                 editTextMessage.text.clear()
