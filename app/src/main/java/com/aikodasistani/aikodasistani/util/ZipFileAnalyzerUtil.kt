@@ -1,19 +1,32 @@
 package com.aikodasistani.aikodasistani.util
 
 import android.content.ContentResolver
+import android.content.Context
 import android.net.Uri
+import android.os.Environment
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import java.io.BufferedReader
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.io.InputStreamReader
+import java.io.OutputStreamWriter
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
+import java.util.zip.ZipOutputStream
 
 /**
- * ZIP dosyası analiz aracı
- * ZIP dosyalarını açıp içeriklerini okur ve uygulama yapısını çıkarır
+ * Progress callback tipi - Canlı analiz güncellemeleri için
+ */
+typealias ZipProgressCallback = (progress: Int, currentFile: String, status: String) -> Unit
+
+/**
+ * ZIP dosyası analiz aracı - Profesyonel Versiyon
+ * ZIP dosyalarını açıp içeriklerini okur, analiz eder ve düzenlenmiş ZIP oluşturur
  */
 object ZipFileAnalyzerUtil {
 
@@ -76,10 +89,12 @@ object ZipFileAnalyzerUtil {
 
     /**
      * ZIP dosyasını analiz eder ve içerik özeti döner
+     * Progress callback ile canlı güncelleme sağlar
      */
     suspend fun analyzeZipFile(
         contentResolver: ContentResolver,
-        uri: Uri
+        uri: Uri,
+        progressCallback: ZipProgressCallback? = null
     ): ZipAnalysisResult = withContext(Dispatchers.IO) {
         val fileEntries = mutableListOf<ZipFileEntry>()
         val directoryStructure = mutableSetOf<String>()
@@ -88,6 +103,8 @@ object ZipFileAnalyzerUtil {
         var errorMessage: String? = null
 
         try {
+            progressCallback?.invoke(0, "", "📦 ZIP dosyası açılıyor...")
+            
             contentResolver.openInputStream(uri)?.use { inputStream ->
                 ZipInputStream(inputStream).use { zipInputStream ->
                     var entry: ZipEntry? = zipInputStream.nextEntry
@@ -109,6 +126,12 @@ object ZipFileAnalyzerUtil {
 
                         if (entry.isDirectory) {
                             directoryStructure.add(entryName.trimEnd('/'))
+                            // Progress güncelleme - klasör
+                            progressCallback?.invoke(
+                                calculateProgress(fileCount, MAX_FILES),
+                                entryName,
+                                "📂 Klasör: ${entryName.trimEnd('/')}"
+                            )
                         } else {
                             // Dosya uzantısını kontrol et
                             val extension = getExtension(entryName)
@@ -120,9 +143,23 @@ object ZipFileAnalyzerUtil {
                                 directoryStructure.add(parentPath)
                             }
 
+                            // Progress güncelleme - dosya taranıyor
+                            val fileName = entryName.substringAfterLast('/')
+                            val statusIcon = if (isCodeFile) "📄" else "📁"
+                            progressCallback?.invoke(
+                                calculateProgress(fileCount, MAX_FILES),
+                                entryName,
+                                "$statusIcon $fileName (${formatFileSize(entry.size)})"
+                            )
+
                             // Kod dosyası ise içeriği oku
                             val content = if (isCodeFile && entry.size < MAX_FILE_SIZE) {
                                 try {
+                                    progressCallback?.invoke(
+                                        calculateProgress(fileCount, MAX_FILES),
+                                        entryName,
+                                        "🔍 Kod analiz: $fileName"
+                                    )
                                     readZipEntryContent(zipInputStream, entry)
                                 } catch (e: Exception) {
                                     Log.e(TAG, "Dosya okunamadı: $entryName", e)
@@ -159,9 +196,13 @@ object ZipFileAnalyzerUtil {
             } ?: run {
                 errorMessage = "ZIP dosyası açılamadı"
             }
+            
+            progressCallback?.invoke(100, "", "✅ Analiz tamamlandı!")
+            
         } catch (e: Exception) {
             Log.e(TAG, "ZIP analiz hatası", e)
             errorMessage = "ZIP analiz hatası: ${e.message}"
+            progressCallback?.invoke(100, "", "❌ Hata: ${e.message}")
         }
 
         ZipAnalysisResult(
@@ -173,6 +214,13 @@ object ZipFileAnalyzerUtil {
             directoryStructure = directoryStructure.toList().sorted(),
             projectType = detectProjectType(fileEntries, directoryStructure)
         )
+    }
+    
+    /**
+     * Progress hesapla
+     */
+    private fun calculateProgress(current: Int, max: Int): Int {
+        return ((current.toDouble() / max.toDouble()) * 100).toInt().coerceIn(0, 100)
     }
 
     /**
@@ -468,7 +516,7 @@ object ZipFileAnalyzerUtil {
     )
 
     /**
-     * ZIP dosya girişi
+     * ZIP dosya girişi - mutable content ile düzenleme desteği
      */
     data class ZipFileEntry(
         val name: String,
@@ -476,7 +524,7 @@ object ZipFileAnalyzerUtil {
         val size: Long,
         val extension: String,
         val isCodeFile: Boolean,
-        val content: String?,
+        var content: String?,
         val language: String?
     )
 
@@ -498,4 +546,197 @@ object ZipFileAnalyzerUtil {
         WEB,
         UNKNOWN
     }
+    
+    /**
+     * Düzenlenmiş dosyaları ZIP olarak kaydet ve dosya yolunu döndür
+     */
+    suspend fun createModifiedZip(
+        context: Context,
+        originalResult: ZipAnalysisResult,
+        modifiedFiles: Map<String, String>, // path -> new content
+        outputFileName: String = "modified_project_${System.currentTimeMillis()}.zip"
+    ): ZipSaveResult = withContext(Dispatchers.IO) {
+        try {
+            val outputDir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+                ?: context.filesDir
+            val outputFile = File(outputDir, outputFileName)
+            
+            ZipOutputStream(FileOutputStream(outputFile)).use { zipOut ->
+                // Önce klasörleri ekle
+                originalResult.directoryStructure.forEach { dir ->
+                    val dirEntry = ZipEntry("$dir/")
+                    zipOut.putNextEntry(dirEntry)
+                    zipOut.closeEntry()
+                }
+                
+                // Dosyaları ekle
+                originalResult.files.forEach { file ->
+                    val zipEntry = ZipEntry(file.path)
+                    zipOut.putNextEntry(zipEntry)
+                    
+                    // Değiştirilmiş dosya mı kontrol et
+                    val content = modifiedFiles[file.path] ?: file.content
+                    
+                    if (content != null) {
+                        val writer = BufferedWriter(OutputStreamWriter(zipOut, Charsets.UTF_8))
+                        writer.write(content)
+                        writer.flush()
+                    }
+                    
+                    zipOut.closeEntry()
+                }
+            }
+            
+            ZipSaveResult(
+                success = true,
+                filePath = outputFile.absolutePath,
+                fileName = outputFileName,
+                errorMessage = null
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "ZIP oluşturma hatası", e)
+            ZipSaveResult(
+                success = false,
+                filePath = null,
+                fileName = null,
+                errorMessage = "ZIP oluşturulamadı: ${e.message}"
+            )
+        }
+    }
+    
+    /**
+     * Orijinal ZIP'i modifiye edilmiş içeriklerle yeniden oluştur
+     */
+    suspend fun recreateZipWithModifications(
+        context: Context,
+        contentResolver: ContentResolver,
+        originalUri: Uri,
+        modifiedFiles: Map<String, String>,
+        outputFileName: String = "fixed_project_${System.currentTimeMillis()}.zip"
+    ): ZipSaveResult = withContext(Dispatchers.IO) {
+        try {
+            val outputDir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+                ?: context.filesDir
+            val outputFile = File(outputDir, outputFileName)
+            
+            contentResolver.openInputStream(originalUri)?.use { inputStream ->
+                ZipInputStream(inputStream).use { zipIn ->
+                    ZipOutputStream(FileOutputStream(outputFile)).use { zipOut ->
+                        var entry: ZipEntry? = zipIn.nextEntry
+                        
+                        while (entry != null) {
+                            val entryName = entry.name
+                            
+                            if (entry.isDirectory) {
+                                // Klasörleri olduğu gibi aktar
+                                val newEntry = ZipEntry(entryName)
+                                zipOut.putNextEntry(newEntry)
+                                zipOut.closeEntry()
+                            } else {
+                                val newEntry = ZipEntry(entryName)
+                                zipOut.putNextEntry(newEntry)
+                                
+                                if (modifiedFiles.containsKey(entryName)) {
+                                    // Değiştirilmiş içeriği yaz
+                                    val modifiedContent = modifiedFiles[entryName]!!
+                                    zipOut.write(modifiedContent.toByteArray(Charsets.UTF_8))
+                                } else {
+                                    // Orijinal içeriği kopyala
+                                    val buffer = ByteArray(4096)
+                                    var len: Int
+                                    while (zipIn.read(buffer).also { len = it } > 0) {
+                                        zipOut.write(buffer, 0, len)
+                                    }
+                                }
+                                
+                                zipOut.closeEntry()
+                            }
+                            
+                            entry = try {
+                                zipIn.nextEntry
+                            } catch (e: Exception) {
+                                null
+                            }
+                        }
+                    }
+                }
+            } ?: throw Exception("ZIP dosyası açılamadı")
+            
+            ZipSaveResult(
+                success = true,
+                filePath = outputFile.absolutePath,
+                fileName = outputFileName,
+                errorMessage = null
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "ZIP yeniden oluşturma hatası", e)
+            ZipSaveResult(
+                success = false,
+                filePath = null,
+                fileName = null,
+                errorMessage = "ZIP oluşturulamadı: ${e.message}"
+            )
+        }
+    }
+    
+    /**
+     * Hata analiz promptu oluştur
+     */
+    fun generateErrorFixPrompt(result: ZipAnalysisResult): String {
+        val sb = StringBuilder()
+        sb.appendLine("🔧 HATA ANALİZ VE DÜZELTME TALEBİ")
+        sb.appendLine()
+        sb.appendLine("Bu ${getProjectTypeDescription(result.projectType)} projesindeki hataları bul ve düzelt.")
+        sb.appendLine()
+        sb.appendLine("📋 TALİMATLAR:")
+        sb.appendLine("1. Her dosyayı analiz et ve hataları tespit et")
+        sb.appendLine("2. Syntax hataları, mantık hataları, güvenlik açıkları ara")
+        sb.appendLine("3. Her hata için:")
+        sb.appendLine("   - Dosya yolunu belirt")
+        sb.appendLine("   - Hatanın ne olduğunu açıkla")
+        sb.appendLine("   - DÜZELTİLMİŞ KODUN TAMAMINI ver (parça değil)")
+        sb.appendLine("4. Best practices önerilerini ekle")
+        sb.appendLine()
+        sb.appendLine("⚠️ ÖNEMLİ: Her düzeltilmiş dosya için TAMAMEN çalışır kod ver!")
+        sb.appendLine()
+        
+        return sb.toString() + formatAnalysisResult(result)
+    }
+    
+    /**
+     * Özellik ekleme promptu oluştur
+     */
+    fun generateAddFeaturePrompt(result: ZipAnalysisResult, featureRequest: String): String {
+        val sb = StringBuilder()
+        sb.appendLine("➕ YENİ ÖZELLİK EKLEME TALEBİ")
+        sb.appendLine()
+        sb.appendLine("Proje Tipi: ${getProjectTypeDescription(result.projectType)}")
+        sb.appendLine()
+        sb.appendLine("🎯 İSTENEN ÖZELLİK:")
+        sb.appendLine(featureRequest)
+        sb.appendLine()
+        sb.appendLine("📋 TALİMATLAR:")
+        sb.appendLine("1. Mevcut proje yapısını koru")
+        sb.appendLine("2. Gerekli dosyaları belirle ve değişiklikleri yap")
+        sb.appendLine("3. Her değişiklik için:")
+        sb.appendLine("   - Dosya yolunu belirt")
+        sb.appendLine("   - Eklenen/değiştirilen kodun TAMAMINI ver")
+        sb.appendLine("4. Yeni dosya gerekiyorsa tam içeriği ile oluştur")
+        sb.appendLine("5. Bağımlılıklar gerekiyorsa listele")
+        sb.appendLine()
+        sb.appendLine("⚠️ ÖNEMLİ: Tüm kod değişiklikleri TAMAMEN çalışır olmalı!")
+        sb.appendLine()
+        
+        return sb.toString() + formatAnalysisResult(result)
+    }
+    
+    /**
+     * ZIP kaydetme sonucu
+     */
+    data class ZipSaveResult(
+        val success: Boolean,
+        val filePath: String?,
+        val fileName: String?,
+        val errorMessage: String?
+    )
 }

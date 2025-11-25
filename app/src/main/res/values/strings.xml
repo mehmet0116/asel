@@ -68,4 +68,16 @@
     <string name="thinking_level_medium_desc">Dengeli analiz</string>
     <string name="thinking_level_deep_desc">Kapsamlı analiz</string>
     <string name="thinking_level_very_deep_desc">Çok kapsamlı analiz</string>
+    
+    <!-- ZIP ANALİZ STRING'LERİ -->
+    <string name="zip_analysis_title">ZIP Dosyası Analizi</string>
+    <string name="zip_analyzing">Analiz ediliyor...</string>
+    <string name="zip_analysis_complete">Analiz tamamlandı</string>
+    <string name="zip_fix_errors">Hataları Çöz</string>
+    <string name="zip_add_feature">Özellik Ekle</string>
+    <string name="zip_download">ZIP İndir</string>
+    <string name="zip_analyze_with_ai">AI ile Analiz Et</string>
+    <string name="zip_files_count">Dosya</string>
+    <string name="zip_folders_count">Klasör</string>
+    <string name="zip_total_size">Boyut</string>
 </resources>
