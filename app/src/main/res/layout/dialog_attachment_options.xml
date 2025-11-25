@@ -4,25 +4,59 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="24dp"
-    android:background="?attr/colorSurface">
+    android:background="@drawable/gradient_dialog_background">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <!-- Header with Gradient -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="📎 Dosya Ekle"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:textColor="?attr/colorOnSurface"
-        android:layout_marginBottom="20dp" />
+        android:orientation="vertical"
+        android:background="@drawable/gradient_primary"
+        android:padding="20dp"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📎"
+            android:textSize="48sp"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dosya Ekle"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:shadowColor="#80000000"
+            android:shadowDx="0"
+            android:shadowDy="2"
+            android:shadowRadius="4" />
+    </LinearLayout>
+
+    <!-- Spacing -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="16dp" />
+
+    <!-- Option Cards Container -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="16dp">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardCamera"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="6dp"
+        app:cardBackgroundColor="@color/surface_primary"
         android:foreground="?attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true">
@@ -34,12 +68,20 @@
             android:padding="16dp"
             android:gravity="center_vertical">
 
-            <TextView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:text="📷"
-                android:textSize="32sp"
-                android:gravity="center" />
+            <androidx.cardview.widget.CardView
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/primary_light">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="📷"
+                    android:textSize="32sp"
+                    android:gravity="center" />
+            </androidx.cardview.widget.CardView>
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -72,8 +114,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="6dp"
+        app:cardBackgroundColor="@color/surface_primary"
         android:foreground="?attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true">
@@ -85,12 +128,20 @@
             android:padding="16dp"
             android:gravity="center_vertical">
 
-            <TextView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:text="🖼️"
-                android:textSize="32sp"
-                android:gravity="center" />
+            <androidx.cardview.widget.CardView
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/secondary_light">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="🖼️"
+                    android:textSize="32sp"
+                    android:gravity="center" />
+            </androidx.cardview.widget.CardView>
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -123,8 +174,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="6dp"
+        app:cardBackgroundColor="@color/surface_primary"
         android:foreground="?attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true">
@@ -136,12 +188,20 @@
             android:padding="16dp"
             android:gravity="center_vertical">
 
-            <TextView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:text="📁"
-                android:textSize="32sp"
-                android:gravity="center" />
+            <androidx.cardview.widget.CardView
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/accent_amber">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="📁"
+                    android:textSize="32sp"
+                    android:gravity="center" />
+            </androidx.cardview.widget.CardView>
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -174,8 +234,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="6dp"
+        app:cardBackgroundColor="@color/surface_primary"
         android:foreground="?attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true">
@@ -187,12 +248,20 @@
             android:padding="16dp"
             android:gravity="center_vertical">
 
-            <TextView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:text="🎥"
-                android:textSize="32sp"
-                android:gravity="center" />
+            <androidx.cardview.widget.CardView
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/accent_pink">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="🎥"
+                    android:textSize="32sp"
+                    android:gravity="center" />
+            </androidx.cardview.widget.CardView>
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -225,8 +294,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="6dp"
+        app:cardBackgroundColor="@color/surface_primary"
         android:foreground="?attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true">
@@ -238,12 +308,20 @@
             android:padding="16dp"
             android:gravity="center_vertical">
 
-            <TextView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:text="🌐"
-                android:textSize="32sp"
-                android:gravity="center" />
+            <androidx.cardview.widget.CardView
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/info">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="🌐"
+                    android:textSize="32sp"
+                    android:gravity="center" />
+            </androidx.cardview.widget.CardView>
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -270,5 +348,7 @@
             </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
 
 </LinearLayout>
