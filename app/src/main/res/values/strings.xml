@@ -73,9 +73,9 @@
     <string name="zip_analysis_title">ZIP Dosyası Analizi</string>
     <string name="zip_analyzing">Analiz ediliyor...</string>
     <string name="zip_analysis_complete">Analiz tamamlandı</string>
-    <string name="zip_fix_errors">Hataları Çöz</string>
-    <string name="zip_add_feature">Özellik Ekle</string>
-    <string name="zip_download">ZIP İndir</string>
+    <string name="zip_fix_errors">🔧 Hataları Çöz</string>
+    <string name="zip_add_feature">➕ Özellik Ekle</string>
+    <string name="zip_download">📥 ZIP İndir</string>
     <string name="zip_analyze_with_ai">AI ile Analiz Et</string>
     <string name="zip_files_count">Dosya</string>
     <string name="zip_folders_count">Klasör</string>

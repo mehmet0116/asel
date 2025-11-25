@@ -1921,7 +1921,8 @@ class MainActivity : AppCompatActivity(),
                     currentZipAnalysisResult?.let { result ->
                         val featurePrompt = ZipFileAnalyzerUtil.generateAddFeaturePrompt(result, featureRequest)
                         pendingFileContent = featurePrompt
-                        pendingFileName = currentZipUri?.let { runBlocking { getFileName(it) } } ?: "project.zip"
+                        // fileName is already saved during ZIP analysis
+                        pendingFileName = pendingFileName ?: "project.zip"
                         setTextSafely(editTextMessage, "➕ Özellik ekleme modu aktif!\n\nİstek: $featureRequest")
                         
                         // Otomatik gönder

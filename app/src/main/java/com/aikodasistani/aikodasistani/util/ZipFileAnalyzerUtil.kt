@@ -9,9 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import java.io.BufferedReader
-import java.io.BufferedWriter
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
@@ -578,9 +576,10 @@ object ZipFileAnalyzerUtil {
                     val content = modifiedFiles[file.path] ?: file.content
                     
                     if (content != null) {
-                        val writer = BufferedWriter(OutputStreamWriter(zipOut, Charsets.UTF_8))
-                        writer.write(content)
-                        writer.flush()
+                        // OutputStreamWriter flush after write, don't close (it would close underlying zipOut)
+                        val outputStreamWriter = OutputStreamWriter(zipOut, Charsets.UTF_8)
+                        outputStreamWriter.write(content)
+                        outputStreamWriter.flush()
                     }
                     
                     zipOut.closeEntry()

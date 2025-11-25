@@ -136,7 +136,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Dosya"
+                    android:text="@string/zip_files_count"
                     android:textSize="12sp"
                     android:textColor="@color/gray" />
 
@@ -161,7 +161,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Klasör"
+                    android:text="@string/zip_folders_count"
                     android:textSize="12sp"
                     android:textColor="@color/gray" />
 
@@ -186,7 +186,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Boyut"
+                    android:text="@string/zip_total_size"
                     android:textSize="12sp"
                     android:textColor="@color/gray" />
 
@@ -223,7 +223,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="4dp"
-            android:text="🔧 Hataları Çöz"
+            android:text="@string/zip_fix_errors"
             android:textSize="12sp"
             app:cornerRadius="8dp"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
@@ -235,7 +235,7 @@
             android:layout_weight="1"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"
-            android:text="➕ Özellik Ekle"
+            android:text="@string/zip_add_feature"
             android:textSize="12sp"
             app:cornerRadius="8dp"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
@@ -246,7 +246,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="4dp"
-            android:text="📥 ZIP İndir"
+            android:text="@string/zip_download"
             android:textSize="12sp"
             app:cornerRadius="8dp"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
@@ -265,14 +265,14 @@
             android:id="@+id/btnCancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="İptal"
+            android:text="@string/cancel_sending"
             style="@style/Widget.MaterialComponents.Button.TextButton" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAnalyze"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="AI ile Analiz Et"
+            android:text="@string/zip_analyze_with_ai"
             android:layout_marginStart="8dp"
             style="@style/Widget.MaterialComponents.Button" />
 
