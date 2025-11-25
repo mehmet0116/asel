@@ -512,55 +512,58 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    // YENİ: Gerçek AI çağrısı için kademeli derin düşünme modu
+    // YENİ: Gerçek AI çağrısı için kademeli derin düşünme modu - CANLI DÜŞÜNME
     private fun getRealDeepThinkingResponse(userMessage: String?, base64Images: List<String>?) {
         val currentLevel = thinkingLevels[currentThinkingLevel]
 
-        val thinkingMessage = Message(
-            text = "🧠 ${currentLevel.name} Düşünme Modu Başlatıldı...",
-            isSentByUser = false,
-            isThinking = true
-        )
-
         mainCoroutineScope.launch {
-            // Düşünme mesajını ekle
-            val messageId = withContext(Dispatchers.IO) {
-                db.sessionDao().insertMessage(
-                    ArchivedMessage(
-                        sessionId = currentSessionId,
-                        text = thinkingMessage.text,
-                        isSentByUser = false
-                    )
-                )
-            }
-            thinkingMessage.id = messageId
-            messageList.add(thinkingMessage)
-            messageAdapter.notifyItemInserted(messageList.size - 1)
-            recyclerView.scrollToPosition(messageList.size - 1)
-
             try {
-                // SEVİYE BAZLI DÜŞÜNME SÜRECİ
-                when (currentThinkingLevel) {
-                    1 -> startLightThinking(thinkingMessage) // Hafif
-                    2 -> startMediumThinking(thinkingMessage) // Orta
-                    3 -> startDeepThinking(thinkingMessage) // Derin
-                    4 -> startVeryDeepThinking(thinkingMessage) // Çok Derin
-                }
-
-                // Düşünme mesajını kaldır ve GERÇEK AI çağrısını yap
+                // Düşünme seviyesi bildirimi - kısa toast
                 withContext(Dispatchers.Main) {
-                    val thinkingIndex = messageList.indexOf(thinkingMessage)
-                    if (thinkingIndex != -1) {
-                        messageList.removeAt(thinkingIndex)
-                        messageAdapter.notifyItemRemoved(thinkingIndex)
-                    }
-
-                    // GERÇEK AI çağrısı - seviyeye özel prompt ile
-                    val deepThinkingPrompt = getLeveledThinkingPrompt(userMessage, currentThinkingLevel)
-
-                    // ✅ DÜZELTME: Resim durumunu koru ve doğru parametreleri ilet
-                    getRealAiResponse(deepThinkingPrompt, base64Images, isDeepThinking = true)
+                    Toast.makeText(
+                        this@MainActivity,
+                        "🧠 ${currentLevel.name} Modu Aktif",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
+
+                // Kısa bilgilendirme mesajı ekle
+                val infoMessageId = withContext(Dispatchers.IO) {
+                    db.sessionDao().insertMessage(
+                        ArchivedMessage(
+                            sessionId = currentSessionId,
+                            text = "🧠 ${currentLevel.name} ile analiz ediliyor...",
+                            isSentByUser = false
+                        )
+                    )
+                }
+                
+                val infoMessage = Message(
+                    text = "🧠 ${currentLevel.name} ile analiz ediliyor...",
+                    isSentByUser = false,
+                    id = infoMessageId
+                )
+                messageList.add(infoMessage)
+                messageAdapter.notifyItemInserted(messageList.size - 1)
+                recyclerView.scrollToPosition(messageList.size - 1)
+
+                // Kısa bekleme
+                delay(500)
+                
+                // Bilgilendirme mesajını kaldır
+                withContext(Dispatchers.Main) {
+                    val infoIndex = messageList.indexOf(infoMessage)
+                    if (infoIndex != -1) {
+                        messageList.removeAt(infoIndex)
+                        messageAdapter.notifyItemRemoved(infoIndex)
+                    }
+                }
+
+                // GERÇEK AI çağrısı - seviyeye özel prompt ile - CANLI STREAM
+                val deepThinkingPrompt = getLeveledThinkingPrompt(userMessage, currentThinkingLevel)
+
+                // ✅ DÜZELTME: Resim durumunu koru ve doğru parametreleri ilet
+                getRealAiResponse(deepThinkingPrompt, base64Images, isDeepThinking = true)
 
             } catch (e: Exception) {
                 Log.e("DeepThinking", "Düşünme sürecinde hata", e)
@@ -700,18 +703,20 @@ class MainActivity : AppCompatActivity(),
                 // ✅ DÜZELTME: Video analiz için özel sistem prompt'u
                 val systemPrompt = if (isDeepThinking) {
                     """
-                    🧠 DERİN DÜŞÜNME MODU - DETAYLI ANALİZ TALİMATI:
+                    🧠 DERİN DÜŞÜNME MODU - CANLI DÜŞÜNME SÜRECİ:
                     
-                    KRİTİK GÖREV: Aşağıdaki soruyu NORMALDEN %50 DAHA DETAYLI cevapla!
+                    KRİTİK TALİMAT: Düşünme sürecini ADIM ADIM göster ve açıkla!
                     
-                    DÜŞÜNME ADIMLARI:
-                    1. 🔍 PROBLEM ANALİZİ: Sorunun kök nedenlerini araştır
-                    2. 💡 ÇÖZÜM ALTERNATİFLERİ: En az 3 farklı yaklaşım sun
-                    3. ⚖️ KARŞILAŞTIRMA: Her birinin artı/eksi yönlerini listele
-                    4. 🎯 TAVSİYE: En iyi çözümü seç ve nedenini açıkla
-                    5. 📝 UYGULAMA PLANI: Adım adım nasıl uygulanacağını anlat
+                    NASIL CEVAP VERECEKSİN:
+                    1. İlk olarak "🔍 PROBLEM ANALİZİ:" başlığı altında sorunu analiz et
+                    2. Sonra "💭 DÜŞÜNME SÜRECİ:" başlığı altında düşüncelerini paylaş
+                    3. Ardından "💡 ÇÖZÜMLERİ DEĞERLENDİRİYORUM:" diyerek alternatifleri sırala
+                    4. "⚖️ KARŞILAŞTIRMA:" yaparak her seçeneğin artı/eksilerini listele
+                    5. "🎯 EN İYİ ÇÖZÜM:" diyerek seçimini ve nedenini açıkla
+                    6. Son olarak "📝 UYGULAMA PLANI:" ile detaylı adımları ver
                     
-                    ÖNEMLİ: Normal yanıttan çok daha kapsamlı ve derinlemesine olmalı!
+                    ÖNEMLİ: Her adımı düşünürken düşüncelerini paylaş, sanki sesli düşünüyormuş gibi!
+                    Kullanıcı senin gerçek düşünme sürecini görsün. ChatGPT o1 gibi davran!
                     
                     SORU: ${userMessage ?: ""}
                     """.trimIndent()
