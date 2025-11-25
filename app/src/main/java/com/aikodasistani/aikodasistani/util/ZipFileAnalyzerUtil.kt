@@ -230,18 +230,18 @@ object ZipFileAnalyzerUtil {
     ): String {
         val stringBuilder = StringBuilder()
 
-        BufferedReader(InputStreamReader(zipInputStream, Charsets.UTF_8)).use { reader ->
-            var line: String?
-            var charCount = 0
+        // Don't use .use {} to avoid closing the underlying ZipInputStream
+        val reader = BufferedReader(InputStreamReader(zipInputStream, Charsets.UTF_8))
+        var line: String?
+        var charCount = 0
 
-            while (reader.readLine().also { line = it } != null && charCount < MAX_CHARS_PER_FILE) {
-                stringBuilder.append(line).append('\n')
-                charCount += line!!.length + 1
-            }
+        while (reader.readLine().also { line = it } != null && charCount < MAX_CHARS_PER_FILE) {
+            stringBuilder.append(line).append('\n')
+            charCount += line!!.length + 1
+        }
 
-            if (charCount >= MAX_CHARS_PER_FILE) {
-                stringBuilder.append("\n[...dosya devamı kesildi - çok büyük...]")
-            }
+        if (charCount >= MAX_CHARS_PER_FILE) {
+            stringBuilder.append("\n[...dosya devamı kesildi - çok büyük...]")
         }
 
         return stringBuilder.toString()

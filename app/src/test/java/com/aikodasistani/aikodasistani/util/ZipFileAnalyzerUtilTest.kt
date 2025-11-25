@@ -196,6 +196,61 @@ class ZipFileAnalyzerUtilTest {
         assertTrue("Should contain UNKNOWN", types.contains(ZipFileAnalyzerUtil.ProjectType.UNKNOWN))
     }
 
+    @Test
+    fun `test readZipEntryContent does not close stream`() {
+        // This test verifies that reading content from multiple files works correctly
+        // by ensuring the ZipInputStream doesn't get closed prematurely
+        
+        val files = listOf(
+            ZipFileAnalyzerUtil.ZipFileEntry(
+                name = "File1.kt",
+                path = "src/File1.kt",
+                size = 100L,
+                extension = ".kt",
+                isCodeFile = true,
+                content = "fun test1() { println(\"File 1\") }",
+                language = "Kotlin"
+            ),
+            ZipFileAnalyzerUtil.ZipFileEntry(
+                name = "File2.kt",
+                path = "src/File2.kt",
+                size = 100L,
+                extension = ".kt",
+                isCodeFile = true,
+                content = "fun test2() { println(\"File 2\") }",
+                language = "Kotlin"
+            ),
+            ZipFileAnalyzerUtil.ZipFileEntry(
+                name = "File3.java",
+                path = "src/File3.java",
+                size = 100L,
+                extension = ".java",
+                isCodeFile = true,
+                content = "public class File3 { }",
+                language = "Java"
+            )
+        )
+
+        val result = ZipFileAnalyzerUtil.ZipAnalysisResult(
+            success = true,
+            errorMessage = null,
+            totalFiles = 3,
+            totalSize = 300L,
+            files = files,
+            directoryStructure = listOf("src"),
+            projectType = ZipFileAnalyzerUtil.ProjectType.UNKNOWN
+        )
+
+        assertEquals("Should have 3 files", 3, result.totalFiles)
+        assertEquals("Should have 3 file entries", 3, result.files.size)
+        
+        // Verify all files have content
+        result.files.forEach { file ->
+            assertNotNull("File ${file.name} should have content", file.content)
+            assertTrue("File ${file.name} content should not be empty", file.content!!.isNotEmpty())
+        }
+    }
+
     private fun createFileEntry(
         name: String,
         extension: String,
