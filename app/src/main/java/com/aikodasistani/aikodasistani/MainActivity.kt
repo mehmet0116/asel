@@ -566,6 +566,39 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
+    private fun getImageOnlySystemPrompt(imageCount: Int): String {
+        val countNote = if (imageCount > 1) {
+            "Birden fazla görseli 1), 2), 3) diye numaralandır."
+        } else {
+            "Tek görseli net ve kısa açıkla."
+        }
+
+        return """
+        📷 GÖRSEL BETİMLEME MODU (DERİN DÜŞÜNME KAPALI)
+
+        TALİMATLAR:
+        - Sadece görselde GÖZÜKENİ Türkçe ve kısa anlat.
+        - ❌ Öneri, yorum, tahmin, çözüm, aksiyon verme.
+        - ❌ "İstersen" veya "öneririm" gibi yönlendirmeler yapma.
+        - ✅ Nesneleri, ortamı, metinleri olduğu gibi aktar.
+        - ✅ Emin değilsen "emin değilim" de, uydurma.
+        - $countNote
+        """.trimIndent()
+    }
+
+    private fun buildVisionUserPrompt(userMessage: String?, imageCount: Int): String {
+        val baseInstruction = "Bu görsellerde ne görüyorsan SADECE onu anlat. Öneri veya yorum ekleme."
+        val numbering = if (imageCount > 1) {
+            "Her görseli 1), 2), 3) diye numaralandır ve ayrı ayrı betimle."
+        } else {
+            "Tek görseli kısa ve net tarif et."
+        }
+
+        val userNote = userMessage?.takeIf { it.isNotBlank() }?.let { "Kullanıcı isteği: $it" }
+
+        return listOfNotNull(baseInstruction, numbering, userNote).joinToString("\n")
+    }
+
     // YENİ: Seviye bazlı düşünme prompt'ları
     private fun getLeveledThinkingPrompt(userMessage: String?, level: Int): String {
         return when (level) {
@@ -806,6 +839,8 @@ class MainActivity : AppCompatActivity(),
                     currentProvider
                 )
 
+                val visionOnlyMode = hasImages && !isDeepThinking
+
                 // ✅ DÜZELTME: Video analiz için özel sistem prompt'u
                 val systemPrompt = if (isDeepThinking) {
                     """
@@ -824,6 +859,8 @@ class MainActivity : AppCompatActivity(),
                     
                     SORU: ${userMessage ?: ""}
                     """.trimIndent()
+                } else if (visionOnlyMode) {
+                    getImageOnlySystemPrompt(base64Images?.size ?: 1)
                 } else if (validatedMessage.contains("video analiz", ignoreCase = true) ||
                     validatedMessage.contains("video_analiz", ignoreCase = true)) {
                     // ✅ VIDEO ANALİZ İÇİN ÖZEL PROMPT - KOD ÖNERİSİ YAPMA!
@@ -2234,7 +2271,7 @@ class MainActivity : AppCompatActivity(),
         return when (provider) {
             "OPENAI", "GEMINI" -> {
                 // ✅ OpenAI & Gemini: Doğrudan çoklu görsel gönder
-                val prompt = userMessage ?: "Bu görseli analiz et"
+                val prompt = buildVisionUserPrompt(userMessage, base64Images.size)
                 Pair(prompt, base64Images)
             }
 
@@ -2247,11 +2284,13 @@ class MainActivity : AppCompatActivity(),
                     "Görsel ${index + 1}: $ocrText"
                 }
 
-                val prompt = if (!userMessage.isNullOrBlank()) {
-                    "$userMessage\n\nGörsel Analizi:\n${ocrTexts.joinToString("\n\n")}"
-                } else {
-                    "Görsel Analizi:\n${ocrTexts.joinToString("\n\n")}\n\nLütfen bu görsellerde ne olduğunu detaylıca açıkla."
-                }
+                val promptPrefix = buildVisionUserPrompt(userMessage, base64Images.size)
+                val prompt = listOf(
+                    promptPrefix,
+                    "Görsel Analizi (sadece betimle):",
+                    ocrTexts.joinToString("\n\n"),
+                    "Kurallar: Öneri, yorum, çözüm veya tavsiye verme; sadece gördüğün detayları aktar."
+                ).joinToString("\n\n")
                 Pair(prompt, null) // Görsel yok, sadece metin
             }
 
@@ -2360,7 +2399,7 @@ class MainActivity : AppCompatActivity(),
                             prompt
                         }
                     }
-                    !base64Images.isNullOrEmpty() -> "Bu görselleri analiz et ve Türkçe kısa özet ver."
+                    !base64Images.isNullOrEmpty() -> buildVisionUserPrompt(null, base64Images.size)
                     else -> "Lütfen bir metin veya görsel paylaş."
                 }
 
