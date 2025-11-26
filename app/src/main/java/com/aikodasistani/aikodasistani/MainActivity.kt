@@ -300,15 +300,10 @@ class MainActivity : AppCompatActivity(),
 
     // YENİ: Düşünme seviyesi seçim dialog'u
     private fun showThinkingLevelDialog() {
-        val levels = thinkingLevels.map { it.name }.toTypedArray()
-
-        AlertDialog.Builder(this)
-            .setTitle("🧠 Derin Düşünme Seviyesi Seçin")
-            .setItems(levels) { _, which ->
-                setThinkingLevel(which)
-            }
-            .setNegativeButton("İptal", null)
-            .show()
+        val levels = thinkingLevels.map { "${it.name} - ${it.description}" }
+        dialogManager.showThinkingLevelDialog(levels) { index ->
+            setThinkingLevel(index)
+        }
     }
 
     // YENİ: Düşünme seviyesini ayarla
@@ -2308,22 +2303,16 @@ class MainActivity : AppCompatActivity(),
 
     private fun showProviderSelectionDialog() {
         val providers = modelConfig.keys.toTypedArray()
-        AlertDialog.Builder(this)
-            .setTitle("Sağlayıcı Seç")
-            .setItems(providers) { _, which -> setProvider(providers[which]) }
-            .show()
+        dialogManager.showProviderSelectionDialog(providers) { provider ->
+            setProvider(provider)
+        }
     }
 
     private fun showModelSelectionDialog() {
         val models = modelConfig[currentProvider]?.toTypedArray() ?: emptyArray()
-        if (models.isEmpty()) {
-            Toast.makeText(this@MainActivity, "Bu sağlayıcı için model bulunamadı.", Toast.LENGTH_SHORT).show()
-            return
+        dialogManager.showModelSelectionDialog(models) { model ->
+            setModel(model)
         }
-        AlertDialog.Builder(this)
-            .setTitle("Model Seç")
-            .setItems(models) { _, which -> setModel(models[which]) }
-            .show()
     }
 
     private fun setProvider(provider: String) {
@@ -2355,30 +2344,14 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun showSettingsDialog() {
-        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_settings, null)
-        val editTextOpenAi = dialogView.findViewById<EditText>(R.id.editTextOpenAiKey)
-        val editTextGemini = dialogView.findViewById<EditText>(R.id.editTextGeminiKey)
-        val editTextDeepSeek = dialogView.findViewById<EditText>(R.id.editTextDeepSeekKey)
-        val editTextDashScope = dialogView.findViewById<EditText>(R.id.editTextDashScopeKey)
-
-        editTextOpenAi.setText(openAiApiKey)
-        editTextGemini.setText(geminiApiKey)
-        editTextDeepSeek.setText(deepseekApiKey)
-        editTextDashScope.setText(dashscopeApiKey)
-
-        AlertDialog.Builder(this)
-            .setTitle("API Anahtarlarını Ayarla")
-            .setView(dialogView)
-            .setPositiveButton("Kaydet") { _, _ ->
-                val newOpenAiKey = editTextOpenAi.text.toString().trim()
-                val newGeminiKey = editTextGemini.text.toString().trim()
-                val newDeepSeekKey = editTextDeepSeek.text.toString().trim()
-                val newDashScopeKey = editTextDashScope.text.toString().trim()
-                saveApiKeys(newOpenAiKey, newGeminiKey, newDeepSeekKey, newDashScopeKey)
-                Toast.makeText(this@MainActivity, "API Anahtarları kaydedildi.", Toast.LENGTH_SHORT).show()
-            }
-            .setNegativeButton("İptal", null)
-            .show()
+        dialogManager.showSettingsDialog(
+            currentOpenAiKey = openAiApiKey,
+            currentGeminiKey = geminiApiKey,
+            currentDeepSeekKey = deepseekApiKey,
+            currentDashScopeKey = dashscopeApiKey
+        ) { newOpenAiKey, newGeminiKey, newDeepSeekKey, newDashScopeKey ->
+            saveApiKeys(newOpenAiKey, newGeminiKey, newDeepSeekKey, newDashScopeKey)
+        }
     }
 
     private fun saveApiKeys(openAI: String, gemini: String, deepSeek: String, dashScope: String) {
@@ -3167,17 +3140,12 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun showNewChatConfirmation() {
-        AlertDialog.Builder(this)
-            .setTitle("Yeni Sohbet")
-            .setMessage("Mevcut sohbet geçmişi temizlenerek yeni bir sohbet başlatılsın mı?")
-            .setPositiveButton("Evet") { _, _ ->
-                mainCoroutineScope.launch {
-                    createNewSession()
-                    Toast.makeText(this@MainActivity, "Yeni sohbet başlatıldı", Toast.LENGTH_SHORT).show()
-                }
+        dialogManager.showNewChatConfirmation {
+            mainCoroutineScope.launch {
+                createNewSession()
+                Toast.makeText(this@MainActivity, "Yeni sohbet başlatıldı", Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButton("Hayır", null)
-            .show()
+        }
     }
 
     override fun onDestroy() {
