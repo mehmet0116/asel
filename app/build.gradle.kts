@@ -118,10 +118,10 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp-sse:4.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
-    // Room Database
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
-    ksp("androidx.room:room-compiler:2.6.1")
+    // Room Database - Updated to 2.7.0-alpha11 for Kotlin 2.2.21 compatibility
+    implementation("androidx.room:room-runtime:2.7.0-alpha11")
+    implementation("androidx.room:room-ktx:2.7.0-alpha11")
+    ksp("androidx.room:room-compiler:2.7.0-alpha11")
 
     // Google Generative AI (for Gemini) - GÜNCELLENDİ
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0") // ✅ 2.5 flash desteği
