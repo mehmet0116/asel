@@ -797,19 +797,19 @@ object ZipFileAnalyzerUtil {
      */
     fun buildNeutralSummary(result: ZipAnalysisResult): String {
         if (!result.success) {
-            return "❌ Error: ${result.errorMessage}"
+            return "❌ Hata: ${result.errorMessage}"
         }
         
         val sb = StringBuilder()
-        sb.appendLine("📁 Files read: ${result.totalFiles}")
-        sb.appendLine("📂 Folders: ${result.directoryStructure.size}")
-        sb.appendLine("💾 Total size: ${formatFileSize(result.totalSize)}")
+        sb.appendLine("📁 Okunan dosyalar: ${result.totalFiles}")
+        sb.appendLine("📂 Klasörler: ${result.directoryStructure.size}")
+        sb.appendLine("💾 Toplam boyut: ${formatFileSize(result.totalSize)}")
         
         val codeFilesCount = result.files.count { it.isCodeFile && it.content != null }
-        sb.appendLine("📝 Code files loaded: $codeFilesCount")
+        sb.appendLine("📝 Yüklenen kod dosyaları: $codeFilesCount")
         sb.appendLine()
-        sb.appendLine("✅ Files have been read successfully.")
-        sb.appendLine("You can now ask questions about this code.")
+        sb.appendLine("✅ Dosyalar başarıyla okundu.")
+        sb.appendLine("Artık bu kodla ilgili sorular sorabilirsiniz.")
         
         return sb.toString()
     }

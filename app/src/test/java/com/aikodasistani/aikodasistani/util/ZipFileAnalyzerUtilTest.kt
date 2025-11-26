@@ -635,11 +635,11 @@ class ZipFileAnalyzerUtilTest {
         
         val summary = ZipFileAnalyzerUtil.buildNeutralSummary(result)
         
-        // Should contain neutral info
-        assertTrue("Should contain files read", summary.contains("Files read"))
-        assertTrue("Should contain folders", summary.contains("Folders"))
-        assertTrue("Should contain success message", summary.contains("successfully"))
-        assertTrue("Should contain ready for questions", summary.contains("questions"))
+        // Should contain neutral info (Turkish)
+        assertTrue("Should contain files read (Turkish)", summary.contains("Okunan dosyalar") || summary.contains("dosyalar"))
+        assertTrue("Should contain folders (Turkish)", summary.contains("Klasörler") || summary.contains("klasör"))
+        assertTrue("Should contain success message (Turkish)", summary.contains("başarıyla"))
+        assertTrue("Should contain ready for questions (Turkish)", summary.contains("sorular") || summary.contains("soru"))
         
         // Should NOT contain opinionated analysis
         assertFalse("Should NOT contain project type analysis", summary.contains("Android"))

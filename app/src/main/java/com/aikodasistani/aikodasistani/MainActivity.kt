@@ -1668,9 +1668,9 @@ class MainActivity : AppCompatActivity(),
         // Başlangıç değerleri - analiz otomatik başlayacak
         tvZipFileName.text = fileName
         // ✅ NEUTRAL MESSAGE (Issue #43): No "analyzing" - just "reading"
-        tvZipFileInfo.text = "⏳ Reading ZIP file..."
-        tvProgressStatus.text = "Starting..."
-        tvLiveAnalysis.text = "📦 Reading ZIP file contents...\n\n⏳ Please wait..."
+        tvZipFileInfo.text = "⏳ ZIP dosyası okunuyor..."
+        tvProgressStatus.text = "Başlatılıyor..."
+        tvLiveAnalysis.text = "📦 ZIP içeriği okunuyor...\n\n⏳ Lütfen bekleyin..."
         isZipAnalysisComplete = false
         
         // Canlı log stringbuilder
@@ -1697,8 +1697,8 @@ class MainActivity : AppCompatActivity(),
                     
                     // ✅ NEUTRAL MESSAGE (Issue #43): Don't auto-send, let user type their question
                     editTextMessage.setText("")
-                    editTextMessage.hint = "Ask a question about the uploaded code..."
-                    Toast.makeText(this@MainActivity, "✅ Code loaded. Type your question and press Send.", Toast.LENGTH_LONG).show()
+                    editTextMessage.hint = "Bu kodla ilgili sorunuzu yazın..."
+                    Toast.makeText(this@MainActivity, "✅ Kodlar yüklendi. Sorunuzu yazın ve Gönder'e basın.", Toast.LENGTH_LONG).show()
                 }
             } else {
                 // Analiz başarısız olmuş veya tamamlanmamış, tekrar dene
@@ -2031,7 +2031,7 @@ class MainActivity : AppCompatActivity(),
                 withContext(Dispatchers.Main) {
                     if (analysisResult.success) {
                         // ✅ NEUTRAL MESSAGE (Issue #43): No "send to AI" prompts
-                        tvZipFileInfo.text = "✅ Files have been read successfully. You can now ask questions about this code."
+                        tvZipFileInfo.text = "✅ Dosyalar başarıyla okundu. Artık bu kodla ilgili sorular sorabilirsiniz."
                         statsSection.visibility = View.VISIBLE
                         actionButtonsRow1.visibility = View.VISIBLE
                         actionButtons.visibility = View.VISIBLE
@@ -2051,17 +2051,17 @@ class MainActivity : AppCompatActivity(),
                         // Progress'i tamamlandı olarak güncelle
                         progressBar.progress = 100
                         // ✅ NEUTRAL MESSAGE (Issue #43): Simple completion status
-                        tvProgressStatus.text = "✅ Reading complete"
+                        tvProgressStatus.text = "✅ Okuma tamamlandı"
                         
                         // ✅ NEUTRAL LOG (Issue #43): Only technical info, no commentary
                         liveLog.append("\n" + "═".repeat(40) + "\n")
-                        liveLog.append("✅ FILES READ SUCCESSFULLY\n")
-                        liveLog.append("📁 ${analysisResult.totalFiles} files\n")
-                        liveLog.append("📂 ${analysisResult.directoryStructure.size} folders\n")
+                        liveLog.append("✅ DOSYALAR BAŞARIYLA OKUNDU\n")
+                        liveLog.append("📁 ${analysisResult.totalFiles} dosya\n")
+                        liveLog.append("📂 ${analysisResult.directoryStructure.size} klasör\n")
                         liveLog.append("💾 ${formatFileSizeSimple(analysisResult.totalSize)}\n")
                         
                         val codeFilesCount = analysisResult.files.count { it.isCodeFile && it.content != null }
-                        liveLog.append("📝 ${codeFilesCount} code files loaded\n")
+                        liveLog.append("📝 ${codeFilesCount} kod dosyası yüklendi\n")
                         
                         // Dil dağılımı - neutral info only
                         val languages = analysisResult.files
@@ -2073,14 +2073,14 @@ class MainActivity : AppCompatActivity(),
                             .take(5)
                         
                         if (languages.isNotEmpty()) {
-                            liveLog.append("\n💻 Languages:\n")
+                            liveLog.append("\n💻 Programlama Dilleri:\n")
                             languages.forEach { (lang, count) ->
-                                liveLog.append("  • $lang: $count files\n")
+                                liveLog.append("  • $lang: $count dosya\n")
                             }
                         }
                         
                         // ✅ NEUTRAL MESSAGE (Issue #43): Ready for questions, not "send to AI"
-                        liveLog.append("\n✅ Ready for your questions.")
+                        liveLog.append("\n✅ Sorularınız için hazır.")
                         
                         tvLiveAnalysis.text = liveLog.toString()
                         
@@ -2096,15 +2096,15 @@ class MainActivity : AppCompatActivity(),
                         // ✅ NEUTRAL BUTTON TEXT (Issue #43)
                         btnAnalyze.text = getString(R.string.zip_analyze_with_ai)
                         btnAnalyze.isEnabled = true
-                        btnCancel.text = "Close"
+                        btnCancel.text = "Kapat"
                         btnCancel.isEnabled = true
                         
                     } else {
-                        tvZipFileInfo.text = "❌ Error: ${analysisResult.errorMessage}"
-                        tvProgressStatus.text = "Reading failed"
+                        tvZipFileInfo.text = "❌ Hata: ${analysisResult.errorMessage}"
+                        tvProgressStatus.text = "Okuma başarısız"
                         btnAnalyze.text = getString(R.string.zip_retry)
                         btnAnalyze.isEnabled = true
-                        btnCancel.text = "Close"
+                        btnCancel.text = "Kapat"
                         btnCancel.isEnabled = true
                     }
                 }
@@ -2112,11 +2112,11 @@ class MainActivity : AppCompatActivity(),
             } catch (e: Exception) {
                 Log.e("ZipAnalysis", "Analiz hatası", e)
                 withContext(Dispatchers.Main) {
-                    tvZipFileInfo.text = "❌ Error: ${e.message}"
-                    tvProgressStatus.text = "Reading failed"
+                    tvZipFileInfo.text = "❌ Hata: ${e.message}"
+                    tvProgressStatus.text = "Okuma başarısız"
                     btnAnalyze.text = getString(R.string.zip_retry)
                     btnAnalyze.isEnabled = true
-                    btnCancel.text = "Close"
+                    btnCancel.text = "Kapat"
                     btnCancel.isEnabled = true
                 }
             }
