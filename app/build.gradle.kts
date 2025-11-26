@@ -85,6 +85,11 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
             excludes += "/META-INF/*.version"
             excludes += "**/libimage_processing_util_jni.so" // ✅ Sorunlu kütüphaneyi exclude et
+            excludes += "/META-INF/DEPENDENCIES"
+            excludes += "/META-INF/LICENSE"
+            excludes += "/META-INF/LICENSE.txt"
+            excludes += "/META-INF/NOTICE"
+            excludes += "/META-INF/NOTICE.txt"
         }
         // ✅ Native library alignment için
     }
