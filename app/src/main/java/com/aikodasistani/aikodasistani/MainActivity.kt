@@ -1086,31 +1086,39 @@ class MainActivity : AppCompatActivity(),
 
         currentFileReadingJob = fileReadingScope.launch {
             try {
-                withContext(Dispatchers.Main) {
-                    showLoading("Dosya güvenli şekilde okunuyor...")
-                }
-
                 val mimeType = contentResolver.getType(uri) ?: ""
                 Log.d("FileReading", "Dosya türü: $mimeType, URI: $uri")
 
                 if (isImage || mimeType.startsWith("image/")) {
+                    withContext(Dispatchers.Main) {
+                        showLoading("Görsel yükleniyor...")
+                    }
                     processImageFile(uri)
                     return@launch
                 }
 
                 // Video dosyalarını kontrol et
                 if (mimeType.startsWith("video/")) {
+                    withContext(Dispatchers.Main) {
+                        showLoading("Video yükleniyor...")
+                    }
                     processVideoFile(uri)
                     return@launch
                 }
 
-                // ZIP dosyalarını kontrol et
+                // ZIP dosyalarını kontrol et - kendi dialog'unu gösterir
                 if (mimeType == "application/zip" ||
                     mimeType == "application/x-zip-compressed" ||
                     mimeType == "application/x-zip" ||
                     (mimeType == "application/octet-stream" && getFileName(uri).endsWith(".zip", ignoreCase = true))) {
+                    // ZIP için loading gösterme, dialog kendi ilerlemesini gösterir
                     processZipFile(uri)
                     return@launch
+                }
+
+                // Diğer dosya türleri için loading göster
+                withContext(Dispatchers.Main) {
+                    showLoading("Dosya okunuyor...")
                 }
 
                 val fileContent = when {
@@ -1603,7 +1611,7 @@ class MainActivity : AppCompatActivity(),
     }
     
     /**
-     * Profesyonel ZIP Analiz Dialog'u
+     * Profesyonel ZIP Analiz Dialog'u - Otomatik analiz başlatır
      */
     private fun showProfessionalZipAnalysisDialog(fileName: String, uri: Uri) {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_zip_analysis, null)
@@ -1634,23 +1642,12 @@ class MainActivity : AppCompatActivity(),
         
         zipAnalysisDialog?.show()
         
-        // Başlangıç değerleri - dosya bilgisini hemen göster
+        // Başlangıç değerleri - analiz otomatik başlayacak
         tvZipFileName.text = fileName
-        tvZipFileInfo.text = "📦 ZIP dosyası seçildi"
-        tvProgressStatus.text = "Analiz başlatmak için 'Analiz Et' butonuna tıklayın"
+        tvZipFileInfo.text = "⏳ ZIP dosyası analiz ediliyor..."
+        tvProgressStatus.text = "Başlatılıyor..."
+        tvLiveAnalysis.text = "📦 ZIP dosyası açılıyor ve içerik analiz ediliyor...\n\n⏳ Lütfen bekleyin..."
         isZipAnalysisComplete = false
-        
-        // Dosya boyutu bilgisini hemen göster
-        mainCoroutineScope.launch {
-            try {
-                val fileSize = getFileSize(uri)
-                withContext(Dispatchers.Main) {
-                    tvLiveAnalysis.text = "📦 Dosya: $fileName\n💾 Boyut: ${formatFileSizeSimple(fileSize)}\n\n✨ ZIP içeriğini analiz etmeye hazır!\n\n👉 'Analiz Et' butonuna tıklayarak ZIP içindeki dosyaları analiz edebilirsiniz."
-                }
-            } catch (e: Exception) {
-                Log.e("ZipAnalysis", "Dosya boyutu alınamadı", e)
-            }
-        }
         
         // Canlı log stringbuilder
         val liveLog = StringBuilder()
@@ -1671,10 +1668,20 @@ class MainActivity : AppCompatActivity(),
                     val content = ZipFileAnalyzerUtil.formatAnalysisResult(result)
                     pendingFileContent = content
                     pendingFileName = fileName
-                    setTextSafely(editTextMessage, "📦 ZIP analiz edildi: $fileName\n\nAI analizi için gönder butonuna basın.")
+                    
+                    // Otomatik olarak AI'ye gönder
+                    mainCoroutineScope.launch {
+                        addMessage("📦 ZIP Analizi: $fileName\n\nBu ZIP dosyasını analiz et ve içeriği hakkında bilgi ver.", true)
+                        if (currentThinkingLevel > 0) {
+                            getRealDeepThinkingResponse(content, null)
+                        } else {
+                            getRealAiResponse(content, null, false)
+                        }
+                    }
                 }
             } else {
-                // Analiz henüz yapılmamış, analizi başlat
+                // Analiz başarısız olmuş veya tamamlanmamış, tekrar dene
+                liveLog.clear()
                 performZipAnalysis(
                     uri, fileName, liveLog,
                     tvZipFileInfo, tvProgressStatus, progressBar, tvLiveAnalysis,
@@ -1691,12 +1698,15 @@ class MainActivity : AppCompatActivity(),
                 val errorFixPrompt = ZipFileAnalyzerUtil.generateErrorFixPrompt(result)
                 pendingFileContent = errorFixPrompt
                 pendingFileName = fileName
-                setTextSafely(editTextMessage, "🔧 Hata düzeltme modu aktif!\n\nZIP içeriği AI'ye gönderilecek. Hatalar analiz edilip düzeltilecek.")
                 
                 // Otomatik gönder
                 mainCoroutineScope.launch {
-                    delay(500)
-                    buttonSend.performClick()
+                    addMessage("🔧 ZIP Hata Düzeltme: $fileName", true)
+                    if (currentThinkingLevel > 0) {
+                        getRealDeepThinkingResponse(errorFixPrompt, null)
+                    } else {
+                        getRealAiResponse(errorFixPrompt, null, false)
+                    }
                 }
             }
         }
@@ -1711,6 +1721,15 @@ class MainActivity : AppCompatActivity(),
                 downloadModifiedZip(result)
             }
         }
+        
+        // ✅ OTOMATİK ANALİZ BAŞLAT - Dialog açılır açılmaz analiz başlar
+        performZipAnalysis(
+            uri, fileName, liveLog,
+            tvZipFileInfo, tvProgressStatus, progressBar, tvLiveAnalysis,
+            statsSection, actionButtons,
+            tvFileCount, tvFolderCount, tvTotalSize, tvProjectType,
+            btnAnalyze, btnCancel
+        )
     }
     
     /**
@@ -1841,13 +1860,17 @@ class MainActivity : AppCompatActivity(),
         btnAnalyze: com.google.android.material.button.MaterialButton,
         btnCancel: com.google.android.material.button.MaterialButton
     ) {
-        // Butonları devre dışı bırak
+        // Butonları devre dışı bırak - analiz sırasında
         btnAnalyze.isEnabled = false
-        btnCancel.isEnabled = false
+        btnAnalyze.text = "⏳ Analiz ediliyor..."
+        btnCancel.text = "İptal Et"
+        btnCancel.isEnabled = true
         
-        tvZipFileInfo.text = "⏳ Analiz ediliyor..."
+        tvZipFileInfo.text = "⏳ ZIP dosyası okunuyor..."
         tvProgressStatus.text = "Başlatılıyor..."
         liveLog.clear()
+        liveLog.append("🔍 ZIP dosyası analiz ediliyor...\n\n")
+        tvLiveAnalysis.text = liveLog.toString()
         
         mainCoroutineScope.launch {
             try {
@@ -1861,7 +1884,7 @@ class MainActivity : AppCompatActivity(),
                         tvProgressStatus.text = "$progress% - $status"
                         
                         // Canlı log'a ekle
-                        if (currentFile.isNotEmpty()) {
+                        if (status.isNotEmpty()) {
                             liveLog.append("$status\n")
                             tvLiveAnalysis.text = liveLog.toString()
                             
@@ -1877,7 +1900,7 @@ class MainActivity : AppCompatActivity(),
                 withContext(Dispatchers.Main) {
                     if (analysisResult.success) {
                         // İstatistikleri güncelle
-                        tvZipFileInfo.text = "✅ Analiz tamamlandı"
+                        tvZipFileInfo.text = "✅ Analiz tamamlandı! AI'ye göndermek için butona tıklayın."
                         statsSection.visibility = View.VISIBLE
                         actionButtons.visibility = View.VISIBLE
                         
@@ -1888,11 +1911,11 @@ class MainActivity : AppCompatActivity(),
                         
                         // Progress'i tamamlandı olarak güncelle
                         progressBar.progress = 100
-                        tvProgressStatus.text = "✅ Analiz tamamlandı"
+                        tvProgressStatus.text = "✅ Analiz tamamlandı - AI'ye gönderilebilir"
                         
                         // Log'a özet ekle
                         liveLog.append("\n" + "═".repeat(40) + "\n")
-                        liveLog.append("✅ ÖZET\n")
+                        liveLog.append("✅ ANALİZ TAMAMLANDI!\n")
                         liveLog.append("📁 ${analysisResult.totalFiles} dosya bulundu\n")
                         liveLog.append("📂 ${analysisResult.directoryStructure.size} klasör\n")
                         liveLog.append("💾 ${formatFileSizeSimple(analysisResult.totalSize)}\n")
@@ -1913,6 +1936,8 @@ class MainActivity : AppCompatActivity(),
                             }
                         }
                         
+                        liveLog.append("\n👆 Yukarıdaki butonlardan bir işlem seçin!")
+                        
                         tvLiveAnalysis.text = liveLog.toString()
                         
                         // pendingFileContent'i ayarla
@@ -1923,14 +1948,17 @@ class MainActivity : AppCompatActivity(),
                         isZipAnalysisComplete = true
                         
                         // Analiz Et butonunu "AI'ye Gönder" olarak değiştir
-                        btnAnalyze.text = "🤖 AI'ye Gönder"
+                        btnAnalyze.text = getString(R.string.zip_analyze_with_ai)
                         btnAnalyze.isEnabled = true
+                        btnCancel.text = "Kapat"
                         btnCancel.isEnabled = true
                         
                     } else {
                         tvZipFileInfo.text = "❌ Hata: ${analysisResult.errorMessage}"
                         tvProgressStatus.text = "Analiz başarısız"
+                        btnAnalyze.text = getString(R.string.zip_retry)
                         btnAnalyze.isEnabled = true
+                        btnCancel.text = "Kapat"
                         btnCancel.isEnabled = true
                     }
                 }
@@ -1940,7 +1968,9 @@ class MainActivity : AppCompatActivity(),
                 withContext(Dispatchers.Main) {
                     tvZipFileInfo.text = "❌ Hata: ${e.message}"
                     tvProgressStatus.text = "Analiz başarısız"
+                    btnAnalyze.text = getString(R.string.zip_retry)
                     btnAnalyze.isEnabled = true
+                    btnCancel.text = "Kapat"
                     btnCancel.isEnabled = true
                 }
             }

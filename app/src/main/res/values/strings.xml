@@ -77,7 +77,8 @@
     <string name="zip_fix_errors">🔧 Hataları Çöz</string>
     <string name="zip_add_feature">➕ Özellik Ekle</string>
     <string name="zip_download">📥 ZIP İndir</string>
-    <string name="zip_analyze_with_ai">AI ile Analiz Et</string>
+    <string name="zip_analyze_with_ai">🤖 AI\'ye Gönder</string>
+    <string name="zip_retry">Tekrar Dene</string>
     <string name="zip_files_count">Dosya</string>
     <string name="zip_folders_count">Klasör</string>
     <string name="zip_total_size">Boyut</string>
