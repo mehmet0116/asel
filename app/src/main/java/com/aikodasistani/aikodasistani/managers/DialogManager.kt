@@ -418,16 +418,16 @@ class DialogManager(private val activity: Activity) {
             Log.d("AttachmentDialog", "attachment options dialog shown")
         } catch (e: Exception) {
             Log.e("AttachmentDialog", "failed to show native attachment dialog", e)
-            // final fallback: show simple AlertDialog list
-            val items = arrayOf("Fotoğraf Çek", "Galeriden Seç", "Dosya Seç", "Video Çek", "Video Seç", "URL'den İçerik Al")
+            // final fallback: show simple AlertDialog list - match layout order
+            val items = arrayOf("Fotoğraf Çek", "Video Çek", "Galeriden Seç", "Dosya Seç", "Video Seç", "URL'den İçerik Al")
             AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
                 .setTitle("Kaynak Seç")
                 .setItems(items) { d, which ->
                     when (which) {
                         0 -> onCameraSelected()
-                        1 -> onGallerySelected()
-                        2 -> onFileSelected()
-                        3 -> onRecordVideoSelected()
+                        1 -> onRecordVideoSelected()
+                        2 -> onGallerySelected()
+                        3 -> onFileSelected()
                         4 -> onVideoSelected()
                         5 -> onUrlSelected()
                     }
