@@ -94,4 +94,12 @@
     <string name="analyze_selected">Seçilenleri Analiz Et</string>
     <string name="no_files_selected">Hiçbir dosya seçilmedi</string>
     <string name="files_selected">%d dosya seçili</string>
+    
+    <!-- PROJECT TREE VIEW STRING'LERİ -->
+    <string name="zip_project_tree">Proje Yapısı</string>
+    <string name="zip_expand_collapse">Genişlet/Daralt</string>
+    <string name="zip_item_icon">Dosya/Klasör ikonu</string>
+    <string name="zip_live_analysis">Canlı Analiz</string>
+    <string name="zip_show_analysis">Analizi Göster</string>
+    <string name="zip_hide_analysis">Analizi Gizle</string>
 </resources>

@@ -1631,6 +1631,32 @@ class MainActivity : AppCompatActivity(),
         val btnCancel = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnCancel)
         val btnAnalyze = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnAnalyze)
         
+        // New views for project tree and collapsible analysis
+        val projectTreeSection = dialogView.findViewById<androidx.cardview.widget.CardView>(R.id.projectTreeSection)
+        val rvProjectTree = dialogView.findViewById<RecyclerView>(R.id.rvProjectTree)
+        val liveAnalysisHeader = dialogView.findViewById<LinearLayout>(R.id.liveAnalysisHeader)
+        val liveAnalysisContent = dialogView.findViewById<android.widget.ScrollView>(R.id.liveAnalysisContent)
+        val ivAnalysisExpand = dialogView.findViewById<ImageView>(R.id.ivAnalysisExpand)
+        val tvAnalysisToggle = dialogView.findViewById<TextView>(R.id.tvAnalysisToggle)
+        
+        // Setup project tree RecyclerView
+        val projectTreeAdapter = com.aikodasistani.aikodasistani.ui.ProjectTreeAdapter()
+        rvProjectTree.layoutManager = LinearLayoutManager(this)
+        rvProjectTree.adapter = projectTreeAdapter
+        
+        // Setup collapsible live analysis
+        var isAnalysisExpanded = true
+        liveAnalysisHeader.setOnClickListener {
+            isAnalysisExpanded = !isAnalysisExpanded
+            liveAnalysisContent.visibility = if (isAnalysisExpanded) View.VISIBLE else View.GONE
+            ivAnalysisExpand.setImageResource(
+                if (isAnalysisExpanded) R.drawable.ic_arrow_down else R.drawable.ic_arrow_right
+            )
+            tvAnalysisToggle.setText(
+                if (isAnalysisExpanded) R.string.zip_hide_analysis else R.string.zip_show_analysis
+            )
+        }
+        
         // Dialog oluştur
         zipAnalysisDialog = AlertDialog.Builder(this)
             .setView(dialogView)
@@ -1684,7 +1710,7 @@ class MainActivity : AppCompatActivity(),
                     tvZipFileInfo, tvProgressStatus, progressBar, tvLiveAnalysis,
                     statsSection, actionButtonsRow1, actionButtons,
                     tvFileCount, tvFolderCount, tvTotalSize, tvProjectType,
-                    btnAnalyze, btnCancel
+                    btnAnalyze, btnCancel, projectTreeSection, projectTreeAdapter
                 )
             }
         }
@@ -1731,7 +1757,7 @@ class MainActivity : AppCompatActivity(),
             tvZipFileInfo, tvProgressStatus, progressBar, tvLiveAnalysis,
             statsSection, actionButtonsRow1, actionButtons,
             tvFileCount, tvFolderCount, tvTotalSize, tvProjectType,
-            btnAnalyze, btnCancel
+            btnAnalyze, btnCancel, projectTreeSection, projectTreeAdapter
         )
     }
     
@@ -1963,7 +1989,9 @@ class MainActivity : AppCompatActivity(),
         tvTotalSize: TextView,
         tvProjectType: TextView,
         btnAnalyze: com.google.android.material.button.MaterialButton,
-        btnCancel: com.google.android.material.button.MaterialButton
+        btnCancel: com.google.android.material.button.MaterialButton,
+        projectTreeSection: androidx.cardview.widget.CardView? = null,
+        projectTreeAdapter: com.aikodasistani.aikodasistani.ui.ProjectTreeAdapter? = null
     ) {
         // Butonları devre dışı bırak - analiz sırasında
         btnAnalyze.isEnabled = false
@@ -2014,6 +2042,13 @@ class MainActivity : AppCompatActivity(),
                         tvFolderCount.text = analysisResult.directoryStructure.size.toString()
                         tvTotalSize.text = formatFileSizeSimple(analysisResult.totalSize)
                         tvProjectType.text = getProjectTypeEmoji(analysisResult.projectType)
+                        
+                        // Update project tree view
+                        projectTreeSection?.visibility = View.VISIBLE
+                        projectTreeAdapter?.setData(
+                            analysisResult.directoryStructure,
+                            analysisResult.files
+                        )
                         
                         // Progress'i tamamlandı olarak güncelle
                         progressBar.progress = 100

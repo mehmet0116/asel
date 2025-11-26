@@ -364,7 +364,7 @@ class DialogManager(private val activity: Activity) {
     }
 
     /**
-     * Show attachment options dialog
+     * Show attachment options dialog using modern BottomSheet with AlertDialog fallback
      */
     fun showAttachmentOptionsDialog(
         onCameraSelected: () -> Unit,
@@ -374,67 +374,77 @@ class DialogManager(private val activity: Activity) {
         onRecordVideoSelected: () -> Unit,
         onUrlSelected: () -> Unit
     ) {
-        Log.d("AttachmentDialog", "showAttachmentOptionsDialog: inflating attachment options view")
+        Log.d("AttachmentDialog", "showAttachmentOptionsDialog: trying BottomSheet first")
         try {
-            val content = LayoutInflater.from(activity).inflate(R.layout.bottom_sheet_attachment_options, null)
-
-            val dialog = AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
-                .setView(content)
-                .create()
-
-            // Wire up options - dismiss dialog after each selection
-            content.findViewById<View>(R.id.optionCamera).setOnClickListener {
-                Log.d("AttachmentDialog", "optionCamera clicked")
-                dialog.dismiss()
-                onCameraSelected()
-            }
-            content.findViewById<View>(R.id.optionGallery).setOnClickListener {
-                Log.d("AttachmentDialog", "optionGallery clicked")
-                dialog.dismiss()
-                onGallerySelected()
-            }
-            content.findViewById<View>(R.id.optionFile).setOnClickListener {
-                Log.d("AttachmentDialog", "optionFile clicked")
-                dialog.dismiss()
-                onFileSelected()
-            }
-            content.findViewById<View>(R.id.optionRecordVideo).setOnClickListener {
-                Log.d("AttachmentDialog", "optionRecordVideo clicked")
-                dialog.dismiss()
-                onRecordVideoSelected()
-            }
-            content.findViewById<View>(R.id.optionVideo).setOnClickListener {
-                Log.d("AttachmentDialog", "optionVideo clicked")
-                dialog.dismiss()
-                onVideoSelected()
-            }
-            content.findViewById<View>(R.id.optionUrl).setOnClickListener {
-                Log.d("AttachmentDialog", "optionUrl clicked")
-                dialog.dismiss()
-                onUrlSelected()
-            }
-
-            dialog.show()
-            Log.d("AttachmentDialog", "attachment options dialog shown")
-        } catch (e: Exception) {
-            Log.e("AttachmentDialog", "failed to show native attachment dialog", e)
-            // final fallback: show simple AlertDialog list - match layout order
-            val items = arrayOf("Fotoğraf Çek", "Video Çek", "Galeriden Seç", "Dosya Seç", "Video Seç", "URL'den İçerik Al")
-            AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
-                .setTitle("Kaynak Seç")
-                .setItems(items) { d, which ->
-                    when (which) {
-                        0 -> onCameraSelected()
-                        1 -> onRecordVideoSelected()
-                        2 -> onGallerySelected()
-                        3 -> onFileSelected()
-                        4 -> onVideoSelected()
-                        5 -> onUrlSelected()
-                    }
-                    d.dismiss()
+            // Try to use modern BottomSheet first
+            val bottomSheet = AttachmentOptionsBottomSheet(activity)
+            bottomSheet.show(
+                onCamera = {
+                    Log.d("AttachmentDialog", "BottomSheet: optionCamera clicked")
+                    onCameraSelected()
+                },
+                onGallery = {
+                    Log.d("AttachmentDialog", "BottomSheet: optionGallery clicked")
+                    onGallerySelected()
+                },
+                onFile = {
+                    Log.d("AttachmentDialog", "BottomSheet: optionFile clicked")
+                    onFileSelected()
+                },
+                onVideo = {
+                    Log.d("AttachmentDialog", "BottomSheet: optionVideo clicked")
+                    onVideoSelected()
+                },
+                onRecordVideo = {
+                    Log.d("AttachmentDialog", "BottomSheet: optionRecordVideo clicked")
+                    onRecordVideoSelected()
+                },
+                onUrl = {
+                    Log.d("AttachmentDialog", "BottomSheet: optionUrl clicked")
+                    onUrlSelected()
                 }
-                .show()
+            )
+            Log.d("AttachmentDialog", "BottomSheet shown successfully")
+        } catch (e: Exception) {
+            Log.e("AttachmentDialog", "Failed to show BottomSheet, falling back to AlertDialog", e)
+            // Fallback to simple AlertDialog list
+            showAlertDialogFallback(
+                onCameraSelected,
+                onGallerySelected,
+                onFileSelected,
+                onVideoSelected,
+                onRecordVideoSelected,
+                onUrlSelected
+            )
         }
+    }
+    
+    /**
+     * Fallback AlertDialog for attachment options
+     */
+    private fun showAlertDialogFallback(
+        onCameraSelected: () -> Unit,
+        onGallerySelected: () -> Unit,
+        onFileSelected: () -> Unit,
+        onVideoSelected: () -> Unit,
+        onRecordVideoSelected: () -> Unit,
+        onUrlSelected: () -> Unit
+    ) {
+        val items = arrayOf("Fotoğraf Çek", "Video Çek", "Galeriden Seç", "Dosya Seç", "Video Seç", "URL'den İçerik Al")
+        AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
+            .setTitle("Kaynak Seç")
+            .setItems(items) { d, which ->
+                when (which) {
+                    0 -> onCameraSelected()
+                    1 -> onRecordVideoSelected()
+                    2 -> onGallerySelected()
+                    3 -> onFileSelected()
+                    4 -> onVideoSelected()
+                    5 -> onUrlSelected()
+                }
+                d.dismiss()
+            }
+            .show()
     }
 
     /**

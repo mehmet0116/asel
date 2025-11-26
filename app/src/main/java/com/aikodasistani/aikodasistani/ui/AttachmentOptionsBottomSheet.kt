@@ -14,6 +14,7 @@ class AttachmentOptionsBottomSheet(private val activity: Activity) {
         onGallery: () -> Unit,
         onFile: () -> Unit,
         onVideo: () -> Unit,
+        onRecordVideo: () -> Unit,
         onUrl: () -> Unit
     ) {
         Log.d("AttachmentOptionsBS", "show() called")
@@ -28,6 +29,11 @@ class AttachmentOptionsBottomSheet(private val activity: Activity) {
                 Log.d("AttachmentOptionsBS", "optionCamera clicked")
                 dialog.dismiss()
                 onCamera()
+            }
+            content.findViewById<View>(R.id.optionRecordVideo).setOnClickListener {
+                Log.d("AttachmentOptionsBS", "optionRecordVideo clicked")
+                dialog.dismiss()
+                onRecordVideo()
             }
             content.findViewById<View>(R.id.optionGallery).setOnClickListener {
                 Log.d("AttachmentOptionsBS", "optionGallery clicked")
