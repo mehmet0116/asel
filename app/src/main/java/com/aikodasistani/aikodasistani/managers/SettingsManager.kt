@@ -471,8 +471,9 @@ class SettingsManager(private val context: Context) {
     
     private val httpClient by lazy {
         OkHttpClient.Builder()
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(15, TimeUnit.SECONDS)
+            .writeTimeout(15, TimeUnit.SECONDS)
             .build()
     }
     
@@ -546,27 +547,28 @@ class SettingsManager(private val context: Context) {
             .get()
             .build()
         
-        val response = httpClient.newCall(request).execute()
-        if (!response.isSuccessful) {
-            throw Exception("OpenAI API hatası: ${response.code}")
+        return httpClient.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) {
+                throw Exception("OpenAI API hatası: ${response.code}")
+            }
+            
+            val responseBody = response.body?.string() ?: throw Exception("Boş yanıt")
+            val json = Json { ignoreUnknownKeys = true }
+            val root = json.parseToJsonElement(responseBody).jsonObject
+            val data = root["data"]?.jsonArray ?: return@use emptyList()
+            
+            // Filter for chat models only (gpt-4, gpt-3.5, o1, etc.)
+            data.mapNotNull { element ->
+                val id = element.jsonObject["id"]?.jsonPrimitive?.content
+                id
+            }.filter { id ->
+                id.startsWith("gpt-") || 
+                id.startsWith("o1") || 
+                id.startsWith("o3") ||
+                id.contains("chatgpt") ||
+                id.startsWith("text-davinci")
+            }.distinct()
         }
-        
-        val responseBody = response.body?.string() ?: throw Exception("Boş yanıt")
-        val json = Json { ignoreUnknownKeys = true }
-        val root = json.parseToJsonElement(responseBody).jsonObject
-        val data = root["data"]?.jsonArray ?: return emptyList()
-        
-        // Filter for chat models only (gpt-4, gpt-3.5, o1, etc.)
-        return data.mapNotNull { element ->
-            val id = element.jsonObject["id"]?.jsonPrimitive?.content
-            id
-        }.filter { id ->
-            id.startsWith("gpt-") || 
-            id.startsWith("o1") || 
-            id.startsWith("o3") ||
-            id.contains("chatgpt") ||
-            id.startsWith("text-davinci")
-        }.distinct()
     }
     
     /**
@@ -578,32 +580,33 @@ class SettingsManager(private val context: Context) {
             .get()
             .build()
         
-        val response = httpClient.newCall(request).execute()
-        if (!response.isSuccessful) {
-            throw Exception("Gemini API hatası: ${response.code}")
-        }
-        
-        val responseBody = response.body?.string() ?: throw Exception("Boş yanıt")
-        val json = Json { ignoreUnknownKeys = true }
-        val root = json.parseToJsonElement(responseBody).jsonObject
-        val models = root["models"]?.jsonArray ?: return emptyList()
-        
-        // Extract model names and filter for generateContent support
-        return models.mapNotNull { element ->
-            val name = element.jsonObject["name"]?.jsonPrimitive?.content
-            val supportedMethods = element.jsonObject["supportedGenerationMethods"]?.jsonArray
-            val supportsGenerate = supportedMethods?.any { 
-                it.jsonPrimitive.content == "generateContent" 
-            } ?: false
+        return httpClient.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) {
+                throw Exception("Gemini API hatası: ${response.code}")
+            }
             
-            if (supportsGenerate && name != null) {
-                // Convert "models/gemini-pro" to "gemini-pro"
-                name.removePrefix("models/")
-            } else null
-        }.filter { name ->
-            // Filter for gemini models that support chat
-            name.startsWith("gemini")
-        }.distinct()
+            val responseBody = response.body?.string() ?: throw Exception("Boş yanıt")
+            val json = Json { ignoreUnknownKeys = true }
+            val root = json.parseToJsonElement(responseBody).jsonObject
+            val models = root["models"]?.jsonArray ?: return@use emptyList()
+            
+            // Extract model names and filter for generateContent support
+            models.mapNotNull { element ->
+                val name = element.jsonObject["name"]?.jsonPrimitive?.content
+                val supportedMethods = element.jsonObject["supportedGenerationMethods"]?.jsonArray
+                val supportsGenerate = supportedMethods?.any { 
+                    it.jsonPrimitive.content == "generateContent" 
+                } ?: false
+                
+                if (supportsGenerate && name != null) {
+                    // Convert "models/gemini-pro" to "gemini-pro"
+                    name.removePrefix("models/")
+                } else null
+            }.filter { name ->
+                // Filter for gemini models that support chat
+                name.startsWith("gemini")
+            }.distinct()
+        }
     }
     
     /**
@@ -622,19 +625,20 @@ class SettingsManager(private val context: Context) {
             .get()
             .build()
         
-        val response = httpClient.newCall(request).execute()
-        if (!response.isSuccessful) {
-            throw Exception("API hatası: ${response.code}")
+        return httpClient.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) {
+                throw Exception("API hatası: ${response.code}")
+            }
+            
+            val responseBody = response.body?.string() ?: throw Exception("Boş yanıt")
+            val json = Json { ignoreUnknownKeys = true }
+            val root = json.parseToJsonElement(responseBody).jsonObject
+            val data = root["data"]?.jsonArray ?: return@use emptyList()
+            
+            data.mapNotNull { element ->
+                element.jsonObject["id"]?.jsonPrimitive?.content
+            }.distinct()
         }
-        
-        val responseBody = response.body?.string() ?: throw Exception("Boş yanıt")
-        val json = Json { ignoreUnknownKeys = true }
-        val root = json.parseToJsonElement(responseBody).jsonObject
-        val data = root["data"]?.jsonArray ?: return emptyList()
-        
-        return data.mapNotNull { element ->
-            element.jsonObject["id"]?.jsonPrimitive?.content
-        }.distinct()
     }
     
     /**

@@ -135,7 +135,7 @@
     <!-- CUSTOM MODEL STRING'LERİ -->
     <string name="model_selection_title">Model Seç</string>
     <string name="model_selection_subtitle">AI modelinizi seçin</string>
-    <string name="add_custom_model">+ Özel Model Ekle</string>
+    <string name="add_custom_model">🔄 Modelleri Getir</string>
     <string name="add_custom_model_title">Özel Model Ekle</string>
     <string name="add_custom_model_subtitle">Yeni çıkan modelleri kullanmak için model adını girin</string>
     <string name="custom_model_name_label">Model Adı</string>

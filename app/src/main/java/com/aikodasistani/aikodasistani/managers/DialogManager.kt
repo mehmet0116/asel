@@ -30,6 +30,9 @@ class DialogManager(private val activity: Activity) {
 
     private var loadingOverlay: FrameLayout? = null
     private var loadingText: TextView? = null
+    
+    // Coroutine scope for dialog operations - reused to avoid creating new instances
+    private val dialogScope = MainScope()
 
     /**
      * Initialize loading overlay and text view
@@ -418,8 +421,8 @@ class DialogManager(private val activity: Activity) {
             tvStatus?.text = activity.getString(R.string.fetching_models)
             contentLayout?.visibility = View.GONE
             
-            // Run fetch in coroutine
-            kotlinx.coroutines.MainScope().launch {
+            // Run fetch in coroutine using class-level scope
+            dialogScope.launch {
                 val result = onFetchModels()
                 
                 progressBar?.visibility = View.GONE
@@ -503,8 +506,12 @@ class DialogManager(private val activity: Activity) {
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val model = models[position]
             holder.tvModelName.text = model
+            
+            // Önce listener'ı kaldır, sonra state'i güncelle (döngü önleme)
+            holder.checkBox.setOnCheckedChangeListener(null)
             holder.checkBox.isChecked = selectedModels.contains(model)
             
+            // Sadece itemView click handler kullan (checkbox listener yerine)
             holder.itemView.setOnClickListener {
                 if (selectedModels.contains(model)) {
                     selectedModels.remove(model)
@@ -514,12 +521,9 @@ class DialogManager(private val activity: Activity) {
                 holder.checkBox.isChecked = selectedModels.contains(model)
             }
             
-            holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    selectedModels.add(model)
-                } else {
-                    selectedModels.remove(model)
-                }
+            // Checkbox'a tıklama da itemView click'i tetiklesin
+            holder.checkBox.setOnClickListener {
+                holder.itemView.performClick()
             }
         }
         
