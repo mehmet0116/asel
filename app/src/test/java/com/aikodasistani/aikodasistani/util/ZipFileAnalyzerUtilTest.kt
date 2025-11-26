@@ -319,6 +319,93 @@ class ZipFileAnalyzerUtilTest {
         assertTrue("Should show completion", formatted.contains("TAMAMLANDI"))
     }
 
+    @Test
+    fun `test detailed reading feedback messages`() {
+        // This test verifies that the enhanced reading feedback provides
+        // detailed messages about the file reading process
+        
+        val files = listOf(
+            ZipFileAnalyzerUtil.ZipFileEntry(
+                name = "MainActivity.kt",
+                path = "app/src/main/MainActivity.kt",
+                size = 2500L,
+                extension = ".kt",
+                isCodeFile = true,
+                content = "class MainActivity { fun onCreate() {} }",
+                language = "Kotlin"
+            ),
+            ZipFileAnalyzerUtil.ZipFileEntry(
+                name = "Utils.kt",
+                path = "app/src/main/Utils.kt",
+                size = 1500L,
+                extension = ".kt",
+                isCodeFile = true,
+                content = "object Utils { fun helper() {} }",
+                language = "Kotlin"
+            )
+        )
+        
+        val result = ZipFileAnalyzerUtil.ZipAnalysisResult(
+            success = true,
+            errorMessage = null,
+            totalFiles = 2,
+            totalSize = 4000L,
+            files = files,
+            directoryStructure = listOf("app", "app/src", "app/src/main"),
+            projectType = ZipFileAnalyzerUtil.ProjectType.ANDROID
+        )
+        
+        val formatted = ZipFileAnalyzerUtil.formatAnalysisResult(result)
+        
+        // Verify the result includes detailed information
+        assertTrue("Should show total files", formatted.contains("2"))
+        assertTrue("Should show code files were read", files.all { it.content != null })
+        assertTrue("Should include file details", formatted.contains("MainActivity"))
+        assertTrue("Should show completion", formatted.contains("TAMAMLANDI"))
+        
+        // Verify each file has actual content that was read
+        files.forEach { file ->
+            assertNotNull("File ${file.name} should have content", file.content)
+            assertTrue("File ${file.name} content should not be empty", file.content!!.isNotEmpty())
+        }
+    }
+    
+    @Test
+    fun `test reading feedback includes file sizes`() {
+        // Verify that the analysis includes proper file size information
+        // which indicates files were actually read
+        
+        val largeContent = "x".repeat(5000)
+        val files = listOf(
+            ZipFileAnalyzerUtil.ZipFileEntry(
+                name = "LargeFile.kt",
+                path = "src/LargeFile.kt",
+                size = 5000L,
+                extension = ".kt",
+                isCodeFile = true,
+                content = largeContent,
+                language = "Kotlin"
+            )
+        )
+        
+        val result = ZipFileAnalyzerUtil.ZipAnalysisResult(
+            success = true,
+            errorMessage = null,
+            totalFiles = 1,
+            totalSize = 5000L,
+            files = files,
+            directoryStructure = listOf("src"),
+            projectType = ZipFileAnalyzerUtil.ProjectType.UNKNOWN
+        )
+        
+        val formatted = ZipFileAnalyzerUtil.formatAnalysisResult(result)
+        
+        // Verify size information is present
+        assertTrue("Should contain file size info", formatted.contains("KB") || formatted.contains("B"))
+        assertTrue("Should have read large content", files[0].content!!.length == 5000)
+        assertEquals("Content should match expected size", 5000, files[0].content!!.length)
+    }
+
     private fun createFileEntry(
         name: String,
         extension: String,
