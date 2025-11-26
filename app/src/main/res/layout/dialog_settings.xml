@@ -147,6 +147,7 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="2dp"
             app:cardBackgroundColor="@color/surface_elevated">
@@ -179,6 +180,26 @@
                     android:autofillHints="password" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
+        
+        <!-- Custom Providers Container (dynamically populated) -->
+        <LinearLayout
+            android:id="@+id/customProvidersContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⭐ Özel Sağlayıcılar"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp" />
+                
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

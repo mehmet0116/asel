@@ -147,4 +147,26 @@
     <string name="custom_model_empty">Lütfen bir model adı girin</string>
     <string name="custom_model_delete_title">Özel Modeli Sil</string>
     <string name="custom_model_delete_message">"%s" modelini silmek istediğinizden emin misiniz?</string>
+    
+    <!-- CUSTOM PROVIDER STRING'LERİ -->
+    <string name="provider_selection_title">Sağlayıcı Seç</string>
+    <string name="provider_selection_subtitle">AI sağlayıcınızı seçin</string>
+    <string name="add_custom_provider">+ Özel Sağlayıcı Ekle</string>
+    <string name="add_custom_provider_title">Özel Sağlayıcı Ekle</string>
+    <string name="add_custom_provider_subtitle">OpenAI uyumlu API sağlayıcı ekleyin</string>
+    <string name="custom_provider_name_label">Sağlayıcı Adı</string>
+    <string name="custom_provider_name_hint">Örn: Groq, Together, Mistral</string>
+    <string name="custom_provider_url_label">API Base URL</string>
+    <string name="custom_provider_url_hint">https://api.example.com</string>
+    <string name="custom_provider_model_label">Varsayılan Model (opsiyonel)</string>
+    <string name="custom_provider_model_hint">Örn: llama-3.1-70b</string>
+    <string name="custom_provider_example">Not: OpenAI uyumlu API\'ler desteklenir. Qwen uluslararası çalışır.</string>
+    <string name="custom_provider_added">Sağlayıcı eklendi: %s</string>
+    <string name="custom_provider_removed">Sağlayıcı silindi: %s</string>
+    <string name="custom_provider_exists">Bu sağlayıcı zaten mevcut</string>
+    <string name="custom_provider_empty">Lütfen sağlayıcı adı ve URL girin</string>
+    <string name="custom_provider_delete_title">Özel Sağlayıcıyı Sil</string>
+    <string name="custom_provider_delete_message">"%s" sağlayıcısını silmek istediğinizden emin misiniz?</string>
+    <string name="custom_provider_api_key_label">%s API Anahtarı ⭐</string>
+    <string name="api_keys_saved">API Anahtarları kaydedildi.</string>
 </resources>
