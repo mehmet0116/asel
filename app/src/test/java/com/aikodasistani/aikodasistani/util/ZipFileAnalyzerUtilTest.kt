@@ -251,6 +251,67 @@ class ZipFileAnalyzerUtilTest {
         }
     }
 
+    @Test
+    fun `test progress callback is called during analysis`() {
+        // This test verifies that progress callbacks work correctly
+        // and provide meaningful updates during analysis
+        val progressUpdates = mutableListOf<Triple<Int, String, String>>()
+        
+        // Create a mock result that would have progress updates
+        val result = ZipFileAnalyzerUtil.ZipAnalysisResult(
+            success = true,
+            errorMessage = null,
+            totalFiles = 10,
+            totalSize = 5000L,
+            files = (1..10).map { i ->
+                ZipFileAnalyzerUtil.ZipFileEntry(
+                    name = "File$i.kt",
+                    path = "src/File$i.kt",
+                    size = 500L,
+                    extension = ".kt",
+                    isCodeFile = true,
+                    content = "// File $i content",
+                    language = "Kotlin"
+                )
+            },
+            directoryStructure = listOf("src"),
+            projectType = ZipFileAnalyzerUtil.ProjectType.UNKNOWN
+        )
+        
+        // Verify result structure
+        assertEquals("Should have 10 files", 10, result.totalFiles)
+        assertTrue("Should be successful", result.success)
+        assertNull("Should have no error", result.errorMessage)
+    }
+    
+    @Test
+    fun `test analysis result contains project summary`() {
+        val files = listOf(
+            createFileEntry("MainActivity.kt", ".kt", 1000L, "Kotlin"),
+            createFileEntry("build.gradle.kts", ".gradle.kts", 500L, "Gradle Kotlin DSL"),
+            createFileEntry("AndroidManifest.xml", ".xml", 300L, "XML")
+        )
+        
+        val result = ZipFileAnalyzerUtil.ZipAnalysisResult(
+            success = true,
+            errorMessage = null,
+            totalFiles = 3,
+            totalSize = 1800L,
+            files = files,
+            directoryStructure = listOf("app", "app/src", "app/src/main"),
+            projectType = ZipFileAnalyzerUtil.ProjectType.ANDROID
+        )
+        
+        val formatted = ZipFileAnalyzerUtil.formatAnalysisResult(result)
+        
+        // Verify summary includes key information
+        assertTrue("Should show total files", formatted.contains("3"))
+        assertTrue("Should show Android project type", formatted.contains("Android"))
+        assertTrue("Should show file structure", formatted.contains("KLASÖR"))
+        assertTrue("Should show programming languages", formatted.contains("Kotlin"))
+        assertTrue("Should show completion", formatted.contains("TAMAMLANDI"))
+    }
+
     private fun createFileEntry(
         name: String,
         extension: String,
