@@ -238,7 +238,7 @@ class DialogManager(private val activity: Activity) {
                 if (isCustom && onRemoveCustomModel != null) {
                     showRemoveCustomModelDialog(model) {
                         if (onRemoveCustomModel(model)) {
-                            Toast.makeText(activity, "Model silindi: $model", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(activity, activity.getString(R.string.custom_model_removed, model), Toast.LENGTH_SHORT).show()
                             dialog.dismiss()
                         }
                     }
@@ -257,10 +257,10 @@ class DialogManager(private val activity: Activity) {
                 setOnClickListener {
                     showAddCustomModelDialog { modelName ->
                         if (onAddCustomModel(modelName)) {
-                            Toast.makeText(activity, "Model eklendi: $modelName", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(activity, activity.getString(R.string.custom_model_added, modelName), Toast.LENGTH_SHORT).show()
                             dialog.dismiss()
                         } else {
-                            Toast.makeText(activity, "Model eklenemedi. Zaten mevcut olabilir.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(activity, activity.getString(R.string.custom_model_exists), Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
@@ -279,15 +279,15 @@ class DialogManager(private val activity: Activity) {
         
         AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
             .setView(dialogView)
-            .setPositiveButton("Ekle") { _, _ ->
+            .setPositiveButton(android.R.string.ok) { _, _ ->
                 val modelName = editTextModelName.text.toString().trim()
                 if (modelName.isNotBlank()) {
                     onModelEntered(modelName)
                 } else {
-                    Toast.makeText(activity, "Lütfen bir model adı girin.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(activity, activity.getString(R.string.custom_model_empty), Toast.LENGTH_SHORT).show()
                 }
             }
-            .setNegativeButton("İptal", null)
+            .setNegativeButton(android.R.string.cancel, null)
             .show()
     }
 
@@ -296,10 +296,10 @@ class DialogManager(private val activity: Activity) {
      */
     private fun showRemoveCustomModelDialog(modelName: String, onConfirm: () -> Unit) {
         AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
-            .setTitle("Özel Modeli Sil")
-            .setMessage("\"$modelName\" modelini silmek istediğinizden emin misiniz?")
-            .setPositiveButton("Sil") { _, _ -> onConfirm() }
-            .setNegativeButton("İptal", null)
+            .setTitle(R.string.custom_model_delete_title)
+            .setMessage(activity.getString(R.string.custom_model_delete_message, modelName))
+            .setPositiveButton(android.R.string.ok) { _, _ -> onConfirm() }
+            .setNegativeButton(android.R.string.cancel, null)
             .show()
     }
     
