@@ -46,7 +46,6 @@ fun AttachmentOptionCard(iconRes: Int, label: String, subtitle: String, color: C
             modifier = Modifier
                 .clickable(
                     interactionSource = interactionSource,
-                    indication = null,
                     role = Role.Button,
                     onClick = onClick
                 )
