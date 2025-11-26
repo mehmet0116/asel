@@ -1667,9 +1667,10 @@ class MainActivity : AppCompatActivity(),
         
         // Başlangıç değerleri - analiz otomatik başlayacak
         tvZipFileName.text = fileName
-        tvZipFileInfo.text = "⏳ ZIP dosyası analiz ediliyor..."
+        // ✅ NEUTRAL MESSAGE (Issue #43): No "analyzing" - just "reading"
+        tvZipFileInfo.text = "⏳ ZIP dosyası okunuyor..."
         tvProgressStatus.text = "Başlatılıyor..."
-        tvLiveAnalysis.text = "📦 ZIP dosyası açılıyor ve içerik analiz ediliyor...\n\n⏳ Lütfen bekleyin..."
+        tvLiveAnalysis.text = "📦 ZIP içeriği okunuyor...\n\n⏳ Lütfen bekleyin..."
         isZipAnalysisComplete = false
         
         // Canlı log stringbuilder
@@ -1685,22 +1686,19 @@ class MainActivity : AppCompatActivity(),
         
         btnAnalyze.setOnClickListener {
             if (isZipAnalysisComplete) {
-                // Analiz tamamlanmış, AI'ye gönder
+                // ✅ SILENT CODE READER (Issue #43): 
+                // Only send raw code bundle when user explicitly clicks this button
                 zipAnalysisDialog?.dismiss()
                 currentZipAnalysisResult?.let { result ->
-                    val content = ZipFileAnalyzerUtil.formatAnalysisResult(result)
-                    pendingFileContent = content
+                    // Use raw code bundle instead of formatted analysis
+                    val rawCodeBundle = ZipFileAnalyzerUtil.buildRawCodeBundle(result)
+                    pendingFileContent = rawCodeBundle
                     pendingFileName = fileName
                     
-                    // Otomatik olarak AI'ye gönder
-                    mainCoroutineScope.launch {
-                        addMessage("📦 ZIP Analizi: $fileName\n\nBu ZIP dosyasını analiz et ve içeriği hakkında bilgi ver.", true)
-                        if (currentThinkingLevel > 0) {
-                            getRealDeepThinkingResponse(content, null)
-                        } else {
-                            getRealAiResponse(content, null, false)
-                        }
-                    }
+                    // ✅ NEUTRAL MESSAGE (Issue #43): Don't auto-send, let user type their question
+                    editTextMessage.setText("")
+                    editTextMessage.hint = "Bu kodla ilgili sorunuzu yazın..."
+                    Toast.makeText(this@MainActivity, "✅ Kodlar yüklendi. Sorunuzu yazın ve Gönder'e basın.", Toast.LENGTH_LONG).show()
                 }
             } else {
                 // Analiz başarısız olmuş veya tamamlanmamış, tekrar dene
@@ -2032,8 +2030,8 @@ class MainActivity : AppCompatActivity(),
                 
                 withContext(Dispatchers.Main) {
                     if (analysisResult.success) {
-                        // İstatistikleri güncelle
-                        tvZipFileInfo.text = "✅ Analiz tamamlandı! AI'ye göndermek için butona tıklayın."
+                        // ✅ NEUTRAL MESSAGE (Issue #43): No "send to AI" prompts
+                        tvZipFileInfo.text = "✅ Dosyalar başarıyla okundu. Artık bu kodla ilgili sorular sorabilirsiniz."
                         statsSection.visibility = View.VISIBLE
                         actionButtonsRow1.visibility = View.VISIBLE
                         actionButtons.visibility = View.VISIBLE
@@ -2052,16 +2050,20 @@ class MainActivity : AppCompatActivity(),
                         
                         // Progress'i tamamlandı olarak güncelle
                         progressBar.progress = 100
-                        tvProgressStatus.text = "✅ Analiz tamamlandı - AI'ye gönderilebilir"
+                        // ✅ NEUTRAL MESSAGE (Issue #43): Simple completion status
+                        tvProgressStatus.text = "✅ Okuma tamamlandı"
                         
-                        // Log'a özet ekle
+                        // ✅ NEUTRAL LOG (Issue #43): Only technical info, no commentary
                         liveLog.append("\n" + "═".repeat(40) + "\n")
-                        liveLog.append("✅ ANALİZ TAMAMLANDI!\n")
-                        liveLog.append("📁 ${analysisResult.totalFiles} dosya bulundu\n")
+                        liveLog.append("✅ DOSYALAR BAŞARIYLA OKUNDU\n")
+                        liveLog.append("📁 ${analysisResult.totalFiles} dosya\n")
                         liveLog.append("📂 ${analysisResult.directoryStructure.size} klasör\n")
                         liveLog.append("💾 ${formatFileSizeSimple(analysisResult.totalSize)}\n")
                         
-                        // Dil dağılımı
+                        val codeFilesCount = analysisResult.files.count { it.isCodeFile && it.content != null }
+                        liveLog.append("📝 ${codeFilesCount} kod dosyası yüklendi\n")
+                        
+                        // Dil dağılımı - neutral info only
                         val languages = analysisResult.files
                             .filter { it.language != null }
                             .groupBy { it.language!! }
@@ -2077,18 +2079,21 @@ class MainActivity : AppCompatActivity(),
                             }
                         }
                         
-                        liveLog.append("\n👆 Yukarıdaki butonlardan bir işlem seçin!")
+                        // ✅ NEUTRAL MESSAGE (Issue #43): Ready for questions, not "send to AI"
+                        liveLog.append("\n✅ Sorularınız için hazır.")
                         
                         tvLiveAnalysis.text = liveLog.toString()
                         
-                        // pendingFileContent'i ayarla
-                        pendingFileContent = ZipFileAnalyzerUtil.formatAnalysisResult(analysisResult)
+                        // ✅ SILENT CODE READER (Issue #43): 
+                        // Use raw code bundle instead of formatted analysis
+                        // This stores code content without commentary
+                        pendingFileContent = ZipFileAnalyzerUtil.buildRawCodeBundle(analysisResult)
                         pendingFileName = fileName
                         
                         // Analiz tamamlandı durumuna geç
                         isZipAnalysisComplete = true
                         
-                        // Analiz Et butonunu "AI'ye Gönder" olarak değiştir
+                        // ✅ NEUTRAL BUTTON TEXT (Issue #43)
                         btnAnalyze.text = getString(R.string.zip_analyze_with_ai)
                         btnAnalyze.isEnabled = true
                         btnCancel.text = "Kapat"
@@ -2096,7 +2101,7 @@ class MainActivity : AppCompatActivity(),
                         
                     } else {
                         tvZipFileInfo.text = "❌ Hata: ${analysisResult.errorMessage}"
-                        tvProgressStatus.text = "Analiz başarısız"
+                        tvProgressStatus.text = "Okuma başarısız"
                         btnAnalyze.text = getString(R.string.zip_retry)
                         btnAnalyze.isEnabled = true
                         btnCancel.text = "Kapat"
@@ -2108,7 +2113,7 @@ class MainActivity : AppCompatActivity(),
                 Log.e("ZipAnalysis", "Analiz hatası", e)
                 withContext(Dispatchers.Main) {
                     tvZipFileInfo.text = "❌ Hata: ${e.message}"
-                    tvProgressStatus.text = "Analiz başarısız"
+                    tvProgressStatus.text = "Okuma başarısız"
                     btnAnalyze.text = getString(R.string.zip_retry)
                     btnAnalyze.isEnabled = true
                     btnCancel.text = "Kapat"
@@ -2435,7 +2440,7 @@ class MainActivity : AppCompatActivity(),
         recyclerView.itemAnimator = null
     }
 
-    // ✅ DÜZELTME: Video analiz hatası için setupSendButton güncellendi
+    // ✅ FIX: Updated send button - user text has priority over pendingFileContent (Issue #43)
     private fun setupSendButton() {
         buttonSend.setOnClickListener {
             val activeJob = currentResponseJob
@@ -2446,35 +2451,78 @@ class MainActivity : AppCompatActivity(),
 
             val text = editTextMessage.text.toString().trim()
 
-            // ✅ DÜZELTME: Video analiz içeriği kontrolünü iyileştir
-            if (pendingFileContent != null && pendingFileContent!!.isNotBlank()) {
+            // ✅ NEW PRIORITY ORDER (Issue #43):
+            // 1. User's text message always has priority
+            // 2. ZIP/file context is only used when there's no user text OR combined with user text
+            
+            if (text.isNotEmpty()) {
+                // Priority 1: User's text message is primary
+                val imagesToSend = pendingImageBase64List.toList()
+                
+                // If there's pending ZIP context, combine it with user question as background context
+                val messageToSend = if (pendingFileContent != null && pendingFileContent!!.isNotBlank()) {
+                    // Use raw code bundle as context, user question is primary
+                    val zipContext = pendingFileContent!!
+                    Log.d("SEND_DEBUG", "User question with ZIP context, question: ${text.take(50)}...")
+                    
+                    // Build combined message: user question first, then code context
+                    """
+                    |User Question: $text
+                    |
+                    |Code Context (from uploaded ZIP file):
+                    |$zipContext
+                    """.trimMargin()
+                } else {
+                    text
+                }
+
+                Log.d("SEND_DEBUG", "Sending user message: ${text.take(50)}...")
+
+                // Show user's original question in chat (not the combined message)
+                addMessage(text, true)
+
+                // ✅ Send the combined message (or just user text if no pending content)
+                if (currentThinkingLevel > 0) {
+                    getRealDeepThinkingResponse(messageToSend, imagesToSend)
+                } else {
+                    getRealAiResponse(messageToSend, imagesToSend, false)
+                }
+
+                editTextMessage.text.clear()
+                clearPendingImages()
+                // Clear pending content after sending
+                pendingFileContent = null
+                pendingFileName = null
+                
+            } else if (pendingFileContent != null && pendingFileContent!!.isNotBlank()) {
+                // Priority 2: Only if there is no user text, send pending file content
+                // This is for when user explicitly wants to send the file content
                 val contentToSend = pendingFileContent!!
 
-                Log.d("SEND_DEBUG", "Video içeriği gönderiliyor, uzunluk: ${contentToSend.length}")
+                Log.d("SEND_DEBUG", "Sending file content (no user text), length: ${contentToSend.length}")
 
                 addMessage(contentToSend, true)
                 editTextMessage.text.clear()
 
-                // ✅ KADEMELİ derin düşünme çağrısı
                 if (currentThinkingLevel > 0) {
                     getRealDeepThinkingResponse(contentToSend, null)
                 } else {
                     getRealAiResponse(contentToSend, null, false)
                 }
 
-                // Gönderdikten sonra temizle
+                // Clear after sending
                 pendingFileContent = null
                 pendingFileName = null
 
-            } else if (text.isNotEmpty() || pendingImageBase64List.isNotEmpty()) {
-                val messageToSend = if (text.isNotEmpty()) text else "Bu görseli analiz et"
+            } else if (pendingImageBase64List.isNotEmpty()) {
+                // Priority 3: Images only (no text, no file content)
+                val messageToSend = "Bu görseli analiz et"
                 val imagesToSend = pendingImageBase64List.toList()
 
-                Log.d("SEND_DEBUG", "Normal mesaj gönderiliyor: ${messageToSend.take(50)}...")
+                Log.d("SEND_DEBUG", "Sending images only: ${imagesToSend.size} images")
 
                 addMessage(messageToSend, true)
 
-                // ✅ KADEMELİ derin düşünme çağrısı
                 if (currentThinkingLevel > 0) {
                     getRealDeepThinkingResponse(messageToSend, imagesToSend)
                 } else {

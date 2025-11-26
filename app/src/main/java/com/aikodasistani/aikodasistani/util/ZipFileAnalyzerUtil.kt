@@ -775,6 +775,46 @@ object ZipFileAnalyzerUtil {
     }
     
     /**
+     * Builds a raw code bundle without any analysis or commentary.
+     * This is used for silent code reading - only contains file paths and raw content.
+     * No human-style analysis, summaries, or suggestions are included.
+     */
+    fun buildRawCodeBundle(result: ZipAnalysisResult): String {
+        val sb = StringBuilder()
+        result.files
+            .filter { it.isCodeFile && it.content != null }
+            .forEach { file ->
+                sb.appendLine("/// FILE: ${file.path}")
+                sb.appendLine(file.content)
+                sb.appendLine()
+            }
+        return sb.toString()
+    }
+    
+    /**
+     * Builds neutral technical info for UI display.
+     * Only shows counts, sizes, and structure - no opinionated analysis.
+     */
+    fun buildNeutralSummary(result: ZipAnalysisResult): String {
+        if (!result.success) {
+            return "❌ Hata: ${result.errorMessage}"
+        }
+        
+        val sb = StringBuilder()
+        sb.appendLine("📁 Okunan dosyalar: ${result.totalFiles}")
+        sb.appendLine("📂 Klasörler: ${result.directoryStructure.size}")
+        sb.appendLine("💾 Toplam boyut: ${formatFileSize(result.totalSize)}")
+        
+        val codeFilesCount = result.files.count { it.isCodeFile && it.content != null }
+        sb.appendLine("📝 Yüklenen kod dosyaları: $codeFilesCount")
+        sb.appendLine()
+        sb.appendLine("✅ Dosyalar başarıyla okundu.")
+        sb.appendLine("Artık bu kodla ilgili sorular sorabilirsiniz.")
+        
+        return sb.toString()
+    }
+    
+    /**
      * Hata analiz promptu oluştur
      */
     fun generateErrorFixPrompt(result: ZipAnalysisResult): String {
