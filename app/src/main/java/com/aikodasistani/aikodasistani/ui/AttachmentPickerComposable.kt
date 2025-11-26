@@ -26,7 +26,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.aikodasistani.aikodasistani.R
-import androidx.compose.foundation.ripple.rememberRipple
+import androidx.compose.material.ripple.rememberRipple
 
 @Composable
 fun AttachmentOptionCard(iconRes: Int, label: String, subtitle: String, color: Color, onClick: () -> Unit) {
