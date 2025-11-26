@@ -26,9 +26,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.aikodasistani.aikodasistani.R
-import androidx.compose.material.ripple.rememberRipple
 
-@Suppress("DEPRECATION")
 @Composable
 fun AttachmentOptionCard(iconRes: Int, label: String, subtitle: String, color: Color, onClick: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -48,7 +46,7 @@ fun AttachmentOptionCard(iconRes: Int, label: String, subtitle: String, color: C
             modifier = Modifier
                 .clickable(
                     interactionSource = interactionSource,
-                    indication = rememberRipple(bounded = true, color = Color.Black.copy(alpha = 0.12f)),
+                    indication = null,
                     role = Role.Button,
                     onClick = onClick
                 )
