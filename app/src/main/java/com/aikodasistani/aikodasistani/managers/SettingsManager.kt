@@ -35,6 +35,18 @@ class SettingsManager(private val context: Context) {
 
     // Custom models added by user for each provider
     private var customModels: MutableMap<String, MutableList<String>> = mutableMapOf()
+    
+    // Custom providers added by user (provider name -> base URL)
+    private var customProviders: MutableMap<String, CustomProviderConfig> = mutableMapOf()
+    
+    /**
+     * Configuration for a custom provider
+     */
+    data class CustomProviderConfig(
+        val name: String,
+        val baseUrl: String,
+        val defaultModels: List<String> = emptyList()
+    )
 
     var currentProvider: String = "OPENAI"
         private set
@@ -63,6 +75,7 @@ class SettingsManager(private val context: Context) {
     suspend fun initialize() {
         loadApiKeys()
         loadCustomModels()
+        loadCustomProviders()
         fetchModelConfig()
         loadProviderAndModel()
     }
@@ -107,7 +120,8 @@ class SettingsManager(private val context: Context) {
     fun setProvider(provider: String) {
         currentProvider = provider
         sharedPreferences.edit().putString("current_provider", provider).apply()
-        setModel(modelConfig[provider]?.firstOrNull() ?: "")
+        val models = getModelsForProvider(provider)
+        setModel(models.firstOrNull() ?: "")
     }
 
     /**
@@ -185,10 +199,14 @@ class SettingsManager(private val context: Context) {
      * Get all models for a provider (default + custom)
      */
     fun getModelsForProvider(provider: String): List<String> {
+        // Check default models from models.json
         val defaultModels = modelConfig[provider] ?: emptyList()
+        // Check custom provider's default models
+        val customProviderModels = customProviders[provider]?.defaultModels ?: emptyList()
+        // Check user-added custom models
         val userCustomModels = customModels[provider] ?: emptyList()
-        // Combine default and custom models, avoiding duplicates
-        return (defaultModels + userCustomModels).distinct()
+        // Combine all, avoiding duplicates
+        return (defaultModels + customProviderModels + userCustomModels).distinct()
     }
 
     /**
@@ -272,5 +290,176 @@ class SettingsManager(private val context: Context) {
             Log.e("SettingsManager", "Failed to load custom models", e)
             customModels = mutableMapOf()
         }
+    }
+    
+    // ==================== Custom Provider Management ====================
+    
+    /**
+     * Get all providers (default from models.json + custom providers)
+     */
+    fun getAllProviders(): List<String> {
+        val defaultProviders = modelConfig.keys.toList()
+        val customProviderNames = customProviders.keys.toList()
+        return (defaultProviders + customProviderNames).distinct()
+    }
+    
+    /**
+     * Get only custom providers
+     */
+    fun getCustomProviders(): List<CustomProviderConfig> {
+        return customProviders.values.toList()
+    }
+    
+    /**
+     * Check if a provider is a custom (user-added) provider
+     */
+    fun isCustomProvider(providerName: String): Boolean {
+        return customProviders.containsKey(providerName)
+    }
+    
+    /**
+     * Get custom provider config by name
+     */
+    fun getCustomProviderConfig(providerName: String): CustomProviderConfig? {
+        return customProviders[providerName]
+    }
+    
+    /**
+     * Add a custom provider
+     * @param name The display name of the provider
+     * @param baseUrl The base URL for API calls (e.g., https://api.example.com)
+     * @param defaultModels Initial list of models for this provider
+     * @return true if added successfully, false if provider already exists
+     */
+    fun addCustomProvider(name: String, baseUrl: String, defaultModels: List<String> = emptyList()): Boolean {
+        if (name.isBlank() || baseUrl.isBlank()) return false
+        
+        val trimmedName = name.trim().uppercase()
+        val trimmedUrl = baseUrl.trim()
+        
+        // Check if provider already exists (in default or custom)
+        if (modelConfig.containsKey(trimmedName) || customProviders.containsKey(trimmedName)) {
+            return false
+        }
+        
+        // Add to custom providers
+        customProviders[trimmedName] = CustomProviderConfig(
+            name = trimmedName,
+            baseUrl = trimmedUrl,
+            defaultModels = defaultModels
+        )
+        
+        // Also add models if provided
+        if (defaultModels.isNotEmpty()) {
+            customModels[trimmedName] = defaultModels.toMutableList()
+        }
+        
+        saveCustomProviders()
+        Log.d("SettingsManager", "Added custom provider: $trimmedName with URL: $trimmedUrl")
+        
+        return true
+    }
+    
+    /**
+     * Remove a custom provider
+     * @param providerName The name of the provider to remove
+     * @return true if removed successfully, false if provider doesn't exist or is not custom
+     */
+    fun removeCustomProvider(providerName: String): Boolean {
+        if (!customProviders.containsKey(providerName)) {
+            return false
+        }
+        
+        customProviders.remove(providerName)
+        customModels.remove(providerName) // Also remove associated models
+        
+        // If current provider was the removed one, switch to default
+        if (currentProvider == providerName) {
+            setProvider(modelConfig.keys.firstOrNull() ?: "OPENAI")
+        }
+        
+        saveCustomProviders()
+        Log.d("SettingsManager", "Removed custom provider: $providerName")
+        
+        return true
+    }
+    
+    /**
+     * Get the base URL for a provider
+     * @param providerName The name of the provider
+     * @return The base URL for API calls
+     */
+    fun getProviderBaseUrl(providerName: String): String {
+        // First check custom providers
+        customProviders[providerName]?.let { return it.baseUrl }
+        
+        // Then return default URLs for known providers
+        return when (providerName) {
+            "OPENAI" -> "https://api.openai.com"
+            "GEMINI" -> "https://generativelanguage.googleapis.com"
+            "DEEPSEEK" -> "https://api.deepseek.com"
+            "QWEN" -> "https://dashscope-intl.aliyuncs.com/compatible-mode"
+            else -> ""
+        }
+    }
+    
+    /**
+     * Save custom providers to SharedPreferences
+     */
+    private fun saveCustomProviders() {
+        val json = Json { ignoreUnknownKeys = true }
+        val serializedMap = customProviders.mapValues { 
+            mapOf(
+                "name" to it.value.name,
+                "baseUrl" to it.value.baseUrl,
+                "defaultModels" to it.value.defaultModels.joinToString(",")
+            )
+        }
+        val jsonString = json.encodeToString(
+            kotlinx.serialization.serializer<Map<String, Map<String, String>>>(),
+            serializedMap
+        )
+        sharedPreferences.edit().putString("custom_providers", jsonString).apply()
+        Log.d("SettingsManager", "Saved custom providers: $jsonString")
+    }
+    
+    /**
+     * Load custom providers from SharedPreferences
+     */
+    private fun loadCustomProviders() {
+        try {
+            val jsonString = sharedPreferences.getString("custom_providers", null)
+            if (jsonString != null) {
+                val json = Json { ignoreUnknownKeys = true }
+                val loadedMap = json.decodeFromString<Map<String, Map<String, String>>>(jsonString)
+                customProviders = loadedMap.mapValues { entry ->
+                    CustomProviderConfig(
+                        name = entry.value["name"] ?: entry.key,
+                        baseUrl = entry.value["baseUrl"] ?: "",
+                        defaultModels = entry.value["defaultModels"]?.split(",")?.filter { it.isNotBlank() } ?: emptyList()
+                    )
+                }.toMutableMap()
+                Log.d("SettingsManager", "Loaded custom providers: $customProviders")
+            }
+        } catch (e: Exception) {
+            Log.e("SettingsManager", "Failed to load custom providers", e)
+            customProviders = mutableMapOf()
+        }
+    }
+    
+    /**
+     * Save API key for a custom provider
+     */
+    fun saveCustomProviderApiKey(providerName: String, apiKey: String) {
+        sharedPreferences.edit()
+            .putString("user_${providerName.lowercase()}_api_key", apiKey)
+            .apply()
+    }
+    
+    /**
+     * Load API key for a custom provider
+     */
+    fun getCustomProviderApiKey(providerName: String): String {
+        return sharedPreferences.getString("user_${providerName.lowercase()}_api_key", "") ?: ""
     }
 }

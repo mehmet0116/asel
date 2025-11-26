@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -123,6 +124,19 @@ class DialogManager(private val activity: Activity) {
         providers: Array<String>,
         onProviderSelected: (String) -> Unit
     ) {
+        showProviderSelectionDialogWithCustom(providers, emptyList(), onProviderSelected, null, null)
+    }
+    
+    /**
+     * Show provider selection dialog with custom provider support
+     */
+    fun showProviderSelectionDialogWithCustom(
+        providers: Array<String>,
+        customProviders: List<String>,
+        onProviderSelected: (String) -> Unit,
+        onAddCustomProvider: ((String, String, List<String>) -> Boolean)?,
+        onRemoveCustomProvider: ((String) -> Boolean)?
+    ) {
         val dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_provider_selection, null)
         val recyclerView = dialogView.findViewById<RecyclerView>(R.id.recyclerViewProviders)
         
@@ -132,21 +146,96 @@ class DialogManager(private val activity: Activity) {
             .setView(dialogView)
             .create()
         
-        val adapter = ProviderAdapter(providers) { provider ->
-            onProviderSelected(provider)
-            dialog.dismiss()
-        }
+        val adapter = ProviderAdapter(
+            providers = providers,
+            customProviders = customProviders,
+            onItemClick = { provider ->
+                onProviderSelected(provider)
+                dialog.dismiss()
+            },
+            onLongClick = { provider, isCustom ->
+                if (isCustom && onRemoveCustomProvider != null) {
+                    showRemoveCustomProviderDialog(provider) {
+                        if (onRemoveCustomProvider(provider)) {
+                            Toast.makeText(activity, activity.getString(R.string.custom_provider_removed, provider), Toast.LENGTH_SHORT).show()
+                            dialog.dismiss()
+                        }
+                    }
+                    true
+                } else {
+                    false
+                }
+            }
+        )
         recyclerView.adapter = adapter
+        
+        // Add custom provider button if callback provided
+        if (onAddCustomProvider != null) {
+            dialogView.findViewById<View>(R.id.btnAddCustomProvider)?.apply {
+                visibility = View.VISIBLE
+                setOnClickListener {
+                    showAddCustomProviderDialog { name, url, models ->
+                        if (onAddCustomProvider(name, url, models)) {
+                            Toast.makeText(activity, activity.getString(R.string.custom_provider_added, name), Toast.LENGTH_SHORT).show()
+                            dialog.dismiss()
+                        } else {
+                            Toast.makeText(activity, activity.getString(R.string.custom_provider_exists), Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+        }
         
         dialog.show()
     }
     
     /**
-     * Adapter for provider items
+     * Show dialog to add a custom provider
+     */
+    fun showAddCustomProviderDialog(onProviderEntered: (String, String, List<String>) -> Unit) {
+        val dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_add_custom_provider, null)
+        val editTextProviderName = dialogView.findViewById<EditText>(R.id.editTextCustomProviderName)
+        val editTextBaseUrl = dialogView.findViewById<EditText>(R.id.editTextProviderBaseUrl)
+        val editTextDefaultModel = dialogView.findViewById<EditText>(R.id.editTextDefaultModel)
+        
+        AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
+            .setView(dialogView)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                val providerName = editTextProviderName.text.toString().trim()
+                val baseUrl = editTextBaseUrl.text.toString().trim()
+                val defaultModel = editTextDefaultModel.text.toString().trim()
+                
+                if (providerName.isNotBlank() && baseUrl.isNotBlank()) {
+                    val models = if (defaultModel.isNotBlank()) listOf(defaultModel) else emptyList()
+                    onProviderEntered(providerName, baseUrl, models)
+                } else {
+                    Toast.makeText(activity, activity.getString(R.string.custom_provider_empty), Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+    
+    /**
+     * Show confirmation dialog to remove a custom provider
+     */
+    private fun showRemoveCustomProviderDialog(providerName: String, onConfirm: () -> Unit) {
+        AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
+            .setTitle(R.string.custom_provider_delete_title)
+            .setMessage(activity.getString(R.string.custom_provider_delete_message, providerName))
+            .setPositiveButton(android.R.string.ok) { _, _ -> onConfirm() }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+    
+    /**
+     * Adapter for provider items with custom provider support
      */
     private class ProviderAdapter(
         private val providers: Array<String>,
-        private val onItemClick: (String) -> Unit
+        private val customProviders: List<String>,
+        private val onItemClick: (String) -> Unit,
+        private val onLongClick: ((String, Boolean) -> Boolean)?
     ) : RecyclerView.Adapter<ProviderAdapter.ViewHolder>() {
         
         class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -164,25 +253,30 @@ class DialogManager(private val activity: Activity) {
         
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val provider = providers[position]
-            holder.name.text = provider
+            val isCustom = customProviders.contains(provider)
+            holder.name.text = if (isCustom) "$provider ⭐" else provider
             
             // Set icon and description based on provider
-            when (provider) {
-                "OpenAI" -> {
+            when {
+                isCustom -> {
+                    holder.icon.text = "⭐"
+                    holder.description.text = "Özel sağlayıcı (silmek için uzun bas)"
+                }
+                provider.equals("OPENAI", ignoreCase = true) -> {
                     holder.icon.text = "🤖"
                     holder.description.text = "GPT-4 ve GPT-3.5 modelleri"
                 }
-                "Gemini" -> {
+                provider.equals("GEMINI", ignoreCase = true) -> {
                     holder.icon.text = "💎"
                     holder.description.text = "Google'ın AI modelleri"
                 }
-                "DeepSeek" -> {
+                provider.equals("DEEPSEEK", ignoreCase = true) -> {
                     holder.icon.text = "🔍"
                     holder.description.text = "Derin öğrenme modelleri"
                 }
-                "DashScope" -> {
+                provider.equals("QWEN", ignoreCase = true) || provider.equals("DASHSCOPE", ignoreCase = true) -> {
                     holder.icon.text = "🌟"
-                    holder.description.text = "Alibaba Cloud AI modelleri"
+                    holder.description.text = "Alibaba Cloud AI modelleri (Uluslararası)"
                 }
                 else -> {
                     holder.icon.text = "🤖"
@@ -192,6 +286,10 @@ class DialogManager(private val activity: Activity) {
             
             holder.card.setOnClickListener {
                 onItemClick(provider)
+            }
+            
+            holder.card.setOnLongClickListener {
+                onLongClick?.invoke(provider, isCustom) ?: false
             }
         }
         
@@ -385,16 +483,89 @@ class DialogManager(private val activity: Activity) {
         currentDashScopeKey: String,
         onSave: (String, String, String, String) -> Unit
     ) {
+        showSettingsDialogWithCustomProviders(
+            currentOpenAiKey = currentOpenAiKey,
+            currentGeminiKey = currentGeminiKey,
+            currentDeepSeekKey = currentDeepSeekKey,
+            currentDashScopeKey = currentDashScopeKey,
+            customProviders = emptyList(),
+            customProviderApiKeys = emptyMap(),
+            onSave = onSave,
+            onSaveCustomProviderKey = null
+        )
+    }
+    
+    /**
+     * Show settings dialog for API keys with custom provider support
+     */
+    fun showSettingsDialogWithCustomProviders(
+        currentOpenAiKey: String,
+        currentGeminiKey: String,
+        currentDeepSeekKey: String,
+        currentDashScopeKey: String,
+        customProviders: List<String>,
+        customProviderApiKeys: Map<String, String>,
+        onSave: (String, String, String, String) -> Unit,
+        onSaveCustomProviderKey: ((String, String) -> Unit)?
+    ) {
         val dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_settings, null)
         val editTextOpenAi = dialogView.findViewById<EditText>(R.id.editTextOpenAiKey)
         val editTextGemini = dialogView.findViewById<EditText>(R.id.editTextGeminiKey)
         val editTextDeepSeek = dialogView.findViewById<EditText>(R.id.editTextDeepSeekKey)
         val editTextDashScope = dialogView.findViewById<EditText>(R.id.editTextDashScopeKey)
+        val customProvidersContainer = dialogView.findViewById<LinearLayout>(R.id.customProvidersContainer)
 
         editTextOpenAi.setText(currentOpenAiKey)
         editTextGemini.setText(currentGeminiKey)
         editTextDeepSeek.setText(currentDeepSeekKey)
         editTextDashScope.setText(currentDashScopeKey)
+        
+        // Dynamically add custom provider API key fields
+        val customProviderEditTexts = mutableMapOf<String, EditText>()
+        if (customProviders.isNotEmpty() && customProvidersContainer != null) {
+            customProvidersContainer.visibility = View.VISIBLE
+            
+            for (providerName in customProviders) {
+                // Create card for custom provider
+                val cardView = CardView(activity)
+                val cardLayoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                cardLayoutParams.bottomMargin = 16
+                cardView.layoutParams = cardLayoutParams
+                cardView.radius = 16f
+                cardView.cardElevation = 2f
+                
+                val innerLayout = LinearLayout(activity)
+                innerLayout.orientation = LinearLayout.VERTICAL
+                innerLayout.setPadding(16, 16, 16, 16)
+                
+                val labelTextView = TextView(activity)
+                labelTextView.text = "$providerName API Anahtarı ⭐"
+                labelTextView.setTextColor(activity.resources.getColor(R.color.text_primary, null))
+                labelTextView.setTypeface(null, android.graphics.Typeface.BOLD)
+                
+                val editText = EditText(activity)
+                val editTextLayoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                editTextLayoutParams.topMargin = 8
+                editText.layoutParams = editTextLayoutParams
+                editText.hint = "sk-..."
+                editText.inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+                editText.setText(customProviderApiKeys[providerName] ?: "")
+                editText.minHeight = 48
+                
+                customProviderEditTexts[providerName] = editText
+                
+                innerLayout.addView(labelTextView)
+                innerLayout.addView(editText)
+                cardView.addView(innerLayout)
+                customProvidersContainer.addView(cardView)
+            }
+        }
 
         AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
             .setView(dialogView)
@@ -404,6 +575,15 @@ class DialogManager(private val activity: Activity) {
                 val newDeepSeekKey = editTextDeepSeek.text.toString().trim()
                 val newDashScopeKey = editTextDashScope.text.toString().trim()
                 onSave(newOpenAiKey, newGeminiKey, newDeepSeekKey, newDashScopeKey)
+                
+                // Save custom provider API keys
+                if (onSaveCustomProviderKey != null) {
+                    for ((providerName, editText) in customProviderEditTexts) {
+                        val apiKey = editText.text.toString().trim()
+                        onSaveCustomProviderKey(providerName, apiKey)
+                    }
+                }
+                
                 Toast.makeText(activity, "API Anahtarları kaydedildi.", Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("İptal", null)

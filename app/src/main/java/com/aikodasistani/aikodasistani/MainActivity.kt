@@ -754,14 +754,28 @@ class MainActivity : AppCompatActivity(),
                 }
 
                 // ✅ Model tipine göre işlem
-                when (currentProvider) {
-                    "OPENAI", "DEEPSEEK", "QWEN" -> {
-                        val baseUrl = when (currentProvider) {
-                            "OPENAI" -> "https://api.openai.com"
-                            "DEEPSEEK" -> "https://api.deepseek.com"
-                            "QWEN" -> "https://dashscope-intl.aliyuncs.com/compatible-mode"
-                            else -> ""
+                when {
+                    // Check if it's a custom provider first
+                    settingsManager.isCustomProvider(currentProvider) -> {
+                        val baseUrl = settingsManager.getProviderBaseUrl(currentProvider)
+                        val apiKey = settingsManager.getCustomProviderApiKey(currentProvider)
+                        
+                        if (apiKey.isBlank()) {
+                            throw Exception("$currentProvider için API anahtarı girilmedi. Ayarlar menüsünden API anahtarını girin.")
                         }
+                        
+                        callOpenAIMultiModal(
+                            apiKey = apiKey,
+                            model = currentModel,
+                            prompt = finalPrompt,
+                            base64Images = finalImages,
+                            base = baseUrl,
+                            history = conversationHistory,
+                            systemPrompt = systemPrompt
+                        )
+                    }
+                    currentProvider == "OPENAI" || currentProvider == "DEEPSEEK" || currentProvider == "QWEN" -> {
+                        val baseUrl = settingsManager.getProviderBaseUrl(currentProvider)
                         val apiKey = when (currentProvider) {
                             "OPENAI" -> openAiApiKey
                             "DEEPSEEK" -> deepseekApiKey
@@ -780,7 +794,7 @@ class MainActivity : AppCompatActivity(),
                         )
                     }
 
-                    "GEMINI" -> {
+                    currentProvider == "GEMINI" -> {
                         if (geminiApiKey.isNotBlank()) {
                             val bmpList = finalImages?.mapNotNull { base64ToBitmap(it) }
                             callGeminiMultiTurn(
@@ -796,7 +810,25 @@ class MainActivity : AppCompatActivity(),
                         }
                     }
 
-                    else -> throw Exception("Bilinmeyen sağlayıcı: $currentProvider")
+                    else -> {
+                        // Try to use OpenAI compatible API for unknown providers
+                        val baseUrl = settingsManager.getProviderBaseUrl(currentProvider)
+                        val apiKey = settingsManager.getCustomProviderApiKey(currentProvider)
+                        
+                        if (baseUrl.isNotBlank() && apiKey.isNotBlank()) {
+                            callOpenAIMultiModal(
+                                apiKey = apiKey,
+                                model = currentModel,
+                                prompt = finalPrompt,
+                                base64Images = finalImages,
+                                base = baseUrl,
+                                history = conversationHistory,
+                                systemPrompt = systemPrompt
+                            )
+                        } else {
+                            throw Exception("Bilinmeyen sağlayıcı: $currentProvider")
+                        }
+                    }
                 }
             } catch (e: CancellationException) {
                 appendCancellationNote()
@@ -2344,10 +2376,32 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun showProviderSelectionDialog() {
-        val providers = modelConfig.keys.toTypedArray()
-        dialogManager.showProviderSelectionDialog(providers) { provider ->
-            setProvider(provider)
-        }
+        val allProviders = settingsManager.getAllProviders().toTypedArray()
+        val customProviderNames = settingsManager.getCustomProviders().map { it.name }
+        
+        dialogManager.showProviderSelectionDialogWithCustom(
+            providers = allProviders,
+            customProviders = customProviderNames,
+            onProviderSelected = { provider ->
+                setProvider(provider)
+            },
+            onAddCustomProvider = { name, url, models ->
+                val success = settingsManager.addCustomProvider(name, url, models)
+                if (success) {
+                    // Refresh the dialog with updated providers
+                    showProviderSelectionDialog()
+                }
+                success
+            },
+            onRemoveCustomProvider = { providerName ->
+                val success = settingsManager.removeCustomProvider(providerName)
+                if (success) {
+                    // Refresh the dialog with updated providers
+                    showProviderSelectionDialog()
+                }
+                success
+            }
+        )
     }
 
     private fun showModelSelectionDialog() {
@@ -2407,14 +2461,25 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun showSettingsDialog() {
-        dialogManager.showSettingsDialog(
+        val customProviderNames = settingsManager.getCustomProviders().map { it.name }
+        val customProviderApiKeys = customProviderNames.associateWith { 
+            settingsManager.getCustomProviderApiKey(it) 
+        }
+        
+        dialogManager.showSettingsDialogWithCustomProviders(
             currentOpenAiKey = openAiApiKey,
             currentGeminiKey = geminiApiKey,
             currentDeepSeekKey = deepseekApiKey,
-            currentDashScopeKey = dashscopeApiKey
-        ) { newOpenAiKey, newGeminiKey, newDeepSeekKey, newDashScopeKey ->
-            saveApiKeys(newOpenAiKey, newGeminiKey, newDeepSeekKey, newDashScopeKey)
-        }
+            currentDashScopeKey = dashscopeApiKey,
+            customProviders = customProviderNames,
+            customProviderApiKeys = customProviderApiKeys,
+            onSave = { newOpenAiKey, newGeminiKey, newDeepSeekKey, newDashScopeKey ->
+                saveApiKeys(newOpenAiKey, newGeminiKey, newDeepSeekKey, newDashScopeKey)
+            },
+            onSaveCustomProviderKey = { providerName, apiKey ->
+                settingsManager.saveCustomProviderApiKey(providerName, apiKey)
+            }
+        )
     }
 
     private fun saveApiKeys(openAI: String, gemini: String, deepSeek: String, dashScope: String) {
