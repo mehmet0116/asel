@@ -1591,6 +1591,7 @@ class MainActivity : AppCompatActivity(),
     private var currentZipAnalysisResult: ZipFileAnalyzerUtil.ZipAnalysisResult? = null
     private var currentZipUri: Uri? = null
     private var zipAnalysisDialog: AlertDialog? = null
+    private var isZipAnalysisComplete: Boolean = false
     
     private suspend fun processZipFile(uri: Uri) {
         currentZipUri = uri
@@ -1625,10 +1626,6 @@ class MainActivity : AppCompatActivity(),
         val btnCancel = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnCancel)
         val btnAnalyze = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnAnalyze)
         
-        // Başlangıç değerleri
-        tvZipFileName.text = fileName
-        tvZipFileInfo.text = "Analiz başlatılıyor..."
-        
         // Dialog oluştur
         zipAnalysisDialog = AlertDialog.Builder(this)
             .setView(dialogView)
@@ -1637,109 +1634,54 @@ class MainActivity : AppCompatActivity(),
         
         zipAnalysisDialog?.show()
         
-        // Canlı log stringbuilder
-        val liveLog = StringBuilder()
+        // Başlangıç değerleri - dosya bilgisini hemen göster
+        tvZipFileName.text = fileName
+        tvZipFileInfo.text = "📦 ZIP dosyası seçildi"
+        tvProgressStatus.text = "Analiz başlatmak için 'Analiz Et' butonuna tıklayın"
+        isZipAnalysisComplete = false
         
-        // Analiz başlat
+        // Dosya boyutu bilgisini hemen göster
         mainCoroutineScope.launch {
             try {
-                val analysisResult = ZipFileAnalyzerUtil.analyzeZipFile(
-                    contentResolver, 
-                    uri
-                ) { progress, currentFile, status ->
-                    // Canlı güncelleme - Main thread'de
-                    runOnUiThread {
-                        progressBar.progress = progress
-                        tvProgressStatus.text = "$progress% - $status"
-                        
-                        // Canlı log'a ekle
-                        if (currentFile.isNotEmpty()) {
-                            liveLog.append("$status\n")
-                            tvLiveAnalysis.text = liveLog.toString()
-                            
-                            // Auto-scroll için parent'ı bul
-                            (tvLiveAnalysis.parent as? android.widget.ScrollView)?.fullScroll(View.FOCUS_DOWN)
-                        }
-                    }
-                }
-                
-                // Analiz tamamlandı
-                currentZipAnalysisResult = analysisResult
-                
+                val fileSize = getFileSize(uri)
                 withContext(Dispatchers.Main) {
-                    if (analysisResult.success) {
-                        // İstatistikleri güncelle
-                        tvZipFileInfo.text = "✅ Analiz tamamlandı"
-                        statsSection.visibility = View.VISIBLE
-                        actionButtons.visibility = View.VISIBLE
-                        
-                        tvFileCount.text = analysisResult.totalFiles.toString()
-                        tvFolderCount.text = analysisResult.directoryStructure.size.toString()
-                        tvTotalSize.text = formatFileSizeSimple(analysisResult.totalSize)
-                        tvProjectType.text = getProjectTypeEmoji(analysisResult.projectType)
-                        
-                        // Progress'i tamamlandı olarak güncelle
-                        progressBar.progress = 100
-                        tvProgressStatus.text = "✅ Analiz tamamlandı"
-                        
-                        // Log'a özet ekle
-                        liveLog.append("\n" + "═".repeat(40) + "\n")
-                        liveLog.append("✅ ÖZET\n")
-                        liveLog.append("📁 ${analysisResult.totalFiles} dosya bulundu\n")
-                        liveLog.append("📂 ${analysisResult.directoryStructure.size} klasör\n")
-                        liveLog.append("💾 ${formatFileSizeSimple(analysisResult.totalSize)}\n")
-                        
-                        // Dil dağılımı
-                        val languages = analysisResult.files
-                            .filter { it.language != null }
-                            .groupBy { it.language!! }
-                            .mapValues { it.value.size }
-                            .toList()
-                            .sortedByDescending { it.second }
-                            .take(5)
-                        
-                        if (languages.isNotEmpty()) {
-                            liveLog.append("\n💻 Programlama Dilleri:\n")
-                            languages.forEach { (lang, count) ->
-                                liveLog.append("  • $lang: $count dosya\n")
-                            }
-                        }
-                        
-                        tvLiveAnalysis.text = liveLog.toString()
-                        
-                        // pendingFileContent'i ayarla
-                        pendingFileContent = ZipFileAnalyzerUtil.formatAnalysisResult(analysisResult)
-                        pendingFileName = fileName
-                        
-                    } else {
-                        tvZipFileInfo.text = "❌ Hata: ${analysisResult.errorMessage}"
-                        tvProgressStatus.text = "Analiz başarısız"
-                    }
+                    tvLiveAnalysis.text = "📦 Dosya: $fileName\n💾 Boyut: ${formatFileSizeSimple(fileSize)}\n\n✨ ZIP içeriğini analiz etmeye hazır!\n\n👉 'Analiz Et' butonuna tıklayarak ZIP içindeki dosyaları analiz edebilirsiniz."
                 }
-                
             } catch (e: Exception) {
-                Log.e("ZipAnalysis", "Analiz hatası", e)
-                withContext(Dispatchers.Main) {
-                    tvZipFileInfo.text = "❌ Hata: ${e.message}"
-                    tvProgressStatus.text = "Analiz başarısız"
-                }
+                Log.e("ZipAnalysis", "Dosya boyutu alınamadı", e)
             }
         }
+        
+        // Canlı log stringbuilder
+        val liveLog = StringBuilder()
         
         // Buton aksiyonları
         btnCancel.setOnClickListener {
             zipAnalysisDialog?.dismiss()
             currentZipAnalysisResult = null
             currentZipUri = null
+            isZipAnalysisComplete = false
         }
         
         btnAnalyze.setOnClickListener {
-            zipAnalysisDialog?.dismiss()
-            currentZipAnalysisResult?.let { result ->
-                val content = ZipFileAnalyzerUtil.formatAnalysisResult(result)
-                pendingFileContent = content
-                pendingFileName = fileName
-                setTextSafely(editTextMessage, "📦 ZIP analiz edildi: $fileName\n\nAI analizi için gönder butonuna basın.")
+            if (isZipAnalysisComplete) {
+                // Analiz tamamlanmış, AI'ye gönder
+                zipAnalysisDialog?.dismiss()
+                currentZipAnalysisResult?.let { result ->
+                    val content = ZipFileAnalyzerUtil.formatAnalysisResult(result)
+                    pendingFileContent = content
+                    pendingFileName = fileName
+                    setTextSafely(editTextMessage, "📦 ZIP analiz edildi: $fileName\n\nAI analizi için gönder butonuna basın.")
+                }
+            } else {
+                // Analiz henüz yapılmamış, analizi başlat
+                performZipAnalysis(
+                    uri, fileName, liveLog,
+                    tvZipFileInfo, tvProgressStatus, progressBar, tvLiveAnalysis,
+                    statsSection, actionButtons,
+                    tvFileCount, tvFolderCount, tvTotalSize, tvProjectType,
+                    btnAnalyze, btnCancel
+                )
             }
         }
         
@@ -1876,6 +1818,132 @@ class MainActivity : AppCompatActivity(),
             startActivity(Intent.createChooser(shareIntent, "ZIP Dosyasını Paylaş"))
         } catch (e: Exception) {
             Toast.makeText(this, "Paylaşım hatası: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+    
+    /**
+     * ZIP dosyası analiz işlemini gerçekleştirir
+     */
+    private fun performZipAnalysis(
+        uri: Uri,
+        fileName: String,
+        liveLog: StringBuilder,
+        tvZipFileInfo: TextView,
+        tvProgressStatus: TextView,
+        progressBar: android.widget.ProgressBar,
+        tvLiveAnalysis: TextView,
+        statsSection: LinearLayout,
+        actionButtons: LinearLayout,
+        tvFileCount: TextView,
+        tvFolderCount: TextView,
+        tvTotalSize: TextView,
+        tvProjectType: TextView,
+        btnAnalyze: com.google.android.material.button.MaterialButton,
+        btnCancel: com.google.android.material.button.MaterialButton
+    ) {
+        // Butonları devre dışı bırak
+        btnAnalyze.isEnabled = false
+        btnCancel.isEnabled = false
+        
+        tvZipFileInfo.text = "⏳ Analiz ediliyor..."
+        tvProgressStatus.text = "Başlatılıyor..."
+        liveLog.clear()
+        
+        mainCoroutineScope.launch {
+            try {
+                val analysisResult = ZipFileAnalyzerUtil.analyzeZipFile(
+                    contentResolver, 
+                    uri
+                ) { progress, currentFile, status ->
+                    // Canlı güncelleme - Main thread'de
+                    runOnUiThread {
+                        progressBar.progress = progress
+                        tvProgressStatus.text = "$progress% - $status"
+                        
+                        // Canlı log'a ekle
+                        if (currentFile.isNotEmpty()) {
+                            liveLog.append("$status\n")
+                            tvLiveAnalysis.text = liveLog.toString()
+                            
+                            // Auto-scroll için parent'ı bul
+                            (tvLiveAnalysis.parent as? android.widget.ScrollView)?.fullScroll(View.FOCUS_DOWN)
+                        }
+                    }
+                }
+                
+                // Analiz tamamlandı
+                currentZipAnalysisResult = analysisResult
+                
+                withContext(Dispatchers.Main) {
+                    if (analysisResult.success) {
+                        // İstatistikleri güncelle
+                        tvZipFileInfo.text = "✅ Analiz tamamlandı"
+                        statsSection.visibility = View.VISIBLE
+                        actionButtons.visibility = View.VISIBLE
+                        
+                        tvFileCount.text = analysisResult.totalFiles.toString()
+                        tvFolderCount.text = analysisResult.directoryStructure.size.toString()
+                        tvTotalSize.text = formatFileSizeSimple(analysisResult.totalSize)
+                        tvProjectType.text = getProjectTypeEmoji(analysisResult.projectType)
+                        
+                        // Progress'i tamamlandı olarak güncelle
+                        progressBar.progress = 100
+                        tvProgressStatus.text = "✅ Analiz tamamlandı"
+                        
+                        // Log'a özet ekle
+                        liveLog.append("\n" + "═".repeat(40) + "\n")
+                        liveLog.append("✅ ÖZET\n")
+                        liveLog.append("📁 ${analysisResult.totalFiles} dosya bulundu\n")
+                        liveLog.append("📂 ${analysisResult.directoryStructure.size} klasör\n")
+                        liveLog.append("💾 ${formatFileSizeSimple(analysisResult.totalSize)}\n")
+                        
+                        // Dil dağılımı
+                        val languages = analysisResult.files
+                            .filter { it.language != null }
+                            .groupBy { it.language!! }
+                            .mapValues { it.value.size }
+                            .toList()
+                            .sortedByDescending { it.second }
+                            .take(5)
+                        
+                        if (languages.isNotEmpty()) {
+                            liveLog.append("\n💻 Programlama Dilleri:\n")
+                            languages.forEach { (lang, count) ->
+                                liveLog.append("  • $lang: $count dosya\n")
+                            }
+                        }
+                        
+                        tvLiveAnalysis.text = liveLog.toString()
+                        
+                        // pendingFileContent'i ayarla
+                        pendingFileContent = ZipFileAnalyzerUtil.formatAnalysisResult(analysisResult)
+                        pendingFileName = fileName
+                        
+                        // Analiz tamamlandı durumuna geç
+                        isZipAnalysisComplete = true
+                        
+                        // Analiz Et butonunu "AI'ye Gönder" olarak değiştir
+                        btnAnalyze.text = "🤖 AI'ye Gönder"
+                        btnAnalyze.isEnabled = true
+                        btnCancel.isEnabled = true
+                        
+                    } else {
+                        tvZipFileInfo.text = "❌ Hata: ${analysisResult.errorMessage}"
+                        tvProgressStatus.text = "Analiz başarısız"
+                        btnAnalyze.isEnabled = true
+                        btnCancel.isEnabled = true
+                    }
+                }
+                
+            } catch (e: Exception) {
+                Log.e("ZipAnalysis", "Analiz hatası", e)
+                withContext(Dispatchers.Main) {
+                    tvZipFileInfo.text = "❌ Hata: ${e.message}"
+                    tvProgressStatus.text = "Analiz başarısız"
+                    btnAnalyze.isEnabled = true
+                    btnCancel.isEnabled = true
+                }
+            }
         }
     }
     
