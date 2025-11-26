@@ -428,17 +428,9 @@ object ZipFileAnalyzerUtil {
         sb.appendLine("• Toplam Boyut: ${formatFileSize(result.totalSize)}")
         sb.appendLine()
 
-        // Klasör yapısı
-        sb.appendLine("📁 KLASÖR YAPISI:")
-        result.directoryStructure.take(30).forEach { dir ->
-            val depth = dir.count { it == '/' }
-            val indent = "  ".repeat(depth)
-            val folderName = dir.substringAfterLast('/')
-            sb.appendLine("$indent📂 $folderName")
-        }
-        if (result.directoryStructure.size > 30) {
-            sb.appendLine("  ... ve ${result.directoryStructure.size - 30} klasör daha")
-        }
+        // Klasör yapısı - Geliştirilmiş ağaç görünümü
+        sb.appendLine("📁 PROJE İSKELET YAPISI (TREE VIEW):")
+        sb.appendLine(formatDirectoryTree(result.directoryStructure, result.files))
         sb.appendLine()
 
         // Dosya türü dağılımı
@@ -534,6 +526,63 @@ object ZipFileAnalyzerUtil {
             ProjectType.WEB -> "🌐 Web (HTML/CSS/JS)"
             ProjectType.UNKNOWN -> "❓ Bilinmeyen Proje Tipi"
         }
+    }
+
+    /**
+     * Klasör yapısını ağaç formatında gösterir (Tree View)
+     */
+    private fun formatDirectoryTree(directories: List<String>, files: List<ZipFileEntry>): String {
+        val sb = StringBuilder()
+        
+        // Tüm yolları (klasörler + dosyalar) birleştir ve sırala
+        data class TreeNode(val path: String, val isFile: Boolean, val size: Long = 0)
+        
+        val allPaths = mutableListOf<TreeNode>()
+        directories.forEach { allPaths.add(TreeNode(it, false)) }
+        files.forEach { file -> 
+            allPaths.add(TreeNode(file.path, true, file.size))
+        }
+        
+        // Yolları sırala
+        val sortedPaths = allPaths.sortedBy { it.path }
+        
+        // Her bir yol için ağaç çizgilerini oluştur
+        val pathsShown = mutableSetOf<String>()
+        var count = 0
+        val maxPaths = 50 // Maksimum gösterilecek öğe sayısı
+        
+        for (node in sortedPaths) {
+            if (count >= maxPaths) {
+                sb.appendLine("... ve ${sortedPaths.size - count} öğe daha")
+                break
+            }
+            
+            val parts = node.path.split("/")
+            val depth = parts.size - 1
+            
+            // Aynı yolu tekrar gösterme
+            if (pathsShown.contains(node.path)) continue
+            pathsShown.add(node.path)
+            
+            // Ağaç çizgisi oluştur
+            val prefix = buildString {
+                for (i in 0 until depth) {
+                    append("│   ")
+                }
+                if (depth > 0) {
+                    append("├── ")
+                }
+            }
+            
+            val name = parts.lastOrNull() ?: node.path
+            val icon = if (node.isFile) "📄" else "📂"
+            val sizeInfo = if (node.isFile && node.size > 0) " (${formatFileSize(node.size)})" else ""
+            
+            sb.appendLine("$prefix$icon $name$sizeInfo")
+            count++
+        }
+        
+        return sb.toString()
     }
 
     /**
@@ -774,6 +823,53 @@ object ZipFileAnalyzerUtil {
         sb.appendLine()
         
         return sb.toString() + formatAnalysisResult(result)
+    }
+    
+    /**
+     * Seçili dosyaları analiz et ve formatla
+     */
+    fun formatSelectedFilesAnalysis(
+        selectedFiles: List<ZipFileEntry>,
+        projectType: ProjectType
+    ): String {
+        val sb = StringBuilder()
+        
+        sb.appendLine("📝 SEÇİLİ DOSYA ANALİZİ")
+        sb.appendLine("═".repeat(50))
+        sb.appendLine()
+        sb.appendLine("🎯 Proje Tipi: ${getProjectTypeDescription(projectType)}")
+        sb.appendLine("📁 Seçili Dosya Sayısı: ${selectedFiles.size}")
+        sb.appendLine()
+        sb.appendLine("═".repeat(50))
+        sb.appendLine()
+        
+        selectedFiles.forEach { file ->
+            sb.appendLine("┌─────────────────────────────────────────────────")
+            sb.appendLine("│ 📄 Dosya: ${file.path}")
+            sb.appendLine("│ 💾 Boyut: ${formatFileSize(file.size)}")
+            sb.appendLine("│ 🔤 Dil: ${file.language ?: "Bilinmiyor"}")
+            sb.appendLine("│ 📋 Uzantı: ${file.extension}")
+            sb.appendLine("└─────────────────────────────────────────────────")
+            sb.appendLine()
+            
+            if (!file.content.isNullOrEmpty()) {
+                sb.appendLine("📝 İçerik:")
+                sb.appendLine(file.content ?: "")
+                sb.appendLine()
+            } else {
+                sb.appendLine("⚠️ Dosya içeriği okunamadı veya boş.")
+                sb.appendLine()
+            }
+            
+            sb.appendLine("─".repeat(50))
+            sb.appendLine()
+        }
+        
+        sb.appendLine("✅ Toplam ${selectedFiles.size} dosya analiz edildi.")
+        sb.appendLine()
+        sb.appendLine("💡 Bu dosyaları inceleyip, kod kalitesi, hatalar, iyileştirmeler ve best practices hakkında geri bildirim ver.")
+        
+        return sb.toString()
     }
     
     /**
