@@ -1081,85 +1081,83 @@ class MainActivity : AppCompatActivity(),
 
         currentFileReadingJob = fileReadingScope.launch {
             try {
-                val mimeType = contentResolver.getType(uri) ?: ""
-                Log.d("FileReading", "Dosya türü: $mimeType, URI: $uri")
+                // ✅ ISSUE #45: Use AttachmentProcessor for unified handling
+                val attachment = com.aikodasistani.aikodasistani.util.AttachmentProcessor.processAttachment(this@MainActivity, uri)
+                val emoji = com.aikodasistani.aikodasistani.util.AttachmentProcessor.getEmojiForType(attachment.type)
+                val sizeStr = com.aikodasistani.aikodasistani.util.AttachmentProcessor.formatFileSize(attachment.sizeBytes)
+                
+                Log.d("FileReading", "Attachment type: ${attachment.type}, name: ${attachment.displayName}, MIME: ${attachment.mimeType}")
 
-                if (isImage || mimeType.startsWith("image/")) {
-                    withContext(Dispatchers.Main) {
-                        showLoading("Görsel yükleniyor...")
+                // Handle based on unified attachment type
+                when (attachment.type) {
+                    com.aikodasistani.aikodasistani.models.AttachmentType.IMAGE -> {
+                        withContext(Dispatchers.Main) {
+                            showLoading("Görsel yükleniyor...")
+                        }
+                        processImageFile(uri)
+                        return@launch
                     }
-                    processImageFile(uri)
-                    return@launch
-                }
-
-                // Video dosyalarını kontrol et
-                if (mimeType.startsWith("video/")) {
-                    withContext(Dispatchers.Main) {
-                        showLoading("Video yükleniyor...")
+                    
+                    com.aikodasistani.aikodasistani.models.AttachmentType.VIDEO -> {
+                        withContext(Dispatchers.Main) {
+                            showLoading("Video yükleniyor...")
+                        }
+                        processVideoFile(uri)
+                        return@launch
                     }
-                    processVideoFile(uri)
-                    return@launch
-                }
-
-                // ZIP dosyalarını kontrol et - kendi dialog'unu gösterir
-                if (mimeType == "application/zip" ||
-                    mimeType == "application/x-zip-compressed" ||
-                    mimeType == "application/x-zip" ||
-                    (mimeType == "application/octet-stream" && getFileName(uri).endsWith(".zip", ignoreCase = true))) {
-                    // ZIP için loading gösterme, dialog kendi ilerlemesini gösterir
-                    processZipFile(uri)
-                    return@launch
-                }
-
-                // Diğer dosya türleri için loading göster
-                withContext(Dispatchers.Main) {
-                    showLoading("Dosya okunuyor...")
-                }
-
-                val fileContent = when {
-                    mimeType.startsWith("text/") ||
-                            mimeType == "application/javascript" ||
-                            mimeType == "application/json" -> {
-                        readTextFileSafe(uri)
+                    
+                    com.aikodasistani.aikodasistani.models.AttachmentType.ZIP -> {
+                        // ZIP için loading gösterme, dialog kendi ilerlemesini gösterir
+                        processZipFile(uri)
+                        return@launch
                     }
-                    mimeType == "application/pdf" -> {
-                        readPdfContentSafe(uri)
-                    }
-                    mimeType == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" -> {
-                        readDocxContentSafe(uri)
-                    }
-                    mimeType == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" -> {
-                        readExcelContentSafe(uri)
-                    }
-                    mimeType == "text/csv" -> {
-                        readCsvContentSafe(uri)
-                    }
+                    
                     else -> {
-                        try {
-                            readTextFileSafe(uri)
-                        } catch (e: Exception) {
-                            val fileName = try {
-                                getFileName(uri)
-                            } catch (e: Exception) {
-                                "Bilinmeyen dosya"
-                            }
-                            "Desteklenmeyen dosya türü: $mimeType\nDosya: $fileName"
+                        // Diğer dosya türleri için loading göster
+                        withContext(Dispatchers.Main) {
+                            showLoading("Dosya okunuyor...")
                         }
                     }
                 }
 
-                val fileName = getFileName(uri)
+                // Read content based on attachment type
+                val fileContent = when (attachment.type) {
+                    com.aikodasistani.aikodasistani.models.AttachmentType.TEXT,
+                    com.aikodasistani.aikodasistani.models.AttachmentType.CODE -> {
+                        readTextFileSafe(uri)
+                    }
+                    com.aikodasistani.aikodasistani.models.AttachmentType.PDF -> {
+                        readPdfContentSafe(uri)
+                    }
+                    com.aikodasistani.aikodasistani.models.AttachmentType.WORD -> {
+                        readDocxContentSafe(uri)
+                    }
+                    com.aikodasistani.aikodasistani.models.AttachmentType.EXCEL -> {
+                        readExcelContentSafe(uri)
+                    }
+                    com.aikodasistani.aikodasistani.models.AttachmentType.CSV -> {
+                        readCsvContentSafe(uri)
+                    }
+                    else -> {
+                        // Try to read as text, fallback to error message
+                        try {
+                            readTextFileSafe(uri)
+                        } catch (e: Exception) {
+                            "Desteklenmeyen dosya türü: ${attachment.mimeType}\nDosya: ${attachment.displayName}"
+                        }
+                    }
+                }
 
                 // PENDING DEĞİŞKENLERİNİ AYARLA
                 pendingFileContent = fileContent
-                pendingFileName = fileName
+                pendingFileName = attachment.displayName
 
-                Log.d("FILE_DEBUG", "Dosya okundu - İsim: $fileName, Boyut: ${fileContent.length} karakter")
+                Log.d("FILE_DEBUG", "Dosya okundu - İsim: ${attachment.displayName}, Boyut: ${fileContent.length} karakter")
 
                 withContext(Dispatchers.Main) {
                     hideLoading()
-                    // Normal dosyalar için işlem
-                    setTextSafely(editTextMessage, "📁 Dosya okundu: $fileName\n\nDosya işlenmeye hazır. Gönder butonuna basın.")
+                    // ✅ ISSUE #45: Show file bubble with unified format
+                    setTextSafely(editTextMessage, "$emoji ${attachment.displayName} ($sizeStr)\n\nDosya okundu. Sorunuzu yazın veya Gönder'e basın.")
                 }
 
             } catch (e: Exception) {
@@ -2760,6 +2758,103 @@ class MainActivity : AppCompatActivity(),
             }
             // Check for code errors and suggest auto-fix
             checkAndSuggestCodeFix(lastMessage.text)
+            
+            // ✅ ISSUE #45: Check for document generation requests in AI response
+            checkAndHandleDocumentGeneration(lastMessage.text)
+        }
+    }
+    
+    /**
+     * ✅ ISSUE #45: Check if AI response contains a document generation request
+     * and generate the file if found.
+     */
+    private fun checkAndHandleDocumentGeneration(aiResponse: String) {
+        val documentRequest = com.aikodasistani.aikodasistani.util.DocumentGenerator.parseDocumentRequest(aiResponse)
+        
+        if (documentRequest != null) {
+            mainCoroutineScope.launch {
+                try {
+                    val result = com.aikodasistani.aikodasistani.util.DocumentGenerator.generateDocument(
+                        this@MainActivity,
+                        documentRequest
+                    )
+                    
+                    when (result) {
+                        is com.aikodasistani.aikodasistani.util.DocumentGenerator.GenerationResult.Success -> {
+                            withContext(Dispatchers.Main) {
+                                showGeneratedDocumentDialog(result.document)
+                            }
+                        }
+                        is com.aikodasistani.aikodasistani.util.DocumentGenerator.GenerationResult.Error -> {
+                            Log.e("DocumentGen", "Document generation failed: ${result.message}")
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("DocumentGen", "Error generating document", e)
+                }
+            }
+        }
+    }
+    
+    /**
+     * ✅ ISSUE #45: Show dialog for generated document with open/share options.
+     */
+    private fun showGeneratedDocumentDialog(document: com.aikodasistani.aikodasistani.models.GeneratedDocument) {
+        val sizeStr = com.aikodasistani.aikodasistani.util.AttachmentProcessor.formatFileSize(document.sizeBytes)
+        val emoji = when (document.fileType) {
+            "xlsx" -> "📊"
+            "csv" -> "📋"
+            "md" -> "📝"
+            else -> "📄"
+        }
+        
+        AlertDialog.Builder(this)
+            .setTitle("$emoji Dosya Oluşturuldu")
+            .setMessage("${document.fileName}\nBoyut: $sizeStr")
+            .setPositiveButton("Aç") { _, _ ->
+                openGeneratedDocument(document)
+            }
+            .setNeutralButton("Paylaş") { _, _ ->
+                shareGeneratedDocument(document)
+            }
+            .setNegativeButton("Kapat", null)
+            .show()
+    }
+    
+    /**
+     * ✅ ISSUE #45: Open generated document with external app.
+     */
+    private fun openGeneratedDocument(document: com.aikodasistani.aikodasistani.models.GeneratedDocument) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(document.contentUri, document.mimeType)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            if (intent.resolveActivity(packageManager) != null) {
+                startActivity(intent)
+            } else {
+                Toast.makeText(this, "Bu dosya türünü açabilecek uygulama bulunamadı", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            Log.e("DocumentGen", "Error opening document", e)
+            Toast.makeText(this, "Dosya açılamadı: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+    
+    /**
+     * ✅ ISSUE #45: Share generated document via Android share sheet.
+     */
+    private fun shareGeneratedDocument(document: com.aikodasistani.aikodasistani.models.GeneratedDocument) {
+        try {
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = document.mimeType
+                putExtra(Intent.EXTRA_STREAM, document.contentUri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            startActivity(Intent.createChooser(shareIntent, "Dosyayı Paylaş"))
+        } catch (e: Exception) {
+            Log.e("DocumentGen", "Error sharing document", e)
+            Toast.makeText(this, "Paylaşım hatası: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
