@@ -90,6 +90,7 @@ android {
             excludes += "/META-INF/LICENSE.txt"
             excludes += "/META-INF/NOTICE"
             excludes += "/META-INF/NOTICE.txt"
+            excludes += "/META-INF/versions/**"
         }
         // ✅ Native library alignment için
     }
