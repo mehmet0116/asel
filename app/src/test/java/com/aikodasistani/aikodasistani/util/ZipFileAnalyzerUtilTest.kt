@@ -527,4 +527,141 @@ class ZipFileAnalyzerUtilTest {
         assertTrue("Should indicate empty or unreadable", 
             formatted.contains("okunamadı") || formatted.contains("boş"))
     }
+    
+    @Test
+    fun `test buildRawCodeBundle creates raw code without analysis`() {
+        val codeContent1 = "fun main() { println(\"Hello\") }"
+        val codeContent2 = "class Utils { fun helper() {} }"
+        
+        val files = listOf(
+            ZipFileAnalyzerUtil.ZipFileEntry(
+                name = "Main.kt",
+                path = "src/Main.kt",
+                size = codeContent1.length.toLong(),
+                extension = ".kt",
+                isCodeFile = true,
+                content = codeContent1,
+                language = "Kotlin"
+            ),
+            ZipFileAnalyzerUtil.ZipFileEntry(
+                name = "Utils.kt",
+                path = "src/Utils.kt",
+                size = codeContent2.length.toLong(),
+                extension = ".kt",
+                isCodeFile = true,
+                content = codeContent2,
+                language = "Kotlin"
+            ),
+            ZipFileAnalyzerUtil.ZipFileEntry(
+                name = "readme.txt",
+                path = "readme.txt",
+                size = 100L,
+                extension = ".txt",
+                isCodeFile = false,
+                content = null,
+                language = null
+            )
+        )
+        
+        val result = ZipFileAnalyzerUtil.ZipAnalysisResult(
+            success = true,
+            errorMessage = null,
+            totalFiles = 3,
+            totalSize = 500L,
+            files = files,
+            directoryStructure = listOf("src"),
+            projectType = ZipFileAnalyzerUtil.ProjectType.UNKNOWN
+        )
+        
+        val rawBundle = ZipFileAnalyzerUtil.buildRawCodeBundle(result)
+        
+        // Should contain raw code file content
+        assertTrue("Should contain Main.kt path", rawBundle.contains("/// FILE: src/Main.kt"))
+        assertTrue("Should contain Utils.kt path", rawBundle.contains("/// FILE: src/Utils.kt"))
+        assertTrue("Should contain Main.kt code", rawBundle.contains("println(\"Hello\")"))
+        assertTrue("Should contain Utils.kt code", rawBundle.contains("helper()"))
+        
+        // Should NOT contain analysis headers or commentary
+        assertFalse("Should NOT contain ZIP ANALYSIS header", rawBundle.contains("ZIP DOSYASI ANALİZİ"))
+        assertFalse("Should NOT contain project type label", rawBundle.contains("Proje Tipi"))
+        assertFalse("Should NOT contain analysis completed", rawBundle.contains("ANALİZ TAMAMLANDI"))
+        assertFalse("Should NOT contain important files section", rawBundle.contains("ÖNEMLİ DOSYALAR"))
+        
+        // Should NOT contain non-code files
+        assertFalse("Should NOT contain readme.txt", rawBundle.contains("readme.txt"))
+    }
+    
+    @Test
+    fun `test buildRawCodeBundle handles empty result`() {
+        val result = ZipFileAnalyzerUtil.ZipAnalysisResult(
+            success = true,
+            errorMessage = null,
+            totalFiles = 0,
+            totalSize = 0L,
+            files = emptyList(),
+            directoryStructure = emptyList(),
+            projectType = ZipFileAnalyzerUtil.ProjectType.UNKNOWN
+        )
+        
+        val rawBundle = ZipFileAnalyzerUtil.buildRawCodeBundle(result)
+        
+        // Should return empty or near-empty string
+        assertTrue("Should be empty or very short", rawBundle.length < 10)
+    }
+    
+    @Test
+    fun `test buildNeutralSummary creates neutral text without commentary`() {
+        val files = listOf(
+            ZipFileAnalyzerUtil.ZipFileEntry(
+                name = "Main.kt",
+                path = "src/Main.kt",
+                size = 1000L,
+                extension = ".kt",
+                isCodeFile = true,
+                content = "fun main() {}",
+                language = "Kotlin"
+            )
+        )
+        
+        val result = ZipFileAnalyzerUtil.ZipAnalysisResult(
+            success = true,
+            errorMessage = null,
+            totalFiles = 1,
+            totalSize = 1000L,
+            files = files,
+            directoryStructure = listOf("src"),
+            projectType = ZipFileAnalyzerUtil.ProjectType.ANDROID
+        )
+        
+        val summary = ZipFileAnalyzerUtil.buildNeutralSummary(result)
+        
+        // Should contain neutral info
+        assertTrue("Should contain files read", summary.contains("Files read"))
+        assertTrue("Should contain folders", summary.contains("Folders"))
+        assertTrue("Should contain success message", summary.contains("successfully"))
+        assertTrue("Should contain ready for questions", summary.contains("questions"))
+        
+        // Should NOT contain opinionated analysis
+        assertFalse("Should NOT contain project type analysis", summary.contains("Android"))
+        assertFalse("Should NOT contain ZIP ANALYSIS header", summary.contains("ZIP DOSYASI ANALİZİ"))
+        assertFalse("Should NOT contain send to AI prompt", summary.contains("AI'ye"))
+    }
+    
+    @Test
+    fun `test buildNeutralSummary handles error result`() {
+        val result = ZipFileAnalyzerUtil.ZipAnalysisResult(
+            success = false,
+            errorMessage = "File corrupted",
+            totalFiles = 0,
+            totalSize = 0L,
+            files = emptyList(),
+            directoryStructure = emptyList(),
+            projectType = ZipFileAnalyzerUtil.ProjectType.UNKNOWN
+        )
+        
+        val summary = ZipFileAnalyzerUtil.buildNeutralSummary(result)
+        
+        assertTrue("Should contain error indicator", summary.contains("❌"))
+        assertTrue("Should contain error message", summary.contains("File corrupted"))
+    }
 }
