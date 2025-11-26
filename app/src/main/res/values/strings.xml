@@ -102,4 +102,33 @@
     <string name="zip_live_analysis">Canlı Analiz</string>
     <string name="zip_show_analysis">Analizi Göster</string>
     <string name="zip_hide_analysis">Analizi Gizle</string>
+    
+    <!-- ZIP SILENT READER STRING'LERİ (Issue #45) -->
+    <string name="zip_files_read_success">Dosyalar başarıyla okundu.</string>
+    <string name="zip_ready_for_questions">Artık bu kodla ilgili sorular sorabilirsiniz.</string>
+    <string name="zip_reading_complete">Okuma tamamlandı</string>
+    <string name="zip_ask_question">Soru Sor</string>
+    
+    <!-- AI DOCUMENT GENERATION STRING'LERİ (Issue #45) -->
+    <string name="document_generated">Dosya oluşturuldu</string>
+    <string name="document_generation_failed">Dosya oluşturulamadı</string>
+    <string name="document_open">Aç</string>
+    <string name="document_share">Paylaş</string>
+    <string name="document_download">İndir</string>
+    <string name="document_file_size">%s boyut</string>
+    
+    <!-- ATTACHMENT HANDLING STRING'LERİ (Issue #45) -->
+    <string name="attachment_zip">ZIP Arşivi</string>
+    <string name="attachment_excel">Excel Dosyası</string>
+    <string name="attachment_csv">CSV Dosyası</string>
+    <string name="attachment_word">Word Belgesi</string>
+    <string name="attachment_pdf">PDF Dosyası</string>
+    <string name="attachment_image">Görsel</string>
+    <string name="attachment_video">Video</string>
+    <string name="attachment_audio">Ses Dosyası</string>
+    <string name="attachment_text">Metin Dosyası</string>
+    <string name="attachment_code">Kod Dosyası</string>
+    <string name="attachment_other">Dosya</string>
+    <string name="attachment_preview">Önizleme</string>
+    <string name="attachment_send_as_context">Bağlam Olarak Gönder</string>
 </resources>
