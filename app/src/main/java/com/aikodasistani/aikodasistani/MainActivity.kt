@@ -2351,10 +2351,31 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun showModelSelectionDialog() {
-        val models = modelConfig[currentProvider]?.toTypedArray() ?: emptyArray()
-        dialogManager.showModelSelectionDialog(models) { model ->
-            setModel(model)
-        }
+        val allModels = settingsManager.getModelsForProvider(currentProvider).toTypedArray()
+        val customModels = settingsManager.getCustomModelsForProvider(currentProvider)
+        dialogManager.showModelSelectionDialogWithCustom(
+            models = allModels,
+            customModels = customModels,
+            onModelSelected = { model ->
+                setModel(model)
+            },
+            onAddCustomModel = { modelName ->
+                val success = settingsManager.addCustomModel(currentProvider, modelName)
+                if (success) {
+                    // Refresh the dialog with updated models
+                    showModelSelectionDialog()
+                }
+                success
+            },
+            onRemoveCustomModel = { modelName ->
+                val success = settingsManager.removeCustomModel(currentProvider, modelName)
+                if (success) {
+                    // Refresh the dialog with updated models
+                    showModelSelectionDialog()
+                }
+                success
+            }
+        )
     }
 
     private fun setProvider(provider: String) {
