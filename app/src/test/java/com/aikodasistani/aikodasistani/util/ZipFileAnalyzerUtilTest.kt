@@ -402,7 +402,6 @@ class ZipFileAnalyzerUtilTest {
         
         // Verify size information is present
         assertTrue("Should contain file size info", formatted.contains("KB") || formatted.contains("B"))
-        assertTrue("Should have read large content", files[0].content!!.length == 5000)
         assertEquals("Content should match expected size", 5000, files[0].content!!.length)
     }
 

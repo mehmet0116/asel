@@ -174,12 +174,12 @@ object ZipFileAnalyzerUtil {
                                     // 3. İçeriği oku
                                     val readContent = readZipEntryContent(zipInputStream, entry)
                                     
-                                    // 4. Başarılı okuma bildirimi - gerçek okunan veri miktarı ile
-                                    val actualBytesRead = readContent.toByteArray(Charsets.UTF_8).size
+                                    // 4. Başarılı okuma bildirimi
+                                    val charCount = readContent.length
                                     progressCallback?.invoke(
                                         calculateProgress(fileCount, MAX_FILES),
                                         entryName,
-                                        "✅ Okundu: $fileName (${formatFileSize(actualBytesRead.toLong())} / ${formatFileSize(entry.size)})"
+                                        "✅ Başarıyla okundu: $fileName ($charCount karakter, ${formatFileSize(entry.size)})"
                                     )
                                     
                                     readContent
