@@ -119,9 +119,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
     // Room Database
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
-    ksp("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-runtime:2.8.4")
+    implementation("androidx.room:room-ktx:2.8.4")
+    ksp("androidx.room:room-compiler:2.8.4")
 
     // Google Generative AI (for Gemini) - GÜNCELLENDİ
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0") // ✅ 2.5 flash desteği
@@ -133,8 +133,8 @@ dependencies {
     implementation("io.noties.markwon:linkify:4.6.2")
 
     // Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
 
     // PDF okuma için iText - GÜNCELLENDİ
     implementation("com.itextpdf:itext7-core:8.0.2") // ✅ Yeni sürüm
