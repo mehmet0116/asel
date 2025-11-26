@@ -852,9 +852,9 @@ object ZipFileAnalyzerUtil {
             sb.appendLine("└─────────────────────────────────────────────────")
             sb.appendLine()
             
-            if (file.content != null && file.content!!.isNotEmpty()) {
+            if (!file.content.isNullOrEmpty()) {
                 sb.appendLine("📝 İçerik:")
-                sb.appendLine(file.content)
+                sb.appendLine(file.content ?: "")
                 sb.appendLine()
             } else {
                 sb.appendLine("⚠️ Dosya içeriği okunamadı veya boş.")
