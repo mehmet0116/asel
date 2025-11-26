@@ -6,7 +6,7 @@ plugins {
     id("com.google.devtools.ksp") version "2.2.21-2.0.4" apply false
 }
 
-//💡 KSP versiyonunu burada tanımla
+//💡 KSP classpath (version also defined in plugins block above)
 buildscript {
     dependencies {
         classpath("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:2.2.21-2.0.4")
