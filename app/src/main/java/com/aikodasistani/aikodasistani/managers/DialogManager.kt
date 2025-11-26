@@ -371,57 +371,64 @@ class DialogManager(private val activity: Activity) {
         onGallerySelected: () -> Unit,
         onFileSelected: () -> Unit,
         onVideoSelected: () -> Unit,
+        onRecordVideoSelected: () -> Unit,
         onUrlSelected: () -> Unit
     ) {
         Log.d("AttachmentDialog", "showAttachmentOptionsDialog: inflating attachment options view")
         try {
             val content = LayoutInflater.from(activity).inflate(R.layout.bottom_sheet_attachment_options, null)
 
-            // Wire up options
-            content.findViewById<View>(R.id.optionCamera).setOnClickListener {
-                Log.d("AttachmentDialog", "optionCamera clicked")
-                onCameraSelected()
-            }
-            content.findViewById<View>(R.id.optionGallery).setOnClickListener {
-                Log.d("AttachmentDialog", "optionGallery clicked")
-                onGallerySelected()
-            }
-            content.findViewById<View>(R.id.optionFile).setOnClickListener {
-                Log.d("AttachmentDialog", "optionFile clicked")
-                onFileSelected()
-            }
-            content.findViewById<View>(R.id.optionVideo).setOnClickListener {
-                Log.d("AttachmentDialog", "optionVideo clicked")
-                onVideoSelected()
-            }
-            content.findViewById<View>(R.id.optionUrl).setOnClickListener {
-                Log.d("AttachmentDialog", "optionUrl clicked")
-                onUrlSelected()
-            }
-
             val dialog = AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
                 .setView(content)
                 .create()
 
-            // Dismiss when any of the option callbacks finish their work; wrap callbacks to dismiss dialog
-            // We already call dialog.dismiss() from callbacks if needed in the callee, but ensure dismiss on click
-            dialog.setOnShowListener { /* no-op, can be used for analytics */ }
+            // Wire up options - dismiss dialog after each selection
+            content.findViewById<View>(R.id.optionCamera).setOnClickListener {
+                Log.d("AttachmentDialog", "optionCamera clicked")
+                dialog.dismiss()
+                onCameraSelected()
+            }
+            content.findViewById<View>(R.id.optionGallery).setOnClickListener {
+                Log.d("AttachmentDialog", "optionGallery clicked")
+                dialog.dismiss()
+                onGallerySelected()
+            }
+            content.findViewById<View>(R.id.optionFile).setOnClickListener {
+                Log.d("AttachmentDialog", "optionFile clicked")
+                dialog.dismiss()
+                onFileSelected()
+            }
+            content.findViewById<View>(R.id.optionRecordVideo).setOnClickListener {
+                Log.d("AttachmentDialog", "optionRecordVideo clicked")
+                dialog.dismiss()
+                onRecordVideoSelected()
+            }
+            content.findViewById<View>(R.id.optionVideo).setOnClickListener {
+                Log.d("AttachmentDialog", "optionVideo clicked")
+                dialog.dismiss()
+                onVideoSelected()
+            }
+            content.findViewById<View>(R.id.optionUrl).setOnClickListener {
+                Log.d("AttachmentDialog", "optionUrl clicked")
+                dialog.dismiss()
+                onUrlSelected()
+            }
 
             dialog.show()
             Log.d("AttachmentDialog", "attachment options dialog shown")
         } catch (e: Exception) {
             Log.e("AttachmentDialog", "failed to show native attachment dialog", e)
-            // final fallback: show simple AlertDialog list
-            val items = arrayOf("Kamera", "Galeri", "Video Çek", "Video Seç", "Dosyalar", "Web Sitesi (URL)")
+            // final fallback: show simple AlertDialog list - match layout order
+            val items = arrayOf("Fotoğraf Çek", "Video Çek", "Galeriden Seç", "Dosya Seç", "Video Seç", "URL'den İçerik Al")
             AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
                 .setTitle("Kaynak Seç")
                 .setItems(items) { d, which ->
                     when (which) {
                         0 -> onCameraSelected()
-                        1 -> onGallerySelected()
-                        2 -> { onVideoSelected() }
-                        3 -> { onVideoSelected() }
-                        4 -> onFileSelected()
+                        1 -> onRecordVideoSelected()
+                        2 -> onGallerySelected()
+                        3 -> onFileSelected()
+                        4 -> onVideoSelected()
                         5 -> onUrlSelected()
                     }
                     d.dismiss()

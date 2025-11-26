@@ -2338,6 +2338,7 @@ class MainActivity : AppCompatActivity(),
              onGallerySelected = { openGallery() },
              onFileSelected = { openFiles() },
              onVideoSelected = { selectVideo() },
+             onRecordVideoSelected = { recordVideo() },
              onUrlSelected = { showUrlInputDialog() }
          )
      }
@@ -2746,15 +2747,9 @@ class MainActivity : AppCompatActivity(),
                 })
             }
 
+            // Build content array with text and images
             val currentUserContent = buildJsonArray {
-                base64Images?.forEach { image ->
-                    add(buildJsonObject {
-                        put("type", JsonPrimitive("image_url"))
-                        put("image_url", buildJsonObject {
-                            put("url", JsonPrimitive("data:image/jpeg;base64,$image"))
-                        })
-                    })
-                }
+                // Add text content first
                 val effectiveText = when {
                     !prompt.isNullOrBlank() -> {
                         // Büyük dosya içeriğini optimize et
@@ -2770,13 +2765,24 @@ class MainActivity : AppCompatActivity(),
                     !base64Images.isNullOrEmpty() -> buildVisionUserPrompt(null, base64Images.size)
                     else -> "Lütfen bir metin veya görsel paylaş."
                 }
-
+                
                 add(buildJsonObject {
-                    put("role", JsonPrimitive("user"))
-                    put("content", JsonPrimitive(effectiveText))
+                    put("type", JsonPrimitive("text"))
+                    put("text", JsonPrimitive(effectiveText))
                 })
+                
+                // Add images
+                base64Images?.forEach { image ->
+                    add(buildJsonObject {
+                        put("type", JsonPrimitive("image_url"))
+                        put("image_url", buildJsonObject {
+                            put("url", JsonPrimitive("data:image/jpeg;base64,$image"))
+                        })
+                    })
+                }
             }
 
+            // Add single user message with content array
             add(buildJsonObject {
                 put("role", JsonPrimitive("user"))
                 put("content", currentUserContent)
