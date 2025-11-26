@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="?attr/colorSurface">
+
+    <!-- Başlık -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_folder"
+            app:tint="@color/purple_500" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/select_files_to_analyze"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnSurface"
+            android:layout_marginStart="12dp" />
+
+        <TextView
+            android:id="@+id/tvSelectedCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0 seçili"
+            android:textSize="14sp"
+            android:textColor="@color/purple_500"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <!-- Arama kutusu -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etSearchFile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/search_files"
+            android:inputType="text"
+            android:maxLines="1" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Hızlı filtreler -->
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipGroupFilters"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        app:singleSelection="false">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipAllFiles"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/all_files"
+            android:checkable="true"
+            android:checked="true"
+            style="@style/Widget.MaterialComponents.Chip.Filter" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipCodeFiles"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/code_files_only"
+            android:checkable="true"
+            style="@style/Widget.MaterialComponents.Chip.Filter" />
+
+    </com.google.android.material.chip.ChipGroup>
+
+    <!-- Dosya listesi -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvFileList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="vertical" />
+
+    <!-- Alt butonlar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp"
+        android:gravity="end">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSelectAll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/select_all"
+            android:layout_marginEnd="8dp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cancel"
+            android:layout_marginEnd="8dp"
+            style="@style/Widget.MaterialComponents.Button.TextButton" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAnalyzeSelected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/analyze_selected"
+            style="@style/Widget.MaterialComponents.Button" />
+
+    </LinearLayout>
+
+</LinearLayout>

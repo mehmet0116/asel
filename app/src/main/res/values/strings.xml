@@ -82,4 +82,16 @@
     <string name="zip_files_count">Dosya</string>
     <string name="zip_folders_count">Klasör</string>
     <string name="zip_total_size">Boyut</string>
+    <string name="zip_select_files">📂 Dosya Seç</string>
+    
+    <!-- DOSYA SEÇİMİ STRING'LERİ -->
+    <string name="select_files_to_analyze">Analiz Edilecek Dosyaları Seçin</string>
+    <string name="search_files">Dosya ara...</string>
+    <string name="all_files">Tüm Dosyalar</string>
+    <string name="code_files_only">Sadece Kod Dosyaları</string>
+    <string name="select_all">Tümünü Seç</string>
+    <string name="cancel">İptal</string>
+    <string name="analyze_selected">Seçilenleri Analiz Et</string>
+    <string name="no_files_selected">Hiçbir dosya seçilmedi</string>
+    <string name="files_selected">%d dosya seçili</string>
 </resources>

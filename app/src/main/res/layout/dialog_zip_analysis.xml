@@ -207,9 +207,9 @@
 
     </LinearLayout>
 
-    <!-- Aksiyon Butonları -->
+    <!-- Aksiyon Butonları - İlk Satır -->
     <LinearLayout
-        android:id="@+id/actionButtons"
+        android:id="@+id/actionButtonsRow1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -218,10 +218,23 @@
         android:visibility="gone">
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSelectFiles"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="4dp"
+            android:text="@string/zip_select_files"
+            android:textSize="12sp"
+            app:cornerRadius="8dp"
+            app:icon="@drawable/ic_file"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnFixErrors"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"
             android:text="@string/zip_fix_errors"
             android:textSize="12sp"
@@ -234,18 +247,27 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="4dp"
-            android:layout_marginEnd="4dp"
             android:text="@string/zip_add_feature"
             android:textSize="12sp"
             app:cornerRadius="8dp"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
+    </LinearLayout>
+    
+    <!-- Aksiyon Butonları - İkinci Satır -->
+    <LinearLayout
+        android:id="@+id/actionButtons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:visibility="gone">
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDownloadZip"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="4dp"
             android:text="@string/zip_download"
             android:textSize="12sp"
             app:cornerRadius="8dp"

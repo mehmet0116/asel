@@ -314,7 +314,7 @@ class ZipFileAnalyzerUtilTest {
         // Verify summary includes key information
         assertTrue("Should show total files", formatted.contains("3"))
         assertTrue("Should show Android project type", formatted.contains("Android"))
-        assertTrue("Should show file structure", formatted.contains("KLASÖR"))
+        assertTrue("Should show file structure", formatted.contains("İSKELET"))
         assertTrue("Should show programming languages", formatted.contains("Kotlin"))
         assertTrue("Should show completion", formatted.contains("TAMAMLANDI"))
     }
@@ -420,5 +420,111 @@ class ZipFileAnalyzerUtilTest {
             content = null,
             language = language
         )
+    }
+    
+    @Test
+    fun `test tree view formatting includes tree structure`() {
+        val files = listOf(
+            ZipFileAnalyzerUtil.ZipFileEntry(
+                name = "MainActivity.kt",
+                path = "app/src/main/MainActivity.kt",
+                size = 1000L,
+                extension = ".kt",
+                isCodeFile = true,
+                content = "class MainActivity {}",
+                language = "Kotlin"
+            ),
+            ZipFileAnalyzerUtil.ZipFileEntry(
+                name = "build.gradle",
+                path = "build.gradle",
+                size = 500L,
+                extension = ".gradle",
+                isCodeFile = true,
+                content = "plugins {}",
+                language = "Gradle"
+            )
+        )
+        
+        val result = ZipFileAnalyzerUtil.ZipAnalysisResult(
+            success = true,
+            errorMessage = null,
+            totalFiles = 2,
+            totalSize = 1500L,
+            files = files,
+            directoryStructure = listOf("app", "app/src", "app/src/main"),
+            projectType = ZipFileAnalyzerUtil.ProjectType.ANDROID
+        )
+        
+        val formatted = ZipFileAnalyzerUtil.formatAnalysisResult(result)
+        
+        // Verify tree view is present
+        assertTrue("Should show tree view header", formatted.contains("İSKELET YAPISI"))
+        assertTrue("Should show tree view (TREE VIEW)", formatted.contains("TREE VIEW"))
+        // Tree structure should include some organizational elements
+        assertTrue("Should show some structure", formatted.contains("📂") || formatted.contains("📄"))
+    }
+    
+    @Test
+    fun `test formatSelectedFilesAnalysis creates proper analysis`() {
+        val selectedFiles = listOf(
+            ZipFileAnalyzerUtil.ZipFileEntry(
+                name = "MainActivity.kt",
+                path = "app/src/main/MainActivity.kt",
+                size = 1000L,
+                extension = ".kt",
+                isCodeFile = true,
+                content = "class MainActivity : AppCompatActivity() {}",
+                language = "Kotlin"
+            ),
+            ZipFileAnalyzerUtil.ZipFileEntry(
+                name = "Utils.kt",
+                path = "app/src/main/Utils.kt",
+                size = 500L,
+                extension = ".kt",
+                isCodeFile = true,
+                content = "object Utils { fun helper() {} }",
+                language = "Kotlin"
+            )
+        )
+        
+        val formatted = ZipFileAnalyzerUtil.formatSelectedFilesAnalysis(
+            selectedFiles,
+            ZipFileAnalyzerUtil.ProjectType.ANDROID
+        )
+        
+        // Verify the analysis contains expected elements
+        assertTrue("Should have selected files header", formatted.contains("SEÇİLİ DOSYA"))
+        assertTrue("Should show file count", formatted.contains("2"))
+        assertTrue("Should show project type", formatted.contains("Android"))
+        assertTrue("Should include MainActivity", formatted.contains("MainActivity.kt"))
+        assertTrue("Should include Utils", formatted.contains("Utils.kt"))
+        assertTrue("Should include file content", formatted.contains("AppCompatActivity"))
+        assertTrue("Should include helper function", formatted.contains("helper"))
+    }
+    
+    @Test
+    fun `test formatSelectedFilesAnalysis with empty content`() {
+        val selectedFiles = listOf(
+            ZipFileAnalyzerUtil.ZipFileEntry(
+                name = "empty.txt",
+                path = "empty.txt",
+                size = 0L,
+                extension = ".txt",
+                isCodeFile = false,
+                content = null,
+                language = null
+            )
+        )
+        
+        val formatted = ZipFileAnalyzerUtil.formatSelectedFilesAnalysis(
+            selectedFiles,
+            ZipFileAnalyzerUtil.ProjectType.UNKNOWN
+        )
+        
+        // Should handle empty content gracefully
+        assertTrue("Should have header", formatted.contains("SEÇİLİ DOSYA"))
+        assertTrue("Should show 1 file", formatted.contains("1"))
+        assertTrue("Should indicate empty or unreadable", 
+            formatted.contains("okunamadı") || formatted.contains("boş"))
     }
 }

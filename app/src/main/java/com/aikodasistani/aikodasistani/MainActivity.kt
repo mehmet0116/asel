@@ -1627,7 +1627,9 @@ class MainActivity : AppCompatActivity(),
         val tvFolderCount = dialogView.findViewById<TextView>(R.id.tvFolderCount)
         val tvTotalSize = dialogView.findViewById<TextView>(R.id.tvTotalSize)
         val tvProjectType = dialogView.findViewById<TextView>(R.id.tvProjectType)
+        val actionButtonsRow1 = dialogView.findViewById<LinearLayout>(R.id.actionButtonsRow1)
         val actionButtons = dialogView.findViewById<LinearLayout>(R.id.actionButtons)
+        val btnSelectFiles = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnSelectFiles)
         val btnFixErrors = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnFixErrors)
         val btnAddFeature = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnAddFeature)
         val btnDownloadZip = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnDownloadZip)
@@ -1685,7 +1687,7 @@ class MainActivity : AppCompatActivity(),
                 performZipAnalysis(
                     uri, fileName, liveLog,
                     tvZipFileInfo, tvProgressStatus, progressBar, tvLiveAnalysis,
-                    statsSection, actionButtons,
+                    statsSection, actionButtonsRow1, actionButtons,
                     tvFileCount, tvFolderCount, tvTotalSize, tvProjectType,
                     btnAnalyze, btnCancel
                 )
@@ -1722,11 +1724,17 @@ class MainActivity : AppCompatActivity(),
             }
         }
         
+        btnSelectFiles.setOnClickListener {
+            currentZipAnalysisResult?.let { result ->
+                showFileSelectionDialog(result, fileName)
+            }
+        }
+        
         // ✅ OTOMATİK ANALİZ BAŞLAT - Dialog açılır açılmaz analiz başlar
         performZipAnalysis(
             uri, fileName, liveLog,
             tvZipFileInfo, tvProgressStatus, progressBar, tvLiveAnalysis,
-            statsSection, actionButtons,
+            statsSection, actionButtonsRow1, actionButtons,
             tvFileCount, tvFolderCount, tvTotalSize, tvProjectType,
             btnAnalyze, btnCancel
         )
@@ -1770,6 +1778,107 @@ class MainActivity : AppCompatActivity(),
             }
             .setNegativeButton("İptal", null)
             .show()
+    }
+    
+    /**
+     * Dosya seçim dialog'u - Kullanıcı istediği dosyaları seçip analiz edebilir
+     */
+    private fun showFileSelectionDialog(result: ZipFileAnalyzerUtil.ZipAnalysisResult, fileName: String) {
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_file_selection, null)
+        
+        // View bağlantıları
+        val tvSelectedCount = dialogView.findViewById<TextView>(R.id.tvSelectedCount)
+        val etSearchFile = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etSearchFile)
+        val chipAllFiles = dialogView.findViewById<com.google.android.material.chip.Chip>(R.id.chipAllFiles)
+        val chipCodeFiles = dialogView.findViewById<com.google.android.material.chip.Chip>(R.id.chipCodeFiles)
+        val rvFileList = dialogView.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvFileList)
+        val btnSelectAll = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnSelectAll)
+        val btnCancel = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnCancel)
+        val btnAnalyzeSelected = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnAnalyzeSelected)
+        
+        // RecyclerView ayarla
+        val adapter = com.aikodasistani.aikodasistani.ui.FileSelectionAdapter(result.files) { selectedCount ->
+            tvSelectedCount.text = if (selectedCount > 0) {
+                getString(R.string.files_selected, selectedCount)
+            } else {
+                getString(R.string.no_files_selected)
+            }
+            btnAnalyzeSelected.isEnabled = selectedCount > 0
+        }
+        
+        rvFileList.adapter = adapter
+        rvFileList.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
+        
+        // Dialog oluştur
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+        
+        // Arama işlevi
+        etSearchFile.addTextChangedListener(object : android.text.TextWatcher {
+            override fun afterTextChanged(s: android.text.Editable?) {
+                val query = s?.toString() ?: ""
+                val codeFilesOnly = chipCodeFiles.isChecked
+                adapter.filter(query, codeFilesOnly)
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+        
+        // Chip filtreler
+        chipAllFiles.setOnClickListener {
+            chipCodeFiles.isChecked = false
+            chipAllFiles.isChecked = true
+            val query = etSearchFile.text?.toString() ?: ""
+            adapter.filter(query, false)
+        }
+        
+        chipCodeFiles.setOnClickListener {
+            chipAllFiles.isChecked = false
+            chipCodeFiles.isChecked = true
+            val query = etSearchFile.text?.toString() ?: ""
+            adapter.filter(query, true)
+        }
+        
+        // Tümünü seç butonu
+        btnSelectAll.setOnClickListener {
+            adapter.selectAll()
+        }
+        
+        // İptal butonu
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+        
+        // Seçilenleri analiz et butonu
+        btnAnalyzeSelected.setOnClickListener {
+            val selectedFiles = adapter.getSelectedFiles()
+            if (selectedFiles.isEmpty()) {
+                Toast.makeText(this, getString(R.string.no_files_selected), Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            
+            dialog.dismiss()
+            zipAnalysisDialog?.dismiss()
+            
+            // Seçili dosyaları AI'ye gönder
+            val analysisText = ZipFileAnalyzerUtil.formatSelectedFilesAnalysis(selectedFiles, result.projectType)
+            pendingFileContent = analysisText
+            pendingFileName = fileName
+            
+            mainCoroutineScope.launch {
+                addMessage("📂 Seçili Dosya Analizi: $fileName\n\n${selectedFiles.size} dosya seçildi ve analiz için gönderildi.", true)
+                if (currentThinkingLevel > 0) {
+                    getRealDeepThinkingResponse(analysisText, null)
+                } else {
+                    getRealAiResponse(analysisText, null, false)
+                }
+            }
+        }
+        
+        // Dialog'u göster
+        dialog.show()
     }
     
     /**
@@ -1852,6 +1961,7 @@ class MainActivity : AppCompatActivity(),
         progressBar: android.widget.ProgressBar,
         tvLiveAnalysis: TextView,
         statsSection: LinearLayout,
+        actionButtonsRow1: LinearLayout,
         actionButtons: LinearLayout,
         tvFileCount: TextView,
         tvFolderCount: TextView,
@@ -1902,6 +2012,7 @@ class MainActivity : AppCompatActivity(),
                         // İstatistikleri güncelle
                         tvZipFileInfo.text = "✅ Analiz tamamlandı! AI'ye göndermek için butona tıklayın."
                         statsSection.visibility = View.VISIBLE
+                        actionButtonsRow1.visibility = View.VISIBLE
                         actionButtons.visibility = View.VISIBLE
                         
                         tvFileCount.text = analysisResult.totalFiles.toString()
