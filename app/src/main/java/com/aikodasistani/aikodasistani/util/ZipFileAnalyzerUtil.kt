@@ -104,7 +104,10 @@ object ZipFileAnalyzerUtil {
             progressCallback?.invoke(0, "", "📦 ZIP dosyası açılıyor...")
             
             contentResolver.openInputStream(uri)?.use { inputStream ->
+                progressCallback?.invoke(5, "", "✅ ZIP dosyası başarıyla açıldı, içerik okunuyor...")
+                
                 ZipInputStream(inputStream).use { zipInputStream ->
+                    progressCallback?.invoke(10, "", "🔍 ZIP arşivi taranıyor...")
                     var entry: ZipEntry? = zipInputStream.nextEntry
 
                     while (entry != null && fileCount < MAX_FILES && totalSize < MAX_TOTAL_SIZE) {
@@ -141,28 +144,63 @@ object ZipFileAnalyzerUtil {
                                 directoryStructure.add(parentPath)
                             }
 
-                            // Progress güncelleme - dosya taranıyor
+                            // Progress güncelleme - dosya keşfedildi
                             val fileName = entryName.substringAfterLast('/')
                             val statusIcon = if (isCodeFile) "📄" else "📁"
+                            val fileType = if (isCodeFile) "Kod dosyası" else "Dosya"
                             progressCallback?.invoke(
                                 calculateProgress(fileCount, MAX_FILES),
                                 entryName,
-                                "$statusIcon $fileName (${formatFileSize(entry.size)})"
+                                "$statusIcon $fileType bulundu: $fileName (${formatFileSize(entry.size)})"
                             )
 
                             // Kod dosyası ise içeriği oku
                             val content = if (isCodeFile && entry.size < MAX_FILE_SIZE) {
                                 try {
+                                    // 1. Dosya açılıyor bildirimi
                                     progressCallback?.invoke(
                                         calculateProgress(fileCount, MAX_FILES),
                                         entryName,
-                                        "🔍 Kod analiz: $fileName"
+                                        "📖 Dosya açılıyor: $fileName"
                                     )
-                                    readZipEntryContent(zipInputStream, entry)
+                                    
+                                    // 2. Dosya okunuyor bildirimi
+                                    progressCallback?.invoke(
+                                        calculateProgress(fileCount, MAX_FILES),
+                                        entryName,
+                                        "📥 İçerik okunuyor: $fileName (${formatFileSize(entry.size)})"
+                                    )
+                                    
+                                    // 3. İçeriği oku
+                                    val readContent = readZipEntryContent(zipInputStream, entry)
+                                    
+                                    // 4. Başarılı okuma bildirimi
+                                    val charCount = readContent.length
+                                    progressCallback?.invoke(
+                                        calculateProgress(fileCount, MAX_FILES),
+                                        entryName,
+                                        "✅ Başarıyla okundu: $fileName ($charCount karakter, ${formatFileSize(entry.size)})"
+                                    )
+                                    
+                                    readContent
                                 } catch (e: Exception) {
                                     Log.e(TAG, "Dosya okunamadı: $entryName", e)
+                                    // 5. Hata durumu bildirimi - kullanıcıya geri bildirim
+                                    progressCallback?.invoke(
+                                        calculateProgress(fileCount, MAX_FILES),
+                                        entryName,
+                                        "❌ Okuma hatası: $fileName - ${e.message}"
+                                    )
                                     null
                                 }
+                            } else if (isCodeFile && entry.size >= MAX_FILE_SIZE) {
+                                // Dosya çok büyük bildirimi
+                                progressCallback?.invoke(
+                                    calculateProgress(fileCount, MAX_FILES),
+                                    entryName,
+                                    "⚠️ Atlandı (çok büyük): $fileName (${formatFileSize(entry.size)})"
+                                )
+                                null
                             } else {
                                 null
                             }
@@ -193,9 +231,18 @@ object ZipFileAnalyzerUtil {
                 }
             } ?: run {
                 errorMessage = "ZIP dosyası açılamadı"
+                progressCallback?.invoke(0, "", "❌ ZIP dosyası açılamadı")
             }
             
-            progressCallback?.invoke(100, "", "✅ Analiz tamamlandı!")
+            // Detaylı tamamlanma mesajı
+            if (errorMessage == null) {
+                val codeFilesRead = fileEntries.count { it.isCodeFile && it.content != null }
+                progressCallback?.invoke(
+                    100, 
+                    "", 
+                    "✅ Analiz tamamlandı! $fileCount dosya tarandı, $codeFilesRead kod dosyası okundu (${formatFileSize(totalSize)})"
+                )
+            }
             
         } catch (e: Exception) {
             Log.e(TAG, "ZIP analiz hatası", e)
