@@ -20,20 +20,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalIndication
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.aikodasistani.aikodasistani.R
+import androidx.compose.material.ripple.rememberRipple
 
+@Suppress("DEPRECATION")
 @Composable
 fun AttachmentOptionCard(iconRes: Int, label: String, subtitle: String, color: Color, onClick: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed = interactionSource.collectIsPressedAsState().value
     val elevationDp = animateDpAsState(if (isPressed) 12.dp else 6.dp)
-    val indication = LocalIndication.current
 
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -48,7 +48,7 @@ fun AttachmentOptionCard(iconRes: Int, label: String, subtitle: String, color: C
             modifier = Modifier
                 .clickable(
                     interactionSource = interactionSource,
-                    indication = indication,
+                    indication = rememberRipple(bounded = true, color = Color.Black.copy(alpha = 0.12f)),
                     role = Role.Button,
                     onClick = onClick
                 )
