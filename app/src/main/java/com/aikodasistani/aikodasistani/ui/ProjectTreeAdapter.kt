@@ -17,6 +17,11 @@ class ProjectTreeAdapter(
     private val onItemClick: ((TreeNode) -> Unit)? = null
 ) : RecyclerView.Adapter<ProjectTreeAdapter.TreeViewHolder>() {
 
+    companion object {
+        private const val MAX_TREE_ITEMS = 50
+        private const val INDENT_DP_PER_LEVEL = 20
+    }
+
     private val items = mutableListOf<TreeNode>()
     private val expandedNodes = mutableSetOf<String>()
 
@@ -140,10 +145,10 @@ class ProjectTreeAdapter(
             )
             
             // Take first N items
-            result.addAll(sortedItems.take(50))
+            result.addAll(sortedItems.take(MAX_TREE_ITEMS))
         }
         
-        return result.take(50) // Limit to 50 items for performance
+        return result.take(MAX_TREE_ITEMS)
     }
 
     fun toggleNode(position: Int) {
@@ -158,7 +163,7 @@ class ProjectTreeAdapter(
             expandedNodes.add(node.path)
         }
         
-        // Rebuild the tree
+        // Rebuild the tree - using notifyDataSetChanged as the tree structure changes
         notifyDataSetChanged()
     }
 
@@ -191,7 +196,7 @@ class ProjectTreeAdapter(
 
         fun bind(node: TreeNode, isExpanded: Boolean) {
             // Set indentation
-            val indentWidth = node.depth * 20 // 20dp per level
+            val indentWidth = node.depth * INDENT_DP_PER_LEVEL
             val params = viewIndent.layoutParams
             params.width = (indentWidth * itemView.context.resources.displayMetrics.density).toInt()
             viewIndent.layoutParams = params
