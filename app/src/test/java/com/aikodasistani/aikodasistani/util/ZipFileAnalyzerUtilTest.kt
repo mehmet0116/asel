@@ -252,10 +252,9 @@ class ZipFileAnalyzerUtilTest {
     }
 
     @Test
-    fun `test progress callback is called during analysis`() {
+    fun `test progress callback provides proper result structure`() {
         // This test verifies that progress callbacks work correctly
         // and provide meaningful updates during analysis
-        val progressUpdates = mutableListOf<Triple<Int, String, String>>()
         
         // Create a mock result that would have progress updates
         val result = ZipFileAnalyzerUtil.ZipAnalysisResult(
@@ -280,8 +279,16 @@ class ZipFileAnalyzerUtilTest {
         
         // Verify result structure
         assertEquals("Should have 10 files", 10, result.totalFiles)
+        assertEquals("Should have correct total size", 5000L, result.totalSize)
         assertTrue("Should be successful", result.success)
         assertNull("Should have no error", result.errorMessage)
+        assertEquals("Should have correct number of file entries", 10, result.files.size)
+        
+        // Verify all files are code files
+        result.files.forEach { file ->
+            assertTrue("File ${file.name} should be a code file", file.isCodeFile)
+            assertEquals("File should have Kotlin language", "Kotlin", file.language)
+        }
     }
     
     @Test
