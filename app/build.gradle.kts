@@ -4,6 +4,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.serialization")
+    id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.devtools.ksp")
 }
 
@@ -66,13 +67,12 @@ android {
         compose = true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
-    }
-
     kotlinOptions {
         jvmTarget = "17"
-        freeCompilerArgs += listOf("-opt-in=androidx.compose.material3.ExperimentalMaterial3Api")
+        freeCompilerArgs += listOf(
+            "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api",
+            "-Xsuppress-version-warnings"
+        )
     }
 
     packaging {
@@ -85,6 +85,12 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
             excludes += "/META-INF/*.version"
             excludes += "**/libimage_processing_util_jni.so" // ✅ Sorunlu kütüphaneyi exclude et
+            excludes += "/META-INF/DEPENDENCIES"
+            excludes += "/META-INF/LICENSE"
+            excludes += "/META-INF/LICENSE.txt"
+            excludes += "/META-INF/NOTICE"
+            excludes += "/META-INF/NOTICE.txt"
+            excludes += "/META-INF/versions/**"
         }
         // ✅ Native library alignment için
     }
@@ -107,6 +113,7 @@ dependencies {
     // Jetpack Compose
     implementation("androidx.activity:activity-compose:1.12.0")
     implementation("androidx.compose.ui:ui:1.9.5")
+    implementation("androidx.compose.foundation:foundation:1.9.5")
     implementation("androidx.compose.material3:material3:1.4.0")
     implementation("androidx.compose.ui:ui-tooling-preview:1.9.5")
     debugImplementation("androidx.compose.ui:ui-tooling:1.9.5")
