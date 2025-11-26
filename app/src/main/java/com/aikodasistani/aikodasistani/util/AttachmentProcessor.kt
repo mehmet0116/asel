@@ -26,6 +26,7 @@ object AttachmentProcessor {
     private const val PREVIEW_MAX_LINES = 20
     private const val PREVIEW_MAX_CHARS = 2000
     private const val THUMBNAIL_SIZE = 256
+    private const val SAMPLE_SIZE_MULTIPLIER = 2
 
     // Code file extensions for detection
     private val CODE_EXTENSIONS = setOf(
@@ -255,9 +256,9 @@ object AttachmentProcessor {
                 // Calculate sample size
                 val maxSize = THUMBNAIL_SIZE
                 var sampleSize = 1
-                while (options.outWidth / sampleSize > maxSize * 2 || 
-                       options.outHeight / sampleSize > maxSize * 2) {
-                    sampleSize *= 2
+                while (options.outWidth / sampleSize > maxSize * SAMPLE_SIZE_MULTIPLIER || 
+                       options.outHeight / sampleSize > maxSize * SAMPLE_SIZE_MULTIPLIER) {
+                    sampleSize *= SAMPLE_SIZE_MULTIPLIER
                 }
                 
                 // Reopen stream and decode with sample size

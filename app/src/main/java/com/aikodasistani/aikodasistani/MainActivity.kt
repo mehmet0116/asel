@@ -54,12 +54,16 @@ import com.aikodasistani.aikodasistani.managers.DialogManager
 import com.aikodasistani.aikodasistani.managers.ImageManager
 import com.aikodasistani.aikodasistani.managers.MessageManager
 import com.aikodasistani.aikodasistani.managers.SettingsManager
+import com.aikodasistani.aikodasistani.models.AttachmentType
+import com.aikodasistani.aikodasistani.models.GeneratedDocument
 import com.aikodasistani.aikodasistani.models.Message
 import com.aikodasistani.aikodasistani.models.ThinkingLevel
 import com.aikodasistani.aikodasistani.models.TokenLimits
 import com.aikodasistani.aikodasistani.ui.MessageAdapter
+import com.aikodasistani.aikodasistani.util.AttachmentProcessor
 import com.aikodasistani.aikodasistani.util.CodeAutoCompletionUtil
 import com.aikodasistani.aikodasistani.util.CodeDetectionUtil
+import com.aikodasistani.aikodasistani.util.DocumentGenerator
 import com.aikodasistani.aikodasistani.util.FileDownloadUtil
 import com.aikodasistani.aikodasistani.util.VideoProcessingUtil
 import com.aikodasistani.aikodasistani.util.ZipFileAnalyzerUtil
@@ -1082,15 +1086,15 @@ class MainActivity : AppCompatActivity(),
         currentFileReadingJob = fileReadingScope.launch {
             try {
                 // ✅ ISSUE #45: Use AttachmentProcessor for unified handling
-                val attachment = com.aikodasistani.aikodasistani.util.AttachmentProcessor.processAttachment(this@MainActivity, uri)
-                val emoji = com.aikodasistani.aikodasistani.util.AttachmentProcessor.getEmojiForType(attachment.type)
-                val sizeStr = com.aikodasistani.aikodasistani.util.AttachmentProcessor.formatFileSize(attachment.sizeBytes)
+                val attachment = AttachmentProcessor.processAttachment(this@MainActivity, uri)
+                val emoji = AttachmentProcessor.getEmojiForType(attachment.type)
+                val sizeStr = AttachmentProcessor.formatFileSize(attachment.sizeBytes)
                 
                 Log.d("FileReading", "Attachment type: ${attachment.type}, name: ${attachment.displayName}, MIME: ${attachment.mimeType}")
 
                 // Handle based on unified attachment type
                 when (attachment.type) {
-                    com.aikodasistani.aikodasistani.models.AttachmentType.IMAGE -> {
+                    AttachmentType.IMAGE -> {
                         withContext(Dispatchers.Main) {
                             showLoading("Görsel yükleniyor...")
                         }
@@ -1098,7 +1102,7 @@ class MainActivity : AppCompatActivity(),
                         return@launch
                     }
                     
-                    com.aikodasistani.aikodasistani.models.AttachmentType.VIDEO -> {
+                    AttachmentType.VIDEO -> {
                         withContext(Dispatchers.Main) {
                             showLoading("Video yükleniyor...")
                         }
@@ -1106,7 +1110,7 @@ class MainActivity : AppCompatActivity(),
                         return@launch
                     }
                     
-                    com.aikodasistani.aikodasistani.models.AttachmentType.ZIP -> {
+                    AttachmentType.ZIP -> {
                         // ZIP için loading gösterme, dialog kendi ilerlemesini gösterir
                         processZipFile(uri)
                         return@launch
@@ -1122,20 +1126,20 @@ class MainActivity : AppCompatActivity(),
 
                 // Read content based on attachment type
                 val fileContent = when (attachment.type) {
-                    com.aikodasistani.aikodasistani.models.AttachmentType.TEXT,
-                    com.aikodasistani.aikodasistani.models.AttachmentType.CODE -> {
+                    AttachmentType.TEXT,
+                    AttachmentType.CODE -> {
                         readTextFileSafe(uri)
                     }
-                    com.aikodasistani.aikodasistani.models.AttachmentType.PDF -> {
+                    AttachmentType.PDF -> {
                         readPdfContentSafe(uri)
                     }
-                    com.aikodasistani.aikodasistani.models.AttachmentType.WORD -> {
+                    AttachmentType.WORD -> {
                         readDocxContentSafe(uri)
                     }
-                    com.aikodasistani.aikodasistani.models.AttachmentType.EXCEL -> {
+                    AttachmentType.EXCEL -> {
                         readExcelContentSafe(uri)
                     }
-                    com.aikodasistani.aikodasistani.models.AttachmentType.CSV -> {
+                    AttachmentType.CSV -> {
                         readCsvContentSafe(uri)
                     }
                     else -> {
@@ -2769,23 +2773,23 @@ class MainActivity : AppCompatActivity(),
      * and generate the file if found.
      */
     private fun checkAndHandleDocumentGeneration(aiResponse: String) {
-        val documentRequest = com.aikodasistani.aikodasistani.util.DocumentGenerator.parseDocumentRequest(aiResponse)
+        val documentRequest = DocumentGenerator.parseDocumentRequest(aiResponse)
         
         if (documentRequest != null) {
             mainCoroutineScope.launch {
                 try {
-                    val result = com.aikodasistani.aikodasistani.util.DocumentGenerator.generateDocument(
+                    val result = DocumentGenerator.generateDocument(
                         this@MainActivity,
                         documentRequest
                     )
                     
                     when (result) {
-                        is com.aikodasistani.aikodasistani.util.DocumentGenerator.GenerationResult.Success -> {
+                        is DocumentGenerator.GenerationResult.Success -> {
                             withContext(Dispatchers.Main) {
                                 showGeneratedDocumentDialog(result.document)
                             }
                         }
-                        is com.aikodasistani.aikodasistani.util.DocumentGenerator.GenerationResult.Error -> {
+                        is DocumentGenerator.GenerationResult.Error -> {
                             Log.e("DocumentGen", "Document generation failed: ${result.message}")
                         }
                     }
@@ -2799,8 +2803,8 @@ class MainActivity : AppCompatActivity(),
     /**
      * ✅ ISSUE #45: Show dialog for generated document with open/share options.
      */
-    private fun showGeneratedDocumentDialog(document: com.aikodasistani.aikodasistani.models.GeneratedDocument) {
-        val sizeStr = com.aikodasistani.aikodasistani.util.AttachmentProcessor.formatFileSize(document.sizeBytes)
+    private fun showGeneratedDocumentDialog(document: GeneratedDocument) {
+        val sizeStr = AttachmentProcessor.formatFileSize(document.sizeBytes)
         val emoji = when (document.fileType) {
             "xlsx" -> "📊"
             "csv" -> "📋"
@@ -2824,7 +2828,7 @@ class MainActivity : AppCompatActivity(),
     /**
      * ✅ ISSUE #45: Open generated document with external app.
      */
-    private fun openGeneratedDocument(document: com.aikodasistani.aikodasistani.models.GeneratedDocument) {
+    private fun openGeneratedDocument(document: GeneratedDocument) {
         try {
             val intent = Intent(Intent.ACTION_VIEW).apply {
                 setDataAndType(document.contentUri, document.mimeType)
@@ -2844,7 +2848,7 @@ class MainActivity : AppCompatActivity(),
     /**
      * ✅ ISSUE #45: Share generated document via Android share sheet.
      */
-    private fun shareGeneratedDocument(document: com.aikodasistani.aikodasistani.models.GeneratedDocument) {
+    private fun shareGeneratedDocument(document: GeneratedDocument) {
         try {
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 type = document.mimeType

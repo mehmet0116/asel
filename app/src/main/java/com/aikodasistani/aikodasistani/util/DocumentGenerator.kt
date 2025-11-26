@@ -21,6 +21,7 @@ import java.io.OutputStreamWriter
 object DocumentGenerator {
 
     private const val TAG = "DocumentGenerator"
+    private const val MAX_AUTO_SIZE_COLUMNS = 10
 
     /**
      * Result of document generation attempt.
@@ -144,8 +145,8 @@ object DocumentGenerator {
                 }
             }
             
-            // Auto-size columns (up to 10 columns)
-            for (i in 0 until minOf(10, lines.firstOrNull()?.split(",")?.size ?: 0)) {
+            // Auto-size columns (up to MAX_AUTO_SIZE_COLUMNS columns)
+            for (i in 0 until minOf(MAX_AUTO_SIZE_COLUMNS, lines.firstOrNull()?.split(",")?.size ?: 0)) {
                 sheet.autoSizeColumn(i)
             }
             
@@ -273,22 +274,34 @@ object DocumentGenerator {
     }
 
     /**
-     * Parse a CSV line, handling quoted values.
+     * Parse a CSV line, handling quoted values and escaped quotes.
+     * Handles standard CSV escaping where "" represents a literal quote.
      */
     private fun parseCsvLine(line: String): List<String> {
         val result = mutableListOf<String>()
         val current = StringBuilder()
         var inQuotes = false
+        var i = 0
         
-        for (char in line) {
+        while (i < line.length) {
+            val char = line[i]
             when {
-                char == '"' -> inQuotes = !inQuotes
+                char == '"' && inQuotes && i + 1 < line.length && line[i + 1] == '"' -> {
+                    // Escaped quote ("") - add single quote and skip next char
+                    current.append('"')
+                    i += 2
+                    continue
+                }
+                char == '"' -> {
+                    inQuotes = !inQuotes
+                }
                 char == ',' && !inQuotes -> {
                     result.add(current.toString().trim())
                     current.clear()
                 }
                 else -> current.append(char)
             }
+            i++
         }
         result.add(current.toString().trim())
         
@@ -354,12 +367,13 @@ object DocumentGenerator {
             )
         }
         
-        // Try to find CSV-like content in code blocks
-        val csvBlockPattern = Regex("""```(?:csv)?\s*([\s\S]*?)```""")
+        // Try to find CSV-like content in explicitly marked csv code blocks only
+        // More strict detection to avoid false positives
+        val csvBlockPattern = Regex("""```csv\s*([\s\S]*?)```""", RegexOption.IGNORE_CASE)
         csvBlockPattern.findAll(aiResponse).forEach { match ->
             val content = match.groupValues[1].trim()
-            if (content.contains(",") && content.lines().size > 1) {
-                // Looks like CSV content
+            // Validate it looks like proper CSV: multiple lines, consistent comma count
+            if (isLikelyCsv(content)) {
                 return DocumentRequest(
                     fileType = "csv",
                     suggestedFileName = "generated_file_${System.currentTimeMillis()}.csv",
@@ -369,6 +383,23 @@ object DocumentGenerator {
         }
         
         return null
+    }
+    
+    /**
+     * Check if content looks like valid CSV data.
+     * Validates that multiple lines have consistent comma counts.
+     */
+    private fun isLikelyCsv(content: String): Boolean {
+        val lines = content.lines().filter { it.isNotBlank() }
+        if (lines.size < 2) return false
+        
+        // Count commas in first few lines and check consistency
+        val commaCounts = lines.take(5).map { line -> line.count { it == ',' } }
+        if (commaCounts.isEmpty() || commaCounts.first() == 0) return false
+        
+        // All lines should have same or similar comma count (header might differ)
+        val expectedCount = commaCounts.first()
+        return commaCounts.all { it == expectedCount || it == expectedCount - 1 || it == expectedCount + 1 }
     }
 
     /**
