@@ -542,7 +542,7 @@ class DialogManager(private val activity: Activity) {
                 innerLayout.setPadding(16, 16, 16, 16)
                 
                 val labelTextView = TextView(activity)
-                labelTextView.text = "$providerName API Anahtarı ⭐"
+                labelTextView.text = activity.getString(R.string.custom_provider_api_key_label, providerName)
                 labelTextView.setTextColor(activity.resources.getColor(R.color.text_primary, null))
                 labelTextView.setTypeface(null, android.graphics.Typeface.BOLD)
                 
@@ -584,7 +584,7 @@ class DialogManager(private val activity: Activity) {
                     }
                 }
                 
-                Toast.makeText(activity, "API Anahtarları kaydedildi.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(activity, activity.getString(R.string.api_keys_saved), Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("İptal", null)
             .show()

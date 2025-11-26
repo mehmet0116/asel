@@ -811,23 +811,8 @@ class MainActivity : AppCompatActivity(),
                     }
 
                     else -> {
-                        // Try to use OpenAI compatible API for unknown providers
-                        val baseUrl = settingsManager.getProviderBaseUrl(currentProvider)
-                        val apiKey = settingsManager.getCustomProviderApiKey(currentProvider)
-                        
-                        if (baseUrl.isNotBlank() && apiKey.isNotBlank()) {
-                            callOpenAIMultiModal(
-                                apiKey = apiKey,
-                                model = currentModel,
-                                prompt = finalPrompt,
-                                base64Images = finalImages,
-                                base = baseUrl,
-                                history = conversationHistory,
-                                systemPrompt = systemPrompt
-                            )
-                        } else {
-                            throw Exception("Bilinmeyen sağlayıcı: $currentProvider")
-                        }
+                        // Unknown provider - no fallback available
+                        throw Exception("Bilinmeyen sağlayıcı: $currentProvider. Lütfen sağlayıcı ayarlarını kontrol edin.")
                     }
                 }
             } catch (e: CancellationException) {

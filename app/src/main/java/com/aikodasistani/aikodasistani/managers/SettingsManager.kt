@@ -338,7 +338,8 @@ class SettingsManager(private val context: Context) {
         val trimmedUrl = baseUrl.trim()
         
         // Check if provider already exists (in default or custom)
-        if (modelConfig.containsKey(trimmedName) || customProviders.containsKey(trimmedName)) {
+        // modelConfig keys are uppercase, so comparison is case-insensitive
+        if (modelConfig.keys.any { it.equals(trimmedName, ignoreCase = true) } || customProviders.containsKey(trimmedName)) {
             return false
         }
         
@@ -415,10 +416,7 @@ class SettingsManager(private val context: Context) {
                 "defaultModels" to it.value.defaultModels.joinToString(",")
             )
         }
-        val jsonString = json.encodeToString(
-            kotlinx.serialization.serializer<Map<String, Map<String, String>>>(),
-            serializedMap
-        )
+        val jsonString = json.encodeToString(serializedMap)
         sharedPreferences.edit().putString("custom_providers", jsonString).apply()
         Log.d("SettingsManager", "Saved custom providers: $jsonString")
     }

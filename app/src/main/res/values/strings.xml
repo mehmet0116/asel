@@ -167,4 +167,6 @@
     <string name="custom_provider_empty">Lütfen sağlayıcı adı ve URL girin</string>
     <string name="custom_provider_delete_title">Özel Sağlayıcıyı Sil</string>
     <string name="custom_provider_delete_message">"%s" sağlayıcısını silmek istediğinizden emin misiniz?</string>
+    <string name="custom_provider_api_key_label">%s API Anahtarı ⭐</string>
+    <string name="api_keys_saved">API Anahtarları kaydedildi.</string>
 </resources>
