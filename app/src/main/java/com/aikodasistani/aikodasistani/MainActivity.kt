@@ -1679,6 +1679,16 @@ class MainActivity : AppCompatActivity(),
                         }
                     }
                 }
+            } else {
+                // Analiz başarısız olmuş veya tamamlanmamış, tekrar dene
+                liveLog.clear()
+                performZipAnalysis(
+                    uri, fileName, liveLog,
+                    tvZipFileInfo, tvProgressStatus, progressBar, tvLiveAnalysis,
+                    statsSection, actionButtons,
+                    tvFileCount, tvFolderCount, tvTotalSize, tvProjectType,
+                    btnAnalyze, btnCancel
+                )
             }
         }
         
@@ -1938,7 +1948,7 @@ class MainActivity : AppCompatActivity(),
                         isZipAnalysisComplete = true
                         
                         // Analiz Et butonunu "AI'ye Gönder" olarak değiştir
-                        btnAnalyze.text = "🤖 AI'ye Gönder"
+                        btnAnalyze.text = getString(R.string.zip_analyze_with_ai)
                         btnAnalyze.isEnabled = true
                         btnCancel.text = "Kapat"
                         btnCancel.isEnabled = true
@@ -1946,7 +1956,7 @@ class MainActivity : AppCompatActivity(),
                     } else {
                         tvZipFileInfo.text = "❌ Hata: ${analysisResult.errorMessage}"
                         tvProgressStatus.text = "Analiz başarısız"
-                        btnAnalyze.text = "Tekrar Dene"
+                        btnAnalyze.text = getString(R.string.zip_retry)
                         btnAnalyze.isEnabled = true
                         btnCancel.text = "Kapat"
                         btnCancel.isEnabled = true
@@ -1958,7 +1968,7 @@ class MainActivity : AppCompatActivity(),
                 withContext(Dispatchers.Main) {
                     tvZipFileInfo.text = "❌ Hata: ${e.message}"
                     tvProgressStatus.text = "Analiz başarısız"
-                    btnAnalyze.text = "Tekrar Dene"
+                    btnAnalyze.text = getString(R.string.zip_retry)
                     btnAnalyze.isEnabled = true
                     btnCancel.text = "Kapat"
                     btnCancel.isEnabled = true
