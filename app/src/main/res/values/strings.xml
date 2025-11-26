@@ -131,4 +131,20 @@
     <string name="attachment_other">Dosya</string>
     <string name="attachment_preview">Önizleme</string>
     <string name="attachment_send_as_context">Bağlam Olarak Gönder</string>
+    
+    <!-- CUSTOM MODEL STRING'LERİ -->
+    <string name="model_selection_title">Model Seç</string>
+    <string name="model_selection_subtitle">AI modelinizi seçin</string>
+    <string name="add_custom_model">+ Özel Model Ekle</string>
+    <string name="add_custom_model_title">Özel Model Ekle</string>
+    <string name="add_custom_model_subtitle">Yeni çıkan modelleri kullanmak için model adını girin</string>
+    <string name="custom_model_name_label">Model Adı</string>
+    <string name="custom_model_name_hint">Örn: gpt-4o-2024-11-20</string>
+    <string name="custom_model_example">Örnekler: gpt-4o-2024-11-20, gemini-2.0-flash, claude-3.5-sonnet</string>
+    <string name="custom_model_added">Model eklendi: %s</string>
+    <string name="custom_model_removed">Model silindi: %s</string>
+    <string name="custom_model_exists">Bu model zaten mevcut</string>
+    <string name="custom_model_empty">Lütfen bir model adı girin</string>
+    <string name="custom_model_delete_title">Özel Modeli Sil</string>
+    <string name="custom_model_delete_message">"%s" modelini silmek istediğinizden emin misiniz?</string>
 </resources>

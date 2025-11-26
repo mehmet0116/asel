@@ -199,17 +199,25 @@ class DialogManager(private val activity: Activity) {
     }
 
     /**
-     * Show model selection dialog
+     * Show model selection dialog with option to add custom model
      */
     fun showModelSelectionDialog(
         models: Array<String>,
         onModelSelected: (String) -> Unit
     ) {
-        if (models.isEmpty()) {
-            Toast.makeText(activity, "Bu sağlayıcı için model bulunamadı.", Toast.LENGTH_SHORT).show()
-            return
-        }
-        
+        showModelSelectionDialogWithCustom(models, null, onModelSelected, null, null)
+    }
+
+    /**
+     * Show model selection dialog with custom model support
+     */
+    fun showModelSelectionDialogWithCustom(
+        models: Array<String>,
+        customModels: List<String>?,
+        onModelSelected: (String) -> Unit,
+        onAddCustomModel: ((String) -> Boolean)?,
+        onRemoveCustomModel: ((String) -> Boolean)?
+    ) {
         val dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_model_selection, null)
         val recyclerView = dialogView.findViewById<RecyclerView>(R.id.recyclerViewModels)
         
@@ -219,21 +227,90 @@ class DialogManager(private val activity: Activity) {
             .setView(dialogView)
             .create()
         
-        val adapter = ModelAdapter(models) { model ->
-            onModelSelected(model)
-            dialog.dismiss()
-        }
+        val adapter = ModelAdapter(
+            models = models,
+            customModels = customModels ?: emptyList(),
+            onItemClick = { model ->
+                onModelSelected(model)
+                dialog.dismiss()
+            },
+            onLongClick = { model, isCustom ->
+                if (isCustom && onRemoveCustomModel != null) {
+                    showRemoveCustomModelDialog(model) {
+                        if (onRemoveCustomModel(model)) {
+                            Toast.makeText(activity, activity.getString(R.string.custom_model_removed, model), Toast.LENGTH_SHORT).show()
+                            dialog.dismiss()
+                        }
+                    }
+                    true
+                } else {
+                    false
+                }
+            }
+        )
         recyclerView.adapter = adapter
+        
+        // Add custom model button if callback provided
+        if (onAddCustomModel != null) {
+            dialogView.findViewById<View>(R.id.btnAddCustomModel)?.apply {
+                visibility = View.VISIBLE
+                setOnClickListener {
+                    showAddCustomModelDialog { modelName ->
+                        if (onAddCustomModel(modelName)) {
+                            Toast.makeText(activity, activity.getString(R.string.custom_model_added, modelName), Toast.LENGTH_SHORT).show()
+                            dialog.dismiss()
+                        } else {
+                            Toast.makeText(activity, activity.getString(R.string.custom_model_exists), Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+        }
         
         dialog.show()
     }
+
+    /**
+     * Show dialog to add a custom model
+     */
+    fun showAddCustomModelDialog(onModelEntered: (String) -> Unit) {
+        val dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_add_custom_model, null)
+        val editTextModelName = dialogView.findViewById<EditText>(R.id.editTextCustomModelName)
+        
+        AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
+            .setView(dialogView)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                val modelName = editTextModelName.text.toString().trim()
+                if (modelName.isNotBlank()) {
+                    onModelEntered(modelName)
+                } else {
+                    Toast.makeText(activity, activity.getString(R.string.custom_model_empty), Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    /**
+     * Show confirmation dialog to remove a custom model
+     */
+    private fun showRemoveCustomModelDialog(modelName: String, onConfirm: () -> Unit) {
+        AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
+            .setTitle(R.string.custom_model_delete_title)
+            .setMessage(activity.getString(R.string.custom_model_delete_message, modelName))
+            .setPositiveButton(android.R.string.ok) { _, _ -> onConfirm() }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
     
     /**
-     * Adapter for model items
+     * Adapter for model items with custom model support
      */
     private class ModelAdapter(
         private val models: Array<String>,
-        private val onItemClick: (String) -> Unit
+        private val customModels: List<String>,
+        private val onItemClick: (String) -> Unit,
+        private val onLongClick: ((String, Boolean) -> Boolean)?
     ) : RecyclerView.Adapter<ModelAdapter.ViewHolder>() {
         
         class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -251,10 +328,15 @@ class DialogManager(private val activity: Activity) {
         
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val model = models[position]
-            holder.name.text = model
+            val isCustom = customModels.contains(model)
+            holder.name.text = if (isCustom) "$model ⭐" else model
             
             // Set icon and description based on model name
             when {
+                isCustom -> {
+                    holder.icon.text = "⭐"
+                    holder.description.text = "Özel model (silmek için uzun bas)"
+                }
                 model.contains("gpt-4", ignoreCase = true) -> {
                     holder.icon.text = "🧠"
                     holder.description.text = "En gelişmiş AI modeli"
@@ -283,6 +365,10 @@ class DialogManager(private val activity: Activity) {
             
             holder.card.setOnClickListener {
                 onItemClick(model)
+            }
+            
+            holder.card.setOnLongClickListener {
+                onLongClick?.invoke(model, isCustom) ?: false
             }
         }
         

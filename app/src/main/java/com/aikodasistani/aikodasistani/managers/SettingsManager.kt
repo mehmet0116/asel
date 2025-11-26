@@ -33,6 +33,9 @@ class SettingsManager(private val context: Context) {
     var modelConfig: Map<String, List<String>> = emptyMap()
         private set
 
+    // Custom models added by user for each provider
+    private var customModels: MutableMap<String, MutableList<String>> = mutableMapOf()
+
     var currentProvider: String = "OPENAI"
         private set
 
@@ -59,6 +62,7 @@ class SettingsManager(private val context: Context) {
      */
     suspend fun initialize() {
         loadApiKeys()
+        loadCustomModels()
         fetchModelConfig()
         loadProviderAndModel()
     }
@@ -175,5 +179,98 @@ class SettingsManager(private val context: Context) {
      */
     fun getCurrentThinkingLevel(): ThinkingLevel {
         return thinkingLevels[currentThinkingLevel]
+    }
+
+    /**
+     * Get all models for a provider (default + custom)
+     */
+    fun getModelsForProvider(provider: String): List<String> {
+        val defaultModels = modelConfig[provider] ?: emptyList()
+        val userCustomModels = customModels[provider] ?: emptyList()
+        // Combine default and custom models, avoiding duplicates
+        return (defaultModels + userCustomModels).distinct()
+    }
+
+    /**
+     * Add a custom model for the current provider
+     */
+    fun addCustomModel(provider: String, modelName: String): Boolean {
+        if (modelName.isBlank()) return false
+        
+        val trimmedName = modelName.trim()
+        val existingModels = getModelsForProvider(provider)
+        
+        // Check if model already exists
+        if (existingModels.contains(trimmedName)) {
+            return false
+        }
+        
+        // Add to custom models
+        if (customModels[provider] == null) {
+            customModels[provider] = mutableListOf()
+        }
+        customModels[provider]!!.add(trimmedName)
+        
+        // Save to SharedPreferences
+        saveCustomModels()
+        
+        return true
+    }
+
+    /**
+     * Remove a custom model
+     */
+    fun removeCustomModel(provider: String, modelName: String): Boolean {
+        val removed = customModels[provider]?.remove(modelName) ?: false
+        if (removed) {
+            saveCustomModels()
+        }
+        return removed
+    }
+
+    /**
+     * Check if a model is a custom (user-added) model
+     */
+    fun isCustomModel(provider: String, modelName: String): Boolean {
+        return customModels[provider]?.contains(modelName) ?: false
+    }
+
+    /**
+     * Get only custom models for a provider
+     */
+    fun getCustomModelsForProvider(provider: String): List<String> {
+        return customModels[provider]?.toList() ?: emptyList()
+    }
+
+    /**
+     * Save custom models to SharedPreferences
+     */
+    private fun saveCustomModels() {
+        val json = Json { ignoreUnknownKeys = true }
+        val serializedMap = customModels.mapValues { it.value.toList() }
+        val jsonString = json.encodeToString(
+            kotlinx.serialization.serializer<Map<String, List<String>>>(),
+            serializedMap
+        )
+        sharedPreferences.edit().putString("custom_models", jsonString).apply()
+        Log.d("SettingsManager", "Saved custom models: $jsonString")
+    }
+
+    /**
+     * Load custom models from SharedPreferences
+     */
+    private fun loadCustomModels() {
+        try {
+            val jsonString = sharedPreferences.getString("custom_models", null)
+            if (jsonString != null) {
+                val json = Json { ignoreUnknownKeys = true }
+                val loadedMap = json.decodeFromString<Map<String, List<String>>>(jsonString)
+                customModels = loadedMap.mapValues { it.value.toMutableList() }.toMutableMap()
+                Log.d("SettingsManager", "Loaded custom models: $customModels")
+            }
+        } catch (e: Exception) {
+            Log.e("SettingsManager", "Failed to load custom models", e)
+            customModels = mutableMapOf()
+        }
     }
 }
