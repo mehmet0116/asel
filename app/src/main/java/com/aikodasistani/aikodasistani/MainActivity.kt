@@ -19,6 +19,7 @@ import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -837,6 +838,7 @@ class MainActivity : AppCompatActivity(),
             settingsManager = SettingsManager(this)
             aiPromptManager = AIPromptManager()
             dialogManager = DialogManager(this)
+            Log.d("AttachmentDebug", "DialogManager initialized in MainActivity.onCreate")
             imageManager = ImageManager(this)
             messageManager = MessageManager()
             
@@ -2287,25 +2289,58 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun setupAttachmentButton() {
-        buttonAttachment.setOnClickListener { showAttachmentOptions() }
+        buttonAttachment.setOnClickListener {
+            // Visible feedback to user and extra log to ensure click reaches app
+            Toast.makeText(this@MainActivity, "Attachment button clicked", Toast.LENGTH_SHORT).show()
+            Log.i("ATTACH_TEST", "attachment button clicked - showing toast")
+            Log.d("AttachmentDebug", "attachment button clicked - invoking showAttachmentOptions")
+            showAttachmentOptions()
+        }
+
+        // Fallback touch listener: some devices / overlays may prevent normal click delivery.
+        // This will capture raw touch events and trigger the attachment options on ACTION_UP.
+        buttonAttachment.setOnTouchListener { v, event ->
+            try {
+                val actionName = when (event.action) {
+                    MotionEvent.ACTION_DOWN -> "ACTION_DOWN"
+                    MotionEvent.ACTION_MOVE -> "ACTION_MOVE"
+                    MotionEvent.ACTION_UP -> "ACTION_UP"
+                    MotionEvent.ACTION_CANCEL -> "ACTION_CANCEL"
+                    else -> "ACTION_${event.action}"
+                }
+                Log.i("ATTACH_TEST", "buttonAttachment onTouch: $actionName")
+
+                if (event.action == MotionEvent.ACTION_UP) {
+                    // small visual feedback and call the same handler
+                    v.performClick()
+                    showAttachmentOptions()
+                }
+            } catch (e: Exception) {
+                Log.e("AttachmentDebug", "onTouch error", e)
+            }
+            // Return true to indicate we've handled the touch; prevents duplicate click callbacks
+            true
+        }
+    }
+
+    // Add XML onClick handler to ensure clicks are received even if setOnClickListener fails
+    fun onAttachmentButtonClicked(view: View) {
+        Toast.makeText(this@MainActivity, "Attachment (XML onClick) clicked", Toast.LENGTH_SHORT).show()
+        Log.i("ATTACH_TEST", "onAttachmentButtonClicked (XML) invoked")
+        // Call existing handler to keep behavior consistent
+        showAttachmentOptions()
     }
 
     private fun showAttachmentOptions() {
-        val options = arrayOf("Kamera", "Galeri", "Video Çek", "Video Seç", "Dosyalar", "Web Sitesi (URL)")
-        AlertDialog.Builder(this)
-            .setTitle("Kaynak Seç")
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> handleCameraOption()
-                    1 -> openGallery()
-                    2 -> recordVideo()
-                    3 -> selectVideo()
-                    4 -> openFiles()
-                    5 -> showUrlInputDialog()
-                }
-            }
-            .show()
-    }
+        Log.d("AttachmentDebug", "showAttachmentOptions() called")
+         dialogManager.showAttachmentOptionsDialog(
+             onCameraSelected = { handleCameraOption() },
+             onGallerySelected = { openGallery() },
+             onFileSelected = { openFiles() },
+             onVideoSelected = { selectVideo() },
+             onUrlSelected = { showUrlInputDialog() }
+         )
+     }
 
     // Video çekme fonksiyonu:
     private fun recordVideo() {
@@ -2737,8 +2772,8 @@ class MainActivity : AppCompatActivity(),
                 }
 
                 add(buildJsonObject {
-                    put("type", JsonPrimitive("text"))
-                    put("text", JsonPrimitive(effectiveText))
+                    put("role", JsonPrimitive("user"))
+                    put("content", JsonPrimitive(effectiveText))
                 })
             }
 

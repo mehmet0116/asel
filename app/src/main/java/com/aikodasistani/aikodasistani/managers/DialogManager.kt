@@ -1,6 +1,7 @@
 package com.aikodasistani.aikodasistani.managers
 
 import android.app.Activity
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
@@ -13,6 +14,8 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.aikodasistani.aikodasistani.R
+import com.aikodasistani.aikodasistani.ui.AttachmentOptionsBottomSheet
+import com.aikodasistani.aikodasistani.ui.createAttachmentComposeView
 
 /**
  * Manages all dialog operations including settings, provider/model selection,
@@ -370,38 +373,61 @@ class DialogManager(private val activity: Activity) {
         onVideoSelected: () -> Unit,
         onUrlSelected: () -> Unit
     ) {
-        val dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_attachment_options, null)
-        
-        val dialog = AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
-            .setView(dialogView)
-            .create()
-        
-        dialogView.findViewById<CardView>(R.id.cardCamera).setOnClickListener {
-            onCameraSelected()
-            dialog.dismiss()
+        Log.d("AttachmentDialog", "showAttachmentOptionsDialog: inflating attachment options view")
+        try {
+            val content = LayoutInflater.from(activity).inflate(R.layout.bottom_sheet_attachment_options, null)
+
+            // Wire up options
+            content.findViewById<View>(R.id.optionCamera).setOnClickListener {
+                Log.d("AttachmentDialog", "optionCamera clicked")
+                onCameraSelected()
+            }
+            content.findViewById<View>(R.id.optionGallery).setOnClickListener {
+                Log.d("AttachmentDialog", "optionGallery clicked")
+                onGallerySelected()
+            }
+            content.findViewById<View>(R.id.optionFile).setOnClickListener {
+                Log.d("AttachmentDialog", "optionFile clicked")
+                onFileSelected()
+            }
+            content.findViewById<View>(R.id.optionVideo).setOnClickListener {
+                Log.d("AttachmentDialog", "optionVideo clicked")
+                onVideoSelected()
+            }
+            content.findViewById<View>(R.id.optionUrl).setOnClickListener {
+                Log.d("AttachmentDialog", "optionUrl clicked")
+                onUrlSelected()
+            }
+
+            val dialog = AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
+                .setView(content)
+                .create()
+
+            // Dismiss when any of the option callbacks finish their work; wrap callbacks to dismiss dialog
+            // We already call dialog.dismiss() from callbacks if needed in the callee, but ensure dismiss on click
+            dialog.setOnShowListener { /* no-op, can be used for analytics */ }
+
+            dialog.show()
+            Log.d("AttachmentDialog", "attachment options dialog shown")
+        } catch (e: Exception) {
+            Log.e("AttachmentDialog", "failed to show native attachment dialog", e)
+            // final fallback: show simple AlertDialog list
+            val items = arrayOf("Kamera", "Galeri", "Video Çek", "Video Seç", "Dosyalar", "Web Sitesi (URL)")
+            AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
+                .setTitle("Kaynak Seç")
+                .setItems(items) { d, which ->
+                    when (which) {
+                        0 -> onCameraSelected()
+                        1 -> onGallerySelected()
+                        2 -> { onVideoSelected() }
+                        3 -> { onVideoSelected() }
+                        4 -> onFileSelected()
+                        5 -> onUrlSelected()
+                    }
+                    d.dismiss()
+                }
+                .show()
         }
-        
-        dialogView.findViewById<CardView>(R.id.cardGallery).setOnClickListener {
-            onGallerySelected()
-            dialog.dismiss()
-        }
-        
-        dialogView.findViewById<CardView>(R.id.cardFile).setOnClickListener {
-            onFileSelected()
-            dialog.dismiss()
-        }
-        
-        dialogView.findViewById<CardView>(R.id.cardVideo).setOnClickListener {
-            onVideoSelected()
-            dialog.dismiss()
-        }
-        
-        dialogView.findViewById<CardView>(R.id.cardUrl).setOnClickListener {
-            onUrlSelected()
-            dialog.dismiss()
-        }
-        
-        dialog.show()
     }
 
     /**
@@ -411,14 +437,12 @@ class DialogManager(private val activity: Activity) {
         errorDescription: String,
         onAnalyzeClick: () -> Unit
     ) {
-        AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
-            .setTitle("🔧 Kod Hatası Tespit Edildi")
-            .setMessage(errorDescription)
-            .setPositiveButton("🔍 Analiz Et ve Düzelt") { _, _ ->
-                onAnalyzeClick()
-            }
-            .setNegativeButton("İptal", null)
-            .show()
+        val builder = AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
+        builder.setTitle("🔧 Kod Hatası Tespit Edildi")
+        builder.setMessage(errorDescription)
+        builder.setPositiveButton("🔍 Analiz Et ve Düzelt") { _, _ -> onAnalyzeClick() }
+        builder.setNegativeButton("İptal", null)
+        builder.show()
     }
 
     /**
@@ -428,51 +452,11 @@ class DialogManager(private val activity: Activity) {
         fixedCode: String,
         onApplyClick: (String) -> Unit
     ) {
-        AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
-            .setTitle("✅ Düzeltilmiş Kod")
-            .setMessage(fixedCode)
-            .setPositiveButton("✔️ Uygula") { _, _ ->
-                onApplyClick(fixedCode)
-            }
-            .setNegativeButton("İptal", null)
-            .show()
-    }
-
-    /**
-     * Show add feature dialog
-     */
-    fun showAddFeatureDialog(onFeatureEntered: (String) -> Unit) {
         val builder = AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
-        builder.setTitle("✨ Yeni Özellik Ekle")
-        builder.setMessage("Eklemek istediğiniz özelliği detaylı açıklayın:")
-
-        val input = EditText(activity)
-        input.hint = "Örn: Kullanıcı profil sayfası ekle"
-        builder.setView(input)
-
-        builder.setPositiveButton("Ekle") { dialog, _ ->
-            val feature = input.text.toString().trim()
-            if (feature.isNotBlank()) {
-                onFeatureEntered(feature)
-            } else {
-                Toast.makeText(activity, "Lütfen bir özellik açıklaması girin", Toast.LENGTH_SHORT).show()
-            }
-            dialog.dismiss()
-        }
-        builder.setNegativeButton("İptal") { dialog, _ -> dialog.cancel() }
-
+        builder.setTitle("✅ Düzeltilmiş Kod")
+        builder.setMessage(fixedCode)
+        builder.setPositiveButton("✔️ Uygula") { _, _ -> onApplyClick(fixedCode) }
+        builder.setNegativeButton("İptal", null)
         builder.show()
-    }
-
-    /**
-     * Show long video confirmation dialog
-     */
-    fun showLongVideoDialog(onConfirm: () -> Unit) {
-        AlertDialog.Builder(activity)
-            .setTitle("Uzun Video")
-            .setMessage("Video 30 saniyeden uzun. Sadece ilk 30 saniyesi analiz edilecek. Devam etmek istiyor musunuz?")
-            .setPositiveButton("Evet") { _, _ -> onConfirm() }
-            .setNegativeButton("Hayır", null)
-            .show()
     }
 }

@@ -71,7 +71,8 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_attachment"
                 app:tint="@color/primary_main"
-                android:contentDescription="@string/send_button_description" />
+                android:contentDescription="@string/send_button_description"
+                android:onClick="onAttachmentButtonClicked" />
 
             <!-- Deep Thinking Button -->
             <ImageButton

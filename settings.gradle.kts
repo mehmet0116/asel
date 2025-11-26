@@ -3,6 +3,10 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
+        // Additional repositories for plugins (helpful for KSP and Kotlin plugin artifacts)
+        maven("https://maven.pkg.jetbrains.space/public/p/kotlinx/maven")
+        maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
+        maven("https://plugins.gradle.org/m2/")
     }
 }
 
