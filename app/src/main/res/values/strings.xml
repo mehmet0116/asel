@@ -169,4 +169,17 @@
     <string name="custom_provider_delete_message">"%s" sağlayıcısını silmek istediğinizden emin misiniz?</string>
     <string name="custom_provider_api_key_label">%s API Anahtarı ⭐</string>
     <string name="api_keys_saved">API Anahtarları kaydedildi.</string>
+    
+    <!-- DİNAMİK MODEL ÇEKME STRING'LERİ -->
+    <string name="fetch_models_title">Modelleri Getir</string>
+    <string name="fetch_models_subtitle">API\'den kullanılabilir modelleri otomatik çek</string>
+    <string name="fetching_models">Modeller getiriliyor...</string>
+    <string name="click_to_fetch_models">Modelleri API\'den çekmek için butona basın</string>
+    <string name="fetch_models_button">🔄 Modelleri Getir</string>
+    <string name="models_found">%d yeni model bulundu</string>
+    <string name="all_models_already_added">Tüm modeller zaten ekli</string>
+    <string name="select_all_models">Tümünü Seç / Kaldır</string>
+    <string name="add_selected_models">Seçilenleri Ekle</string>
+    <string name="models_added_count">%d model eklendi</string>
+    <string name="no_models_selected">Hiçbir model seçilmedi</string>
 </resources>

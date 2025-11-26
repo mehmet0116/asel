@@ -4,9 +4,11 @@ import android.app.Activity
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -17,6 +19,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.aikodasistani.aikodasistani.R
 import com.aikodasistani.aikodasistani.ui.AttachmentOptionsBottomSheet
 import com.aikodasistani.aikodasistani.ui.createAttachmentComposeView
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 
 /**
  * Manages all dialog operations including settings, provider/model selection,
@@ -303,18 +307,20 @@ class DialogManager(private val activity: Activity) {
         models: Array<String>,
         onModelSelected: (String) -> Unit
     ) {
-        showModelSelectionDialogWithCustom(models, null, onModelSelected, null, null)
+        showModelSelectionDialogWithCustom(models, null, onModelSelected, null, null, null)
     }
 
     /**
-     * Show model selection dialog with custom model support
+     * Show model selection dialog with custom model support and dynamic fetch capability
      */
     fun showModelSelectionDialogWithCustom(
         models: Array<String>,
         customModels: List<String>?,
         onModelSelected: (String) -> Unit,
         onAddCustomModel: ((String) -> Boolean)?,
-        onRemoveCustomModel: ((String) -> Boolean)?
+        onRemoveCustomModel: ((String) -> Boolean)?,
+        onFetchModels: (suspend () -> SettingsManager.FetchModelsResult)? = null,
+        onModelsSelected: ((List<String>) -> Int)? = null
     ) {
         val dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_model_selection, null)
         val recyclerView = dialogView.findViewById<RecyclerView>(R.id.recyclerViewModels)
@@ -353,12 +359,22 @@ class DialogManager(private val activity: Activity) {
             dialogView.findViewById<View>(R.id.btnAddCustomModel)?.apply {
                 visibility = View.VISIBLE
                 setOnClickListener {
-                    showAddCustomModelDialog { modelName ->
-                        if (onAddCustomModel(modelName)) {
-                            Toast.makeText(activity, activity.getString(R.string.custom_model_added, modelName), Toast.LENGTH_SHORT).show()
-                            dialog.dismiss()
-                        } else {
-                            Toast.makeText(activity, activity.getString(R.string.custom_model_exists), Toast.LENGTH_SHORT).show()
+                    // Show dynamic model fetch dialog instead of manual input
+                    if (onFetchModels != null && onModelsSelected != null) {
+                        showDynamicModelFetchDialog(
+                            existingModels = models.toList(),
+                            onFetchModels = onFetchModels,
+                            onModelsSelected = onModelsSelected,
+                            onDialogDismissed = { dialog.dismiss() }
+                        )
+                    } else {
+                        showAddCustomModelDialog { modelName ->
+                            if (onAddCustomModel(modelName)) {
+                                Toast.makeText(activity, activity.getString(R.string.custom_model_added, modelName), Toast.LENGTH_SHORT).show()
+                                dialog.dismiss()
+                            } else {
+                                Toast.makeText(activity, activity.getString(R.string.custom_model_exists), Toast.LENGTH_SHORT).show()
+                            }
                         }
                     }
                 }
@@ -366,6 +382,148 @@ class DialogManager(private val activity: Activity) {
         }
         
         dialog.show()
+    }
+    
+    /**
+     * Show dialog to fetch and select models dynamically from API
+     */
+    fun showDynamicModelFetchDialog(
+        existingModels: List<String>,
+        onFetchModels: suspend () -> SettingsManager.FetchModelsResult,
+        onModelsSelected: (List<String>) -> Int,
+        onDialogDismissed: () -> Unit
+    ) {
+        val dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_dynamic_model_fetch, null)
+        val progressBar = dialogView.findViewById<ProgressBar>(R.id.progressBarFetch)
+        val tvStatus = dialogView.findViewById<TextView>(R.id.tvFetchStatus)
+        val recyclerView = dialogView.findViewById<RecyclerView>(R.id.recyclerViewFetchedModels)
+        val btnSelectAll = dialogView.findViewById<View>(R.id.btnSelectAll)
+        val btnFetch = dialogView.findViewById<View>(R.id.btnFetch)
+        val contentLayout = dialogView.findViewById<View>(R.id.contentLayout)
+        
+        recyclerView?.layoutManager = LinearLayoutManager(activity)
+        
+        val dialog = AlertDialog.Builder(activity, R.style.Theme_AIKodAsistani_Dialog)
+            .setView(dialogView)
+            .setNegativeButton(R.string.cancel, null)
+            .create()
+        
+        var fetchedModels = listOf<String>()
+        val selectedModels = mutableSetOf<String>()
+        var adapter: DynamicModelAdapter? = null
+        
+        // Fetch button click
+        btnFetch?.setOnClickListener {
+            progressBar?.visibility = View.VISIBLE
+            tvStatus?.text = activity.getString(R.string.fetching_models)
+            contentLayout?.visibility = View.GONE
+            
+            // Run fetch in coroutine
+            kotlinx.coroutines.MainScope().launch {
+                val result = onFetchModels()
+                
+                progressBar?.visibility = View.GONE
+                
+                when (result) {
+                    is SettingsManager.FetchModelsResult.Success -> {
+                        // Filter out existing models
+                        fetchedModels = result.models.filter { !existingModels.contains(it) }
+                        
+                        if (fetchedModels.isEmpty()) {
+                            tvStatus?.text = activity.getString(R.string.all_models_already_added)
+                            contentLayout?.visibility = View.GONE
+                        } else {
+                            tvStatus?.text = activity.getString(R.string.models_found, fetchedModels.size)
+                            contentLayout?.visibility = View.VISIBLE
+                            
+                            adapter = DynamicModelAdapter(
+                                models = fetchedModels,
+                                selectedModels = selectedModels
+                            )
+                            recyclerView?.adapter = adapter
+                        }
+                    }
+                    is SettingsManager.FetchModelsResult.Error -> {
+                        tvStatus?.text = result.message
+                        contentLayout?.visibility = View.GONE
+                    }
+                }
+            }
+        }
+        
+        // Auto-fetch on dialog open
+        btnFetch?.performClick()
+        
+        // Select all button
+        btnSelectAll?.setOnClickListener {
+            if (selectedModels.size == fetchedModels.size) {
+                selectedModels.clear()
+            } else {
+                selectedModels.addAll(fetchedModels)
+            }
+            adapter?.notifyDataSetChanged()
+        }
+        
+        dialog.setButton(AlertDialog.BUTTON_POSITIVE, activity.getString(R.string.add_selected_models)) { _, _ ->
+            if (selectedModels.isNotEmpty()) {
+                val addedCount = onModelsSelected(selectedModels.toList())
+                Toast.makeText(
+                    activity,
+                    activity.getString(R.string.models_added_count, addedCount),
+                    Toast.LENGTH_SHORT
+                ).show()
+                onDialogDismissed()
+            } else {
+                Toast.makeText(activity, activity.getString(R.string.no_models_selected), Toast.LENGTH_SHORT).show()
+            }
+        }
+        
+        dialog.show()
+    }
+    
+    /**
+     * Adapter for dynamically fetched models with checkbox selection
+     */
+    private class DynamicModelAdapter(
+        private val models: List<String>,
+        private val selectedModels: MutableSet<String>
+    ) : RecyclerView.Adapter<DynamicModelAdapter.ViewHolder>() {
+        
+        class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            val checkBox: CheckBox = view.findViewById(R.id.checkboxModel)
+            val tvModelName: TextView = view.findViewById(R.id.tvModelName)
+        }
+        
+        override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): ViewHolder {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_dynamic_model, parent, false)
+            return ViewHolder(view)
+        }
+        
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            val model = models[position]
+            holder.tvModelName.text = model
+            holder.checkBox.isChecked = selectedModels.contains(model)
+            
+            holder.itemView.setOnClickListener {
+                if (selectedModels.contains(model)) {
+                    selectedModels.remove(model)
+                } else {
+                    selectedModels.add(model)
+                }
+                holder.checkBox.isChecked = selectedModels.contains(model)
+            }
+            
+            holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    selectedModels.add(model)
+                } else {
+                    selectedModels.remove(model)
+                }
+            }
+        }
+        
+        override fun getItemCount() = models.size
     }
 
     /**

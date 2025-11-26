@@ -2392,6 +2392,8 @@ class MainActivity : AppCompatActivity(),
     private fun showModelSelectionDialog() {
         val allModels = settingsManager.getModelsForProvider(currentProvider).toTypedArray()
         val customModels = settingsManager.getCustomModelsForProvider(currentProvider)
+        val provider = currentProvider
+        
         dialogManager.showModelSelectionDialogWithCustom(
             models = allModels,
             customModels = customModels,
@@ -2413,6 +2415,19 @@ class MainActivity : AppCompatActivity(),
                     showModelSelectionDialog()
                 }
                 success
+            },
+            onFetchModels = {
+                // Dinamik olarak API'den modelleri çek
+                settingsManager.fetchAvailableModels(provider)
+            },
+            onModelsSelected = { selectedModels ->
+                // Seçilen modelleri ekle
+                val addedCount = settingsManager.addModelsFromFetch(provider, selectedModels)
+                if (addedCount > 0) {
+                    // Refresh the dialog with updated models
+                    showModelSelectionDialog()
+                }
+                addedCount
             }
         )
     }

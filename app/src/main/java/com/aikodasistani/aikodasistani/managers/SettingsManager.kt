@@ -10,7 +10,13 @@ import com.aikodasistani.aikodasistani.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import android.util.Log
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.util.concurrent.TimeUnit
 
 /**
  * Manages application settings, preferences, and API configurations
@@ -459,5 +465,204 @@ class SettingsManager(private val context: Context) {
      */
     fun getCustomProviderApiKey(providerName: String): String {
         return sharedPreferences.getString("user_${providerName.lowercase()}_api_key", "") ?: ""
+    }
+    
+    // ==================== Dynamic Model Fetching ====================
+    
+    private val httpClient by lazy {
+        OkHttpClient.Builder()
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .build()
+    }
+    
+    /**
+     * Result class for dynamic model fetching
+     */
+    sealed class FetchModelsResult {
+        data class Success(val models: List<String>) : FetchModelsResult()
+        data class Error(val message: String) : FetchModelsResult()
+    }
+    
+    /**
+     * Fetch available models from a provider's API dynamically
+     * @param providerName The name of the provider (OPENAI, GEMINI, DEEPSEEK, QWEN, or custom)
+     * @return FetchModelsResult with list of models or error message
+     */
+    suspend fun fetchAvailableModels(providerName: String): FetchModelsResult = withContext(Dispatchers.IO) {
+        try {
+            val apiKey = getApiKeyForProvider(providerName)
+            if (apiKey.isBlank()) {
+                return@withContext FetchModelsResult.Error("API anahtarı bulunamadı. Lütfen önce API anahtarını ayarlayın.")
+            }
+            
+            val models = when (providerName.uppercase()) {
+                "OPENAI" -> fetchOpenAIModels(apiKey)
+                "GEMINI" -> fetchGeminiModels(apiKey)
+                "DEEPSEEK" -> fetchOpenAICompatibleModels("https://api.deepseek.com", apiKey)
+                "QWEN" -> fetchOpenAICompatibleModels("https://dashscope-intl.aliyuncs.com/compatible-mode", apiKey)
+                else -> {
+                    // Custom provider - check if it has a base URL
+                    val baseUrl = getProviderBaseUrl(providerName)
+                    if (baseUrl.isNotBlank()) {
+                        fetchOpenAICompatibleModels(baseUrl, apiKey)
+                    } else {
+                        return@withContext FetchModelsResult.Error("Bu sağlayıcı için URL bulunamadı")
+                    }
+                }
+            }
+            
+            if (models.isEmpty()) {
+                return@withContext FetchModelsResult.Error("Hiç model bulunamadı")
+            }
+            
+            FetchModelsResult.Success(models.sorted())
+        } catch (e: Exception) {
+            Log.e("SettingsManager", "Failed to fetch models for $providerName", e)
+            FetchModelsResult.Error("Model listesi alınamadı: ${e.message}")
+        }
+    }
+    
+    /**
+     * Get API key for a provider
+     */
+    private fun getApiKeyForProvider(providerName: String): String {
+        return when (providerName.uppercase()) {
+            "OPENAI" -> openAiApiKey
+            "GEMINI" -> geminiApiKey
+            "DEEPSEEK" -> deepseekApiKey
+            "QWEN" -> dashscopeApiKey
+            else -> getCustomProviderApiKey(providerName)
+        }
+    }
+    
+    /**
+     * Fetch models from OpenAI API
+     */
+    private fun fetchOpenAIModels(apiKey: String): List<String> {
+        val request = Request.Builder()
+            .url("https://api.openai.com/v1/models")
+            .addHeader("Authorization", "Bearer $apiKey")
+            .get()
+            .build()
+        
+        val response = httpClient.newCall(request).execute()
+        if (!response.isSuccessful) {
+            throw Exception("OpenAI API hatası: ${response.code}")
+        }
+        
+        val responseBody = response.body?.string() ?: throw Exception("Boş yanıt")
+        val json = Json { ignoreUnknownKeys = true }
+        val root = json.parseToJsonElement(responseBody).jsonObject
+        val data = root["data"]?.jsonArray ?: return emptyList()
+        
+        // Filter for chat models only (gpt-4, gpt-3.5, o1, etc.)
+        return data.mapNotNull { element ->
+            val id = element.jsonObject["id"]?.jsonPrimitive?.content
+            id
+        }.filter { id ->
+            id.startsWith("gpt-") || 
+            id.startsWith("o1") || 
+            id.startsWith("o3") ||
+            id.contains("chatgpt") ||
+            id.startsWith("text-davinci")
+        }.distinct()
+    }
+    
+    /**
+     * Fetch models from Gemini API
+     */
+    private fun fetchGeminiModels(apiKey: String): List<String> {
+        val request = Request.Builder()
+            .url("https://generativelanguage.googleapis.com/v1beta/models?key=$apiKey")
+            .get()
+            .build()
+        
+        val response = httpClient.newCall(request).execute()
+        if (!response.isSuccessful) {
+            throw Exception("Gemini API hatası: ${response.code}")
+        }
+        
+        val responseBody = response.body?.string() ?: throw Exception("Boş yanıt")
+        val json = Json { ignoreUnknownKeys = true }
+        val root = json.parseToJsonElement(responseBody).jsonObject
+        val models = root["models"]?.jsonArray ?: return emptyList()
+        
+        // Extract model names and filter for generateContent support
+        return models.mapNotNull { element ->
+            val name = element.jsonObject["name"]?.jsonPrimitive?.content
+            val supportedMethods = element.jsonObject["supportedGenerationMethods"]?.jsonArray
+            val supportsGenerate = supportedMethods?.any { 
+                it.jsonPrimitive.content == "generateContent" 
+            } ?: false
+            
+            if (supportsGenerate && name != null) {
+                // Convert "models/gemini-pro" to "gemini-pro"
+                name.removePrefix("models/")
+            } else null
+        }.filter { name ->
+            // Filter for gemini models that support chat
+            name.startsWith("gemini")
+        }.distinct()
+    }
+    
+    /**
+     * Fetch models from OpenAI-compatible APIs (DeepSeek, Qwen, custom providers)
+     */
+    private fun fetchOpenAICompatibleModels(baseUrl: String, apiKey: String): List<String> {
+        val url = if (baseUrl.endsWith("/")) {
+            "${baseUrl}v1/models"
+        } else {
+            "$baseUrl/v1/models"
+        }
+        
+        val request = Request.Builder()
+            .url(url)
+            .addHeader("Authorization", "Bearer $apiKey")
+            .get()
+            .build()
+        
+        val response = httpClient.newCall(request).execute()
+        if (!response.isSuccessful) {
+            throw Exception("API hatası: ${response.code}")
+        }
+        
+        val responseBody = response.body?.string() ?: throw Exception("Boş yanıt")
+        val json = Json { ignoreUnknownKeys = true }
+        val root = json.parseToJsonElement(responseBody).jsonObject
+        val data = root["data"]?.jsonArray ?: return emptyList()
+        
+        return data.mapNotNull { element ->
+            element.jsonObject["id"]?.jsonPrimitive?.content
+        }.distinct()
+    }
+    
+    /**
+     * Add multiple models for a provider from dynamic fetch
+     * @param providerName The provider to add models to
+     * @param newModels List of models to add
+     * @return Number of models actually added (excluding duplicates)
+     */
+    fun addModelsFromFetch(providerName: String, newModels: List<String>): Int {
+        var addedCount = 0
+        val existingModels = getModelsForProvider(providerName)
+        
+        newModels.forEach { modelName ->
+            val trimmedName = modelName.trim()
+            if (trimmedName.isNotBlank() && !existingModels.contains(trimmedName)) {
+                if (customModels[providerName] == null) {
+                    customModels[providerName] = mutableListOf()
+                }
+                customModels[providerName]!!.add(trimmedName)
+                addedCount++
+            }
+        }
+        
+        if (addedCount > 0) {
+            saveCustomModels()
+            Log.d("SettingsManager", "Added $addedCount models for $providerName")
+        }
+        
+        return addedCount
     }
 }
