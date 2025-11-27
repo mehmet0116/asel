@@ -1458,6 +1458,18 @@ class MainActivity : AppCompatActivity(),
                     val intent = Intent(this, LoremIpsumGeneratorActivity::class.java)
                     startActivity(intent)
                 }
+                R.id.nav_qr_code -> {
+                    val intent = Intent(this, QrCodeGeneratorActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_uuid -> {
+                    val intent = Intent(this, UuidGeneratorActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_markdown -> {
+                    val intent = Intent(this, MarkdownPreviewActivity::class.java)
+                    startActivity(intent)
+                }
                 R.id.nav_change_provider -> showProviderSelectionDialog()
                 R.id.nav_change_model -> showModelSelectionDialog()
                 R.id.nav_new_chat -> showNewChatConfirmation()

@@ -125,6 +125,18 @@
             android:icon="@drawable/ic_lorem"
             android:title="Lorem Ipsum" />
         <item
+            android:id="@+id/nav_qr_code"
+            android:icon="@drawable/ic_qr_code"
+            android:title="QR Kod" />
+        <item
+            android:id="@+id/nav_uuid"
+            android:icon="@drawable/ic_uuid"
+            android:title="UUID" />
+        <item
+            android:id="@+id/nav_markdown"
+            android:icon="@drawable/ic_markdown"
+            android:title="Markdown" />
+        <item
             android:id="@+id/nav_change_provider"
             android:icon="@drawable/ic_provider"
             android:title="Sağlayıcı Değiştir" />

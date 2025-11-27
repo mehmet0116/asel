@@ -663,5 +663,41 @@
     <string name="generate">Oluştur</string>
     <string name="output">Çıktı</string>
     <string name="lorem_placeholder">Lorem ipsum metni burada görünecek...</string>
-</resources>
+    
+    <!-- QR CODE GENERATOR STRING'LERİ -->
+    <string name="qr_code_generator">📱 QR Kod Üretici</string>
+    <string name="qr_code_menu">QR Kod</string>
+    <string name="qr_input">Metin veya URL</string>
+    <string name="qr_input_hint">QR koda dönüştürülecek metni girin...</string>
+    <string name="qr_templates">Hızlı Şablonlar</string>
+    <string name="qr_size">QR Boyutu</string>
+    <string name="generate_qr">QR Kod Oluştur</string>
+    <string name="qr_result">QR Kod</string>
+    <string name="qr_code">QR Kod</string>
+    <string name="share_qr">QR Kodu Paylaş</string>
+    <string name="qr_saved">QR Kod kaydedildi: %s</string>
+    <string name="qr_generated">QR Kod oluşturuldu!</string>
+    <string name="qr_generation_error">QR Kod oluşturma hatası</string>
+    <string name="enter_text_for_qr">Lütfen metin girin</string>
+    <string name="save">Kaydet</string>
+    <string name="save_error">Kaydetme hatası</string>
+    
+    <!-- UUID GENERATOR STRING'LERİ -->
+    <string name="uuid_generator">🔑 UUID Üretici</string>
+    <string name="uuid_menu">UUID</string>
+    <string name="uuid_format">Format</string>
+    <string name="uuid_count">Adet</string>
+    <string name="generate_uuid">UUID Oluştur</string>
+    <string name="uuid_generated">%d UUID oluşturuldu</string>
+    <string name="copy_all">Tümünü Kopyala</string>
+    <string name="clear">Temizle</string>
+    
+    <!-- MARKDOWN PREVIEW STRING'LERİ -->
+    <string name="markdown_preview">📝 Markdown Önizleme</string>
+    <string name="markdown_menu">Markdown</string>
+    <string name="editor">Düzenleyici</string>
+    <string name="preview">Önizleme</string>
+    <string name="markdown_input">Markdown metni girin...</string>
+    <string name="copy_html">HTML Kopyala</string>
+    
 </resources>

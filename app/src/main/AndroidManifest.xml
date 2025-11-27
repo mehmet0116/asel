@@ -202,6 +202,21 @@
             android:name=".LoremIpsumGeneratorActivity"
             android:label="@string/lorem_ipsum_generator" />
 
+        <!-- QR Kod Üretici Aktivitesi -->
+        <activity 
+            android:name=".QrCodeGeneratorActivity"
+            android:label="@string/qr_code_generator" />
+
+        <!-- UUID Üretici Aktivitesi -->
+        <activity 
+            android:name=".UuidGeneratorActivity"
+            android:label="@string/uuid_generator" />
+
+        <!-- Markdown Önizleme Aktivitesi -->
+        <activity 
+            android:name=".MarkdownPreviewActivity"
+            android:label="@string/markdown_preview" />
+
         <!-- Hatırlatma Alıcısı -->
         <receiver
             android:name=".ReminderReceiver"
