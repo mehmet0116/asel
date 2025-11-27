@@ -307,4 +307,29 @@
     <string name="your_solution">Çözümünüz</string>
     <string name="starter_code">Başlangıç Kodu</string>
     <string name="ask_ai_help">AI\'dan Yardım Al</string>
+    
+    <!-- WIDGET STRING'LERİ -->
+    <string name="widget_name">AI Kod Asistanı</string>
+    <string name="widget_description">Hızlı erişim widget\'ı - sesli giriş, kod çalıştırma, araçlar</string>
+    <string name="widget_voice">Sesli</string>
+    <string name="widget_playground">Kod</string>
+    <string name="widget_tools">Araçlar</string>
+    <string name="widget_new_chat">Yeni</string>
+    
+    <!-- LEARNING HUB (ÖĞRENME MERKEZİ) STRING'LERİ -->
+    <string name="learning_hub_title">📚 Öğrenme Merkezi</string>
+    <string name="learning_hub_menu">Öğren</string>
+    <string name="lessons_completed">Tamamlanan</string>
+    <string name="minutes_learned">Dakika</string>
+    <string name="total_lessons">Toplam Ders</string>
+    <string name="no_lessons">Henüz ders yok</string>
+    <string name="load_lessons">Dersleri Yükle</string>
+    <string name="start_lesson">Başla</string>
+    <string name="continue_lesson">Devam Et</string>
+    <string name="review_lesson">Tekrar Et</string>
+    <string name="lesson_completed">🎉 Ders tamamlandı!</string>
+    <string name="algorithms">Algoritmalar</string>
+    <string name="beginner">Başlangıç</string>
+    <string name="intermediate">Orta</string>
+    <string name="advanced">İleri</string>
 </resources>

@@ -82,6 +82,24 @@
             android:name=".DailyChallengeActivity"
             android:label="@string/daily_challenge_title" />
 
+        <!-- Öğrenme Merkezi Aktivitesi -->
+        <activity 
+            android:name=".LearningHubActivity"
+            android:label="@string/learning_hub_title" />
+
+        <!-- Ana Ekran Widget'ı -->
+        <receiver
+            android:name=".widget.QuickActionWidgetProvider"
+            android:exported="true"
+            android:label="@string/widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_quick_action_info" />
+        </receiver>
+
     </application>
 
 </manifest>

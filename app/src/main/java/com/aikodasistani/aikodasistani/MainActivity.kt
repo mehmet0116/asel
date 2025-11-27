@@ -979,6 +979,38 @@ class MainActivity : AppCompatActivity(),
             setContentView(R.layout.activity_main)
             Toast.makeText(this, "Uygulama başlatıldı, bazı özellikler kısıtlanmış olabilir", Toast.LENGTH_LONG).show()
         }
+        
+        // Widget intent'lerini işle
+        handleWidgetIntent(intent)
+    }
+    
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleWidgetIntent(intent)
+    }
+    
+    private fun handleWidgetIntent(intent: Intent?) {
+        when (intent?.action) {
+            "com.aikodasistani.aikodasistani.ACTION_OPEN_VOICE" -> {
+                // Sesli giriş başlat
+                mainCoroutineScope.launch {
+                    kotlinx.coroutines.delay(500)
+                    checkMicrophonePermissionAndStart()
+                }
+            }
+            "com.aikodasistani.aikodasistani.ACTION_OPEN_PLAYGROUND" -> {
+                // Code Playground aç
+                startActivity(Intent(this, CodePlaygroundActivity::class.java))
+            }
+            "com.aikodasistani.aikodasistani.ACTION_OPEN_TOOLS" -> {
+                // Developer Tools aç
+                startActivity(Intent(this, DeveloperToolsActivity::class.java))
+            }
+            "com.aikodasistani.aikodasistani.ACTION_NEW_CHAT" -> {
+                // Yeni sohbet başlat
+                mainCoroutineScope.launch { createNewSession() }
+            }
+        }
     }
 
     // YENİ: Gelişmiş derin düşünme butonu kurulumu
@@ -1328,6 +1360,10 @@ class MainActivity : AppCompatActivity(),
                 R.id.nav_export -> showExportDialog()
                 R.id.nav_daily_challenge -> {
                     val intent = Intent(this, DailyChallengeActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_learning_hub -> {
+                    val intent = Intent(this, LearningHubActivity::class.java)
                     startActivity(intent)
                 }
                 R.id.nav_change_provider -> showProviderSelectionDialog()

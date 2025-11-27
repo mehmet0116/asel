@@ -29,6 +29,10 @@
             android:icon="@drawable/ic_challenge"
             android:title="Günlük Soru" />
         <item
+            android:id="@+id/nav_learning_hub"
+            android:icon="@drawable/ic_learn"
+            android:title="Öğren" />
+        <item
             android:id="@+id/nav_change_provider"
             android:icon="@drawable/ic_provider"
             android:title="Sağlayıcı Değiştir" />
