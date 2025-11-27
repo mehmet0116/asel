@@ -142,6 +142,21 @@
             android:name=".RemindersActivity"
             android:label="@string/reminders_title" />
 
+        <!-- Git Yardımcısı Aktivitesi -->
+        <activity 
+            android:name=".GitHelperActivity"
+            android:label="@string/git_helper_title" />
+
+        <!-- Hata Analizi Aktivitesi -->
+        <activity 
+            android:name=".ErrorAnalyzerActivity"
+            android:label="@string/error_analyzer_title" />
+
+        <!-- Mülakat Hazırlık Aktivitesi -->
+        <activity 
+            android:name=".InterviewPrepActivity"
+            android:label="@string/interview_prep_title" />
+
         <!-- Hatırlatma Alıcısı -->
         <receiver
             android:name=".ReminderReceiver"

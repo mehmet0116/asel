@@ -77,6 +77,18 @@
             android:icon="@drawable/ic_reminder"
             android:title="Hatırlatmalar" />
         <item
+            android:id="@+id/nav_git_helper"
+            android:icon="@drawable/ic_git"
+            android:title="Git Yardımcısı" />
+        <item
+            android:id="@+id/nav_error_analyzer"
+            android:icon="@drawable/ic_error_outline"
+            android:title="Hata Analizi" />
+        <item
+            android:id="@+id/nav_interview_prep"
+            android:icon="@drawable/ic_interview"
+            android:title="Mülakat Hazırlık" />
+        <item
             android:id="@+id/nav_change_provider"
             android:icon="@drawable/ic_provider"
             android:title="Sağlayıcı Değiştir" />

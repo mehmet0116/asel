@@ -1410,6 +1410,18 @@ class MainActivity : AppCompatActivity(),
                     val intent = Intent(this, RemindersActivity::class.java)
                     startActivity(intent)
                 }
+                R.id.nav_git_helper -> {
+                    val intent = Intent(this, GitHelperActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_error_analyzer -> {
+                    val intent = Intent(this, ErrorAnalyzerActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_interview_prep -> {
+                    val intent = Intent(this, InterviewPrepActivity::class.java)
+                    startActivity(intent)
+                }
                 R.id.nav_change_provider -> showProviderSelectionDialog()
                 R.id.nav_change_model -> showModelSelectionDialog()
                 R.id.nav_new_chat -> showNewChatConfirmation()

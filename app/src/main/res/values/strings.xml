@@ -524,4 +524,39 @@
     <string name="reminder_title_required">Lütfen başlık girin</string>
     <string name="delete_reminder_title">Hatırlatmayı Sil</string>
     <string name="delete_reminder_confirm">"%s" hatırlatmasını silmek istediğinizden emin misiniz?</string>
+    
+    <!-- GIT HELPER STRING'LERİ -->
+    <string name="git_helper_title">🔀 Git Yardımcısı</string>
+    <string name="git_helper_menu">Git Yardımcısı</string>
+    <string name="git_search_hint">Komut ara...</string>
+    <string name="syntax">Sözdizimi</string>
+    <string name="description">Açıklama</string>
+    <string name="examples">Örnekler</string>
+    <string name="copy_command">Komutu Kopyala</string>
+    <string name="search">Ara</string>
+    <string name="copy">Kopyala</string>
+    
+    <!-- ERROR ANALYZER STRING'LERİ -->
+    <string name="error_analyzer_title">🔍 Hata Analizi</string>
+    <string name="error_analyzer_menu">Hata Analizi</string>
+    <string name="select_language">Programlama Dili Seçin</string>
+    <string name="paste_error_message">Hata Mesajını Yapıştırın</string>
+    <string name="error_input_hint">Hata mesajını veya stack trace yapıştırın...</string>
+    <string name="analyze_error">🔍 Hatayı Analiz Et</string>
+    <string name="error_type">Hata Türü</string>
+    <string name="explanation">Açıklama</string>
+    <string name="solutions">Çözümler</string>
+    <string name="code_example">Kod Örneği</string>
+    <string name="copy_solution">Çözümü Kopyala</string>
+    <string name="common_errors">Yaygın Hatalar</string>
+    <string name="error_analyzer_empty_input">Lütfen bir hata mesajı girin</string>
+    
+    <!-- INTERVIEW PREP STRING'LERİ -->
+    <string name="interview_prep_title">💼 Mülakat Hazırlık</string>
+    <string name="interview_prep_menu">Mülakat Hazırlık</string>
+    <string name="interview_stats_format">%d soru | %d Kolay | %d Orta | %d Zor</string>
+    <string name="hints">İpuçları</string>
+    <string name="solution">Çözüm</string>
+    <string name="complexity">Karmaşıklık</string>
+    <string name="practice_in_playground">Playground\'da Pratik Yap</string>
 </resources>
