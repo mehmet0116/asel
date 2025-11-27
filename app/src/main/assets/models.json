@@ -20,7 +20,8 @@
       "provider": "DEEPSEEK",
       "models": [
         "deepseek-chat",
-        "deepseek-coder"
+        "deepseek-coder",
+        "deepseek-reasoner"
       ]
     },
     {

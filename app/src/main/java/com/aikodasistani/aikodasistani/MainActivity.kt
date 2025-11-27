@@ -369,6 +369,35 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
+    /**
+     * Determines if an OpenAI model requires 'max_completion_tokens' instead of 'max_tokens'.
+     * New models like gpt-4.1 family and some gpt-4o variants require max_completion_tokens.
+     * Old models (gpt-3.5-turbo, older gpt-4-turbo) use max_tokens.
+     */
+    private fun requiresMaxCompletionTokens(model: String): Boolean {
+        // New models that require max_completion_tokens:
+        // - gpt-4.1 family (gpt-4.1, gpt-4.1-mini, gpt-4.1-nano, etc.)
+        // - o1, o3 models (reasoning models)
+        // - Newer gpt-4o variants (after certain date)
+        return when {
+            model.startsWith("gpt-4.1") -> true
+            model.startsWith("o1") -> true  
+            model.startsWith("o3") -> true
+            model.startsWith("gpt-4o-2024-11") -> true  // November 2024 and later gpt-4o variants
+            model.startsWith("gpt-4o-2024-12") -> true  
+            model.startsWith("gpt-4o-2025") -> true     // 2025 and later
+            model == "chatgpt-4o-latest" -> true        // Latest alias
+            // Old models that use max_tokens:
+            model.startsWith("gpt-3.5") -> false
+            model.startsWith("gpt-4-turbo") -> false
+            model == "gpt-4" -> false
+            model.startsWith("gpt-4-0") -> false       // gpt-4-0314, gpt-4-0613, etc.
+            // Default for gpt-4o and similar: use max_tokens (legacy behavior)
+            // This maintains backward compatibility
+            else -> false
+        }
+    }
+
     private fun getOptimizedHistory(history: List<Message>, provider: String): List<Message> {
         val tokenLimits = getModelTokenLimits(provider, currentModel)
         return history.takeLast(tokenLimits.historyMessages).map { message ->
@@ -3239,11 +3268,20 @@ class MainActivity : AppCompatActivity(),
             })
         }
 
+        // Determine which token parameter to use based on the model
+        // New OpenAI models require 'max_completion_tokens', old ones use 'max_tokens'
+        val useMaxCompletionTokens = currentProvider == "OPENAI" && requiresMaxCompletionTokens(model)
+        
         val bodyJson = buildJsonObject {
             put("model", JsonPrimitive(model))
             put("messages", messagesJson)
             put("stream", JsonPrimitive(true))
-            put("max_tokens", JsonPrimitive(tokenLimits.maxTokens))
+            // Use appropriate token parameter based on model
+            if (useMaxCompletionTokens) {
+                put("max_completion_tokens", JsonPrimitive(tokenLimits.maxTokens))
+            } else {
+                put("max_tokens", JsonPrimitive(tokenLimits.maxTokens))
+            }
         }
 
         val request = Request.Builder()
@@ -3284,11 +3322,19 @@ class MainActivity : AppCompatActivity(),
                             val root = json.parseToJsonElement(data).jsonObject
                             val delta =
                                 root["choices"]?.jsonArray?.firstOrNull()?.jsonObject?.get("delta")?.jsonObject
+                            
+                            // Fix for DeepSeek: Check content first, then reasoning_content
+                            // This prevents "nullnullnull" from appearing in UI
                             val content = delta?.get("content")?.jsonPrimitive?.content
-                            if (content != null) {
+                                ?: delta?.get("reasoning_content")?.jsonPrimitive?.content
+                            
+                            // Only append non-null, non-empty content
+                            if (!content.isNullOrEmpty()) {
                                 withContext(Dispatchers.Main) { appendChunkToLastMessage(content) }
                             }
-                        } catch (_: Exception) {
+                        } catch (e: Exception) {
+                            // Log parsing errors for debugging but don't crash
+                            Log.w("AI_STREAM", "Failed to parse stream chunk: ${e.message}")
                         }
                     }
                 }
@@ -3340,14 +3386,38 @@ class MainActivity : AppCompatActivity(),
                         if (loadingOverlay.visibility == View.VISIBLE) {
                             hideLoading()
                         }
-                        appendChunkToLastMessage(response.text ?: "")
+                        // Prevent null values from being displayed
+                        val text = response.text
+                        if (!text.isNullOrEmpty()) {
+                            appendChunkToLastMessage(text)
+                        }
                     }
                 }
-                .onCompletion { saveFinalAiResponse() }
+                .onCompletion { cause ->
+                    if (cause != null) {
+                        // Log the error for debugging
+                        Log.e("Gemini_API", "Stream completed with error", cause)
+                    }
+                    saveFinalAiResponse()
+                }
                 .collect()
         } catch (e: Exception) {
+            // Log full error details for debugging
+            Log.e("Gemini_API", "Gemini API Error: ${e.javaClass.simpleName} - ${e.message}", e)
             withContext(Dispatchers.Main) { hideLoading() }
-            throw e
+            
+            // Provide user-friendly error message instead of crashing
+            val userMessage = when {
+                e.message?.contains("thought_signature") == true -> 
+                    "Gemini API format hatası. Lütfen yeni bir sohbet başlatın."
+                e.message?.contains("MissingFieldException") == true ||
+                e.message?.contains("required but missing") == true ->
+                    "Gemini API yanıt formatı değişti. Lütfen uygulamayı güncelleyin."
+                e.message?.contains("INVALID_ARGUMENT") == true ->
+                    "Geçersiz istek parametresi. Lütfen tekrar deneyin."
+                else -> e.message ?: "Gemini API hatası"
+            }
+            throw Exception(userMessage)
         }
     }
 
