@@ -15,6 +15,7 @@ class AIProviderUtilsTest {
      */
     private fun requiresMaxCompletionTokens(model: String): Boolean {
         return when {
+            model.startsWith("gpt-5") -> true           // GPT-5 and variants
             model.startsWith("gpt-4.1") -> true
             model.startsWith("o1") -> true
             model.startsWith("o3") -> true
@@ -145,6 +146,30 @@ class AIProviderUtilsTest {
     }
 
     @Test
+    fun `test gpt-5 requires max_completion_tokens`() {
+        assertTrue(
+            "gpt-5 should require max_completion_tokens",
+            requiresMaxCompletionTokens("gpt-5")
+        )
+    }
+
+    @Test
+    fun `test gpt-5-turbo requires max_completion_tokens`() {
+        assertTrue(
+            "gpt-5-turbo should require max_completion_tokens",
+            requiresMaxCompletionTokens("gpt-5-turbo")
+        )
+    }
+
+    @Test
+    fun `test gpt-5-mini requires max_completion_tokens`() {
+        assertTrue(
+            "gpt-5-mini should require max_completion_tokens",
+            requiresMaxCompletionTokens("gpt-5-mini")
+        )
+    }
+
+    @Test
     fun `test chatgpt-4o-latest requires max_completion_tokens`() {
         assertTrue(
             "chatgpt-4o-latest should require max_completion_tokens",
@@ -180,11 +205,15 @@ class AIProviderUtilsTest {
 
     /**
      * Helper function to simulate DeepSeek response content extraction
-     * Returns content if available, otherwise reasoning_content, otherwise null
+     * Returns content if available, otherwise reasoning_content, otherwise null.
+     * Also handles literal "null" strings.
      */
     private fun extractDeepSeekContent(content: String?, reasoningContent: String?): String? {
-        return content?.takeIf { it.isNotEmpty() }
-            ?: reasoningContent?.takeIf { it.isNotEmpty() }
+        return when {
+            !content.isNullOrEmpty() && content != "null" -> content
+            !reasoningContent.isNullOrEmpty() && reasoningContent != "null" -> reasoningContent
+            else -> null
+        }
     }
 
     @Test
@@ -214,6 +243,24 @@ class AIProviderUtilsTest {
     @Test
     fun `test DeepSeek returns null when both are empty`() {
         val result = extractDeepSeekContent("", "")
+        assertNull(result)
+    }
+
+    @Test
+    fun `test DeepSeek filters literal null string in content`() {
+        val result = extractDeepSeekContent("null", "Step by step reasoning")
+        assertEquals("Step by step reasoning", result)
+    }
+
+    @Test
+    fun `test DeepSeek filters literal null string in reasoning_content`() {
+        val result = extractDeepSeekContent(null, "null")
+        assertNull(result)
+    }
+
+    @Test
+    fun `test DeepSeek returns null when both are literal null strings`() {
+        val result = extractDeepSeekContent("null", "null")
         assertNull(result)
     }
 

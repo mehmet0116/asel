@@ -371,15 +371,17 @@ class MainActivity : AppCompatActivity(),
 
     /**
      * Determines if an OpenAI model requires 'max_completion_tokens' instead of 'max_tokens'.
-     * New models like gpt-4.1 family and some gpt-4o variants require max_completion_tokens.
+     * New models like gpt-5, gpt-4.1 family and some gpt-4o variants require max_completion_tokens.
      * Old models (gpt-3.5-turbo, older gpt-4-turbo) use max_tokens.
      */
     private fun requiresMaxCompletionTokens(model: String): Boolean {
         // New models that require max_completion_tokens:
+        // - gpt-5 family (gpt-5, gpt-5-turbo, gpt-5-mini, etc.)
         // - gpt-4.1 family (gpt-4.1, gpt-4.1-mini, gpt-4.1-nano, etc.)
         // - o1, o3 models (reasoning models)
         // - Newer gpt-4o variants (after certain date)
         return when {
+            model.startsWith("gpt-5") -> true           // GPT-5 and variants
             model.startsWith("gpt-4.1") -> true
             model.startsWith("o1") -> true  
             model.startsWith("o3") -> true
@@ -3324,9 +3326,17 @@ class MainActivity : AppCompatActivity(),
                                 root["choices"]?.jsonArray?.firstOrNull()?.jsonObject?.get("delta")?.jsonObject
                             
                             // Fix for DeepSeek: Check content first, then reasoning_content
-                            // This prevents "nullnullnull" from appearing in UI
-                            val content = delta?.get("content")?.jsonPrimitive?.content
-                                ?: delta?.get("reasoning_content")?.jsonPrimitive?.content
+                            // This prevents "nullnullnull" from appearing in UI.
+                            // Also handle cases where content is a literal "null" string.
+                            val rawContent = delta?.get("content")?.jsonPrimitive?.content
+                            val rawReasoningContent = delta?.get("reasoning_content")?.jsonPrimitive?.content
+                            
+                            // Select the best content, avoiding null values and "null" strings
+                            val content = when {
+                                !rawContent.isNullOrEmpty() && rawContent != "null" -> rawContent
+                                !rawReasoningContent.isNullOrEmpty() && rawReasoningContent != "null" -> rawReasoningContent
+                                else -> null
+                            }
                             
                             // Only append non-null, non-empty content
                             if (!content.isNullOrEmpty()) {
@@ -3387,8 +3397,9 @@ class MainActivity : AppCompatActivity(),
                             hideLoading()
                         }
                         // Prevent null values from being displayed
+                        // Also prevent literal "null" string from appearing
                         val text = response.text
-                        if (!text.isNullOrEmpty()) {
+                        if (!text.isNullOrEmpty() && text != "null") {
                             appendChunkToLastMessage(text)
                         }
                     }
