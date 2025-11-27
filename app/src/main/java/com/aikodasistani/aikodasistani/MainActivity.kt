@@ -3327,8 +3327,16 @@ class MainActivity : AppCompatActivity(),
                             
                             // Fix for DeepSeek: Check content first, then reasoning_content
                             // This prevents "nullnullnull" from appearing in UI
-                            val content = delta?.get("content")?.jsonPrimitive?.content
-                                ?: delta?.get("reasoning_content")?.jsonPrimitive?.content
+                            // Also handle cases where content is literally "null" string
+                            val rawContent = delta?.get("content")?.jsonPrimitive?.content
+                            val rawReasoningContent = delta?.get("reasoning_content")?.jsonPrimitive?.content
+                            
+                            // Select the best content, avoiding null values and "null" strings
+                            val content = when {
+                                !rawContent.isNullOrEmpty() && rawContent != "null" -> rawContent
+                                !rawReasoningContent.isNullOrEmpty() && rawReasoningContent != "null" -> rawReasoningContent
+                                else -> null
+                            }
                             
                             // Only append non-null, non-empty content
                             if (!content.isNullOrEmpty()) {
@@ -3389,8 +3397,9 @@ class MainActivity : AppCompatActivity(),
                             hideLoading()
                         }
                         // Prevent null values from being displayed
+                        // Also prevent literal "null" string from appearing
                         val text = response.text
-                        if (!text.isNullOrEmpty()) {
+                        if (!text.isNullOrEmpty() && text != "null") {
                             appendChunkToLastMessage(text)
                         }
                     }

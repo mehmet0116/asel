@@ -206,10 +206,14 @@ class AIProviderUtilsTest {
     /**
      * Helper function to simulate DeepSeek response content extraction
      * Returns content if available, otherwise reasoning_content, otherwise null
+     * Also handles literal "null" string
      */
     private fun extractDeepSeekContent(content: String?, reasoningContent: String?): String? {
-        return content?.takeIf { it.isNotEmpty() }
-            ?: reasoningContent?.takeIf { it.isNotEmpty() }
+        return when {
+            !content.isNullOrEmpty() && content != "null" -> content
+            !reasoningContent.isNullOrEmpty() && reasoningContent != "null" -> reasoningContent
+            else -> null
+        }
     }
 
     @Test
@@ -239,6 +243,24 @@ class AIProviderUtilsTest {
     @Test
     fun `test DeepSeek returns null when both are empty`() {
         val result = extractDeepSeekContent("", "")
+        assertNull(result)
+    }
+
+    @Test
+    fun `test DeepSeek filters literal null string in content`() {
+        val result = extractDeepSeekContent("null", "Step by step reasoning")
+        assertEquals("Step by step reasoning", result)
+    }
+
+    @Test
+    fun `test DeepSeek filters literal null string in reasoning_content`() {
+        val result = extractDeepSeekContent(null, "null")
+        assertNull(result)
+    }
+
+    @Test
+    fun `test DeepSeek returns null when both are literal null strings`() {
+        val result = extractDeepSeekContent("null", "null")
         assertNull(result)
     }
 
