@@ -373,4 +373,42 @@
     <string name="stat_code">Kod</string>
     <string name="stat_tools">Araç</string>
     <string name="stat_playground">Playground</string>
+    
+    <!-- API TESTER STRING'LERİ -->
+    <string name="api_tester_title">🔌 API Test</string>
+    <string name="api_tester_menu">API Test</string>
+    <string name="api_url_hint">https://api.example.com/endpoint</string>
+    <string name="api_url_required">Lütfen bir URL girin</string>
+    <string name="http_method">HTTP Metod</string>
+    <string name="api_headers_hint">Headers (Her satıra bir tane: Key: Value)</string>
+    <string name="api_body_hint">Request Body (JSON)</string>
+    <string name="send_request">🚀 İstek Gönder</string>
+    <string name="response">Yanıt</string>
+    <string name="response_time">%d ms</string>
+    
+    <!-- CODE DIFF STRING'LERİ -->
+    <string name="code_diff_title">🔍 Kod Karşılaştır</string>
+    <string name="code_diff_menu">Kod Karşılaştır</string>
+    <string name="original_code">Orijinal Kod</string>
+    <string name="modified_code">Değiştirilmiş Kod</string>
+    <string name="code_1_hint">İlk kod parçasını yapıştırın...</string>
+    <string name="code_2_hint">İkinci kod parçasını yapıştırın...</string>
+    <string name="compare_codes">🔍 Karşılaştır</string>
+    <string name="swap_codes">Kodları Değiştir</string>
+    <string name="unified_view">Birleşik</string>
+    <string name="side_by_side_view">Yan Yana</string>
+    <string name="diff_stats">+%d eklendi | -%d silindi | %d değişmedi</string>
+    <string name="diff_codes_required">Lütfen karşılaştırılacak kod girin</string>
+    
+    <!-- FAVORITES CENTER STRING'LERİ -->
+    <string name="favorites_center_title">⭐ Favorilerim</string>
+    <string name="favorites_center_menu">Favoriler</string>
+    <string name="all_favorites">Tümü</string>
+    <string name="snippets">Snippets</string>
+    <string name="templates">Şablonlar</string>
+    <string name="total_favorites">%d favori</string>
+    <string name="no_favorites">Henüz favori yok</string>
+    <string name="no_favorites_hint">Kod parçalarını ve şablonları\nfavorilere ekleyin</string>
+    <string name="type_snippet">Snippet</string>
+    <string name="type_template">Şablon</string>
 </resources>

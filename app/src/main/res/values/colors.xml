@@ -78,4 +78,14 @@
     <color name="go_color">#00ADD8</color>
     <color name="rust_color">#DEA584</color>
     <color name="cpp_color">#F34B7D</color>
+    
+    <!-- Status Colors for API Tester -->
+    <color name="status_success">#4CAF50</color>
+    <color name="status_error">#F44336</color>
+    <color name="status_warning">#FF9800</color>
+    
+    <!-- Favorite Chips -->
+    <color name="chip_snippet">#7C3AED</color>
+    <color name="chip_template">#14B8A6</color>
+    <color name="chip_language">#6366F1</color>
 </resources>

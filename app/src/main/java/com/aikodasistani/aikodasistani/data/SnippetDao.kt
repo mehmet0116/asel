@@ -15,6 +15,9 @@ interface SnippetDao {
     @Query("SELECT * FROM snippets WHERE isFavorite = 1 ORDER BY updatedAt DESC")
     fun getFavoriteSnippets(): Flow<List<Snippet>>
 
+    @Query("SELECT * FROM snippets WHERE isFavorite = 1 ORDER BY updatedAt DESC")
+    suspend fun getFavorites(): List<Snippet>
+
     @Query("SELECT * FROM snippets ORDER BY usageCount DESC LIMIT :limit")
     fun getMostUsedSnippets(limit: Int = 10): Flow<List<Snippet>>
 

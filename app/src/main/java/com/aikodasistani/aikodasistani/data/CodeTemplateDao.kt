@@ -9,7 +9,10 @@ interface CodeTemplateDao {
     fun getAllTemplates(): Flow<List<CodeTemplate>>
     
     @Query("SELECT * FROM code_templates WHERE isFavorite = 1 ORDER BY usageCount DESC")
-    fun getFavorites(): Flow<List<CodeTemplate>>
+    fun getFavoriteTemplates(): Flow<List<CodeTemplate>>
+    
+    @Query("SELECT * FROM code_templates WHERE isFavorite = 1 ORDER BY usageCount DESC")
+    suspend fun getFavorites(): List<CodeTemplate>
     
     @Query("SELECT * FROM code_templates WHERE language = :language ORDER BY usageCount DESC")
     fun getByLanguage(language: String): Flow<List<CodeTemplate>>

@@ -41,6 +41,18 @@
             android:icon="@drawable/ic_statistics"
             android:title="İstatistikler" />
         <item
+            android:id="@+id/nav_api_tester"
+            android:icon="@drawable/ic_api"
+            android:title="API Test" />
+        <item
+            android:id="@+id/nav_code_diff"
+            android:icon="@drawable/ic_diff"
+            android:title="Kod Karşılaştır" />
+        <item
+            android:id="@+id/nav_favorites"
+            android:icon="@drawable/ic_favorite"
+            android:title="Favoriler" />
+        <item
             android:id="@+id/nav_change_provider"
             android:icon="@drawable/ic_provider"
             android:title="Sağlayıcı Değiştir" />

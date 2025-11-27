@@ -1374,6 +1374,18 @@ class MainActivity : AppCompatActivity(),
                     val intent = Intent(this, StatisticsActivity::class.java)
                     startActivity(intent)
                 }
+                R.id.nav_api_tester -> {
+                    val intent = Intent(this, ApiTesterActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_code_diff -> {
+                    val intent = Intent(this, CodeDiffActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_favorites -> {
+                    val intent = Intent(this, FavoritesCenterActivity::class.java)
+                    startActivity(intent)
+                }
                 R.id.nav_change_provider -> showProviderSelectionDialog()
                 R.id.nav_change_model -> showModelSelectionDialog()
                 R.id.nav_new_chat -> showNewChatConfirmation()

@@ -97,6 +97,21 @@
             android:name=".StatisticsActivity"
             android:label="@string/statistics_title" />
 
+        <!-- API Tester Aktivitesi -->
+        <activity 
+            android:name=".ApiTesterActivity"
+            android:label="@string/api_tester_title" />
+
+        <!-- Kod Karşılaştırma Aktivitesi -->
+        <activity 
+            android:name=".CodeDiffActivity"
+            android:label="@string/code_diff_title" />
+
+        <!-- Favoriler Merkezi Aktivitesi -->
+        <activity 
+            android:name=".FavoritesCenterActivity"
+            android:label="@string/favorites_center_title" />
+
         <!-- Ana Ekran Widget'ı -->
         <receiver
             android:name=".widget.QuickActionWidgetProvider"
