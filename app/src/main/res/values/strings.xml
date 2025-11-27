@@ -700,4 +700,45 @@
     <string name="markdown_input">Markdown metni girin...</string>
     <string name="copy_html">HTML Kopyala</string>
     
+    <!-- SQL QUERY BUILDER STRING'LERİ -->
+    <string name="sql_query_builder">🗃️ SQL Sorgu Oluşturucu</string>
+    <string name="sql_menu">SQL Oluşturucu</string>
+    <string name="query_type">Sorgu Tipi</string>
+    <string name="table_name">Tablo Adı</string>
+    <string name="table_name_hint">users, products, orders...</string>
+    <string name="table_name_required">Tablo adı gerekli</string>
+    <string name="columns">Sütunlar</string>
+    <string name="columns_hint">* veya: id, name, email</string>
+    <string name="where_clause">WHERE Koşulu</string>
+    <string name="where_hint">id = 1 AND status = \'active\'</string>
+    <string name="order_by">ORDER BY</string>
+    <string name="order_by_hint">created_at DESC</string>
+    <string name="limit">LIMIT</string>
+    <string name="limit_hint">10</string>
+    <string name="values">VALUES</string>
+    <string name="values_hint">\'John\', \'john@example.com\', 25</string>
+    <string name="set_clause">SET</string>
+    <string name="set_hint">name = \'Jane\', age = 30</string>
+    <string name="generated_query">Oluşturulan Sorgu</string>
+    
+    <!-- CRON HELPER STRING'LERİ -->
+    <string name="cron_helper">⏰ Cron Yardımcısı</string>
+    <string name="cron_menu">Cron</string>
+    <string name="cron_builder">Cron İfade Oluşturucu</string>
+    <string name="minute">Dakika</string>
+    <string name="hour">Saat</string>
+    <string name="day">Gün</string>
+    <string name="month">Ay</string>
+    <string name="weekday">Hafta Günü</string>
+    <string name="cron_expression">Cron İfadesi</string>
+    <string name="human_readable">Açıklama</string>
+    <string name="presets">Hazır Şablonlar</string>
+    <string name="syntax_reference">Sözdizimi Referansı</string>
+    <string name="cron_syntax_help">* = her değer\n*/n = her n birimde\nn = belirli değer\nn,m = n ve m değerleri\nn-m = n ile m arası\n\nDakika: 0-59\nSaat: 0-23\nGün: 1-31\nAy: 1-12\nHafta: 0-6 (0=Pazar)</string>
+    
+    <!-- HTTP STATUS CODES STRING'LERİ -->
+    <string name="http_status_codes">🌐 HTTP Durum Kodları</string>
+    <string name="http_menu">HTTP Kodları</string>
+    <string name="search_status_code">Kod veya açıklama ara...</string>
+    
 </resources>

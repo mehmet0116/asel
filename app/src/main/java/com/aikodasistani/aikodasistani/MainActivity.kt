@@ -1470,6 +1470,18 @@ class MainActivity : AppCompatActivity(),
                     val intent = Intent(this, MarkdownPreviewActivity::class.java)
                     startActivity(intent)
                 }
+                R.id.nav_sql_builder -> {
+                    val intent = Intent(this, SqlQueryBuilderActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_cron_helper -> {
+                    val intent = Intent(this, CronHelperActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_http_codes -> {
+                    val intent = Intent(this, HttpStatusCodesActivity::class.java)
+                    startActivity(intent)
+                }
                 R.id.nav_change_provider -> showProviderSelectionDialog()
                 R.id.nav_change_model -> showModelSelectionDialog()
                 R.id.nav_new_chat -> showNewChatConfirmation()

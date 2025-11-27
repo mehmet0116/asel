@@ -217,6 +217,21 @@
             android:name=".MarkdownPreviewActivity"
             android:label="@string/markdown_preview" />
 
+        <!-- SQL Query Builder Aktivitesi -->
+        <activity 
+            android:name=".SqlQueryBuilderActivity"
+            android:label="@string/sql_query_builder" />
+
+        <!-- Cron Helper Aktivitesi -->
+        <activity 
+            android:name=".CronHelperActivity"
+            android:label="@string/cron_helper" />
+
+        <!-- HTTP Status Codes Aktivitesi -->
+        <activity 
+            android:name=".HttpStatusCodesActivity"
+            android:label="@string/http_status_codes" />
+
         <!-- Hatırlatma Alıcısı -->
         <receiver
             android:name=".ReminderReceiver"
