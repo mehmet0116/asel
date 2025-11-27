@@ -1321,6 +1321,10 @@ class MainActivity : AppCompatActivity(),
                     val intent = Intent(this, DeveloperToolsActivity::class.java)
                     startActivity(intent)
                 }
+                R.id.nav_playground -> {
+                    val intent = Intent(this, CodePlaygroundActivity::class.java)
+                    startActivity(intent)
+                }
                 R.id.nav_change_provider -> showProviderSelectionDialog()
                 R.id.nav_change_model -> showModelSelectionDialog()
                 R.id.nav_new_chat -> showNewChatConfirmation()

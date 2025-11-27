@@ -260,4 +260,17 @@
     <string name="enter_pattern">Pattern giriniz</string>
     <string name="enter_text">Metin giriniz</string>
     <string name="delete_snippet_button">Sil</string>
+    
+    <!-- CODE PLAYGROUND STRING'LERİ -->
+    <string name="code_playground_title">▶️ Kod Çalıştır</string>
+    <string name="code_playground_menu">Kod Çalıştır</string>
+    <string name="language_label">Dil:</string>
+    <string name="code_input">Kod</string>
+    <string name="code_playground_hint">Kodunuzu buraya yazın...</string>
+    <string name="js_code_hint">console.log("Merhaba Dünya!");</string>
+    <string name="html_code_hint">&lt;h1&gt;Merhaba&lt;/h1&gt;</string>
+    <string name="run_code">▶️ Çalıştır</string>
+    <string name="clear">Temizle</string>
+    <string name="enter_code">Lütfen kod girin</string>
+    <string name="code_execution_error">Kod çalıştırılırken hata oluştu</string>
 </resources>

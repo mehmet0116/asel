@@ -72,6 +72,11 @@
             android:name=".DeveloperToolsActivity"
             android:label="@string/dev_tools_title" />
 
+        <!-- Kod Playground Aktivitesi -->
+        <activity 
+            android:name=".CodePlaygroundActivity"
+            android:label="@string/code_playground_title" />
+
     </application>
 
 </manifest>
