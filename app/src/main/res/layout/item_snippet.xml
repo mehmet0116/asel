@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="6dp"
+    app:cardElevation="2dp"
+    app:cardCornerRadius="12dp"
+    app:strokeWidth="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <!-- Header Row: Title + Language + Favorite -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Title -->
+            <TextView
+                android:id="@+id/tvSnippetTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="?attr/colorOnSurface"
+                android:ellipsize="end"
+                android:maxLines="1"
+                tools:text="Quick Sort Algorithm" />
+
+            <!-- Language Badge -->
+            <TextView
+                android:id="@+id/tvLanguageBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_language_badge"
+                android:textSize="10sp"
+                android:textColor="@color/white"
+                android:textAllCaps="true"
+                tools:text="KOTLIN" />
+
+            <!-- Favorite Button -->
+            <ImageButton
+                android:id="@+id/btnFavorite"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_favorite_border"
+                android:contentDescription="@string/toggle_favorite"
+                app:tint="?attr/colorPrimary" />
+
+        </LinearLayout>
+
+        <!-- Code Preview -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:scrollbars="none">
+
+            <TextView
+                android:id="@+id/tvCodePreview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:background="@drawable/bg_code_preview"
+                android:fontFamily="monospace"
+                android:textSize="12sp"
+                android:textColor="?attr/colorOnSurface"
+                android:maxLines="4"
+                android:ellipsize="end"
+                tools:text="fun quickSort(arr: IntArray): IntArray {\n    if (arr.size &lt; 2) return arr\n    val pivot = arr[arr.size / 2]\n    return quickSort(arr.filter { it &lt; pivot }.toIntArray()) + ...\n}" />
+
+        </HorizontalScrollView>
+
+        <!-- Description (if exists) -->
+        <TextView
+            android:id="@+id/tvDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:textSize="12sp"
+            android:textColor="?attr/colorOnSurface"
+            android:alpha="0.7"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:visibility="gone"
+            tools:text="Implementation of QuickSort algorithm for efficient sorting" />
+
+        <!-- Tags Row -->
+        <LinearLayout
+            android:id="@+id/tagsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <!-- Tags will be added dynamically -->
+
+        </LinearLayout>
+
+        <!-- Bottom Row: Usage Count + Actions -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Usage Count -->
+            <TextView
+                android:id="@+id/tvUsageCount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="11sp"
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.5"
+                tools:text="Kullanım: 15" />
+
+            <!-- Copy Button -->
+            <ImageButton
+                android:id="@+id/btnCopy"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_copy"
+                android:contentDescription="@string/copy_code"
+                app:tint="?attr/colorOnSurface" />
+
+            <!-- Use Button -->
+            <Button
+                android:id="@+id/btnUse"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="@string/use_snippet"
+                android:textSize="12sp" />
+
+            <!-- More Options -->
+            <ImageButton
+                android:id="@+id/btnMore"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_more_vert"
+                android:contentDescription="@string/more_options"
+                app:tint="?attr/colorOnSurface" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

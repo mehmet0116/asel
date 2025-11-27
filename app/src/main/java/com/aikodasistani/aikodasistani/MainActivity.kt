@@ -254,6 +254,24 @@ class MainActivity : AppCompatActivity(),
             }
         }
 
+    private val snippetsLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val data = result.data
+                if (data?.getBooleanExtra(SnippetsActivity.RESULT_SNIPPET_SELECTED, false) == true) {
+                    val code = data.getStringExtra(SnippetsActivity.RESULT_CODE) ?: ""
+                    if (code.isNotBlank()) {
+                        // Insert the selected snippet code into the message input
+                        val currentText = editTextMessage.text?.toString() ?: ""
+                        val newText = if (currentText.isBlank()) code else "$currentText\n$code"
+                        editTextMessage.setText(newText)
+                        editTextMessage.setSelection(newText.length)
+                        Toast.makeText(this@MainActivity, R.string.snippet_used, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+
     private val cameraLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
@@ -1113,6 +1131,10 @@ class MainActivity : AppCompatActivity(),
                 R.id.nav_sessions -> {
                     val intent = Intent(this, SessionsActivity::class.java)
                     sessionsLauncher.launch(intent)
+                }
+                R.id.nav_snippets -> {
+                    val intent = Intent(this, SnippetsActivity::class.java)
+                    snippetsLauncher.launch(intent)
                 }
                 R.id.nav_change_provider -> showProviderSelectionDialog()
                 R.id.nav_change_model -> showModelSelectionDialog()

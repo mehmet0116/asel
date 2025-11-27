@@ -182,4 +182,38 @@
     <string name="add_selected_models">Seçilenleri Ekle</string>
     <string name="models_added_count">%d model eklendi</string>
     <string name="no_models_selected">Hiçbir model seçilmedi</string>
+    
+    <!-- SNIPPETS (KOD PARÇALARI) STRING'LERİ -->
+    <string name="snippets_title">📝 Kod Parçaları</string>
+    <string name="search_snippets">Snippet ara...</string>
+    <string name="all_snippets">Tümü</string>
+    <string name="favorites">⭐ Favoriler</string>
+    <string name="most_used">🔥 En Çok Kullanılan</string>
+    <string name="no_snippets">Henüz kod parçası yok</string>
+    <string name="no_snippets_hint">AI yanıtlarındaki kodları kaydedin\nveya manuel olarak ekleyin</string>
+    <string name="add_snippet">Snippet Ekle</string>
+    <string name="add_snippet_title">Yeni Kod Parçası</string>
+    <string name="edit_snippet_title">Kod Parçasını Düzenle</string>
+    <string name="snippet_title_hint">Başlık (örn: Quick Sort)</string>
+    <string name="snippet_language_hint">Programlama Dili</string>
+    <string name="snippet_code_hint">Kod</string>
+    <string name="snippet_description_hint">Açıklama (opsiyonel)</string>
+    <string name="snippet_tags_hint">Etiketler</string>
+    <string name="snippet_tags_helper">Virgülle ayırın: sorting, algorithm, array</string>
+    <string name="save_snippet">Kaydet</string>
+    <string name="snippet_saved">Kod parçası kaydedildi ✓</string>
+    <string name="snippet_deleted">Kod parçası silindi</string>
+    <string name="snippet_copied">Kod kopyalandı</string>
+    <string name="snippet_used">Kod kullanıldı</string>
+    <string name="toggle_favorite">Favori olarak işaretle</string>
+    <string name="copy_code">Kodu kopyala</string>
+    <string name="use_snippet">Kullan</string>
+    <string name="more_options">Daha fazla seçenek</string>
+    <string name="edit_snippet">Düzenle</string>
+    <string name="delete_snippet">Sil</string>
+    <string name="delete_snippet_confirm">"%s" kod parçasını silmek istediğinizden emin misiniz?</string>
+    <string name="save_to_snippets">📝 Snippet\'lere Kaydet</string>
+    <string name="snippet_title_required">Lütfen bir başlık girin</string>
+    <string name="snippet_code_required">Lütfen kod girin</string>
+    <string name="usage_count">Kullanım: %d</string>
 </resources>

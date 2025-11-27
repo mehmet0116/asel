@@ -9,6 +9,10 @@
             android:icon="@drawable/ic_history"
             android:title="Oturumlar" />
         <item
+            android:id="@+id/nav_snippets"
+            android:icon="@drawable/ic_code"
+            android:title="Kod Parçaları" />
+        <item
             android:id="@+id/nav_change_provider"
             android:icon="@drawable/ic_provider"
             android:title="Sağlayıcı Değiştir" />

@@ -62,6 +62,11 @@
         <!-- Oturumlar Aktivitesi -->
         <activity android:name=".SessionsActivity" />
 
+        <!-- Kod Parçaları Aktivitesi -->
+        <activity 
+            android:name=".SnippetsActivity"
+            android:label="@string/snippets_title" />
+
     </application>
 
 </manifest>
