@@ -1326,6 +1326,10 @@ class MainActivity : AppCompatActivity(),
                     startActivity(intent)
                 }
                 R.id.nav_export -> showExportDialog()
+                R.id.nav_daily_challenge -> {
+                    val intent = Intent(this, DailyChallengeActivity::class.java)
+                    startActivity(intent)
+                }
                 R.id.nav_change_provider -> showProviderSelectionDialog()
                 R.id.nav_change_model -> showModelSelectionDialog()
                 R.id.nav_new_chat -> showNewChatConfirmation()

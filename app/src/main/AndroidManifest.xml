@@ -77,6 +77,11 @@
             android:name=".CodePlaygroundActivity"
             android:label="@string/code_playground_title" />
 
+        <!-- Günlük Soru Aktivitesi -->
+        <activity 
+            android:name=".DailyChallengeActivity"
+            android:label="@string/daily_challenge_title" />
+
     </application>
 
 </manifest>

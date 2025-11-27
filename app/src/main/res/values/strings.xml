@@ -287,4 +287,24 @@
     <string name="open_exported_file">Aç</string>
     <string name="export_menu">Dışa Aktar</string>
     <string name="md5_warning_label">MD5 ⚠️ (güvenlik amaçlı kullanmayın)</string>
+    
+    <!-- DAILY CHALLENGE (GÜNLÜK SORU) STRING'LERİ -->
+    <string name="daily_challenge_title">🎯 Günlük Soru</string>
+    <string name="daily_challenge_menu">Günlük Soru</string>
+    <string name="completed">Tamamlandı</string>
+    <string name="total_challenges">Toplam</string>
+    <string name="streak">Seri</string>
+    <string name="difficulty_easy">🟢 Kolay</string>
+    <string name="difficulty_medium">🟡 Orta</string>
+    <string name="difficulty_hard">🔴 Zor</string>
+    <string name="no_challenges">Henüz soru yok</string>
+    <string name="load_challenges">Soruları Yükle</string>
+    <string name="solve_challenge">Çöz</string>
+    <string name="view_solution">Çözümü Gör</string>
+    <string name="show_hint">İpucu</string>
+    <string name="submit_solution">Gönder</string>
+    <string name="challenge_completed">🎉 Tebrikler! Soru tamamlandı.</string>
+    <string name="your_solution">Çözümünüz</string>
+    <string name="starter_code">Başlangıç Kodu</string>
+    <string name="ask_ai_help">AI\'dan Yardım Al</string>
 </resources>

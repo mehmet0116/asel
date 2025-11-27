@@ -25,6 +25,10 @@
             android:icon="@drawable/ic_export"
             android:title="Sohbeti Dışa Aktar" />
         <item
+            android:id="@+id/nav_daily_challenge"
+            android:icon="@drawable/ic_challenge"
+            android:title="Günlük Soru" />
+        <item
             android:id="@+id/nav_change_provider"
             android:icon="@drawable/ic_provider"
             android:title="Sağlayıcı Değiştir" />
