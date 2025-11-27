@@ -753,4 +753,16 @@
     <string name="design_patterns_title">Tasarım Kalıpları</string>
     <string name="design_patterns_menu">Tasarım Kalıpları</string>
     
+    <!-- SOLID PRINCIPLES STRING'LERİ -->
+    <string name="solid_principles_title">SOLID Prensipleri</string>
+    <string name="solid_principles_menu">SOLID Prensipleri</string>
+    
+    <!-- CLEAN ARCHITECTURE STRING'LERİ -->
+    <string name="clean_architecture_title">Clean Architecture</string>
+    <string name="clean_architecture_menu">Clean Architecture</string>
+    
+    <!-- CODE REVIEW CHECKLIST STRING'LERİ -->
+    <string name="code_review_checklist_title">Kod İnceleme Listesi</string>
+    <string name="code_review_checklist_menu">Kod İnceleme</string>
+    
 </resources>

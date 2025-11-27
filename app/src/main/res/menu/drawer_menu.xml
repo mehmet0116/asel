@@ -161,6 +161,18 @@
             android:icon="@drawable/ic_design_pattern"
             android:title="Tasarım Kalıpları" />
         <item
+            android:id="@+id/nav_solid_principles"
+            android:icon="@drawable/ic_solid"
+            android:title="SOLID Prensipleri" />
+        <item
+            android:id="@+id/nav_clean_architecture"
+            android:icon="@drawable/ic_architecture"
+            android:title="Clean Architecture" />
+        <item
+            android:id="@+id/nav_code_review"
+            android:icon="@drawable/ic_checklist"
+            android:title="Kod İnceleme" />
+        <item
             android:id="@+id/nav_change_provider"
             android:icon="@drawable/ic_provider"
             android:title="Sağlayıcı Değiştir" />

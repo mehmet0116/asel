@@ -1494,6 +1494,18 @@ class MainActivity : AppCompatActivity(),
                     val intent = Intent(this, DesignPatternsActivity::class.java)
                     startActivity(intent)
                 }
+                R.id.nav_solid_principles -> {
+                    val intent = Intent(this, SolidPrinciplesActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_clean_architecture -> {
+                    val intent = Intent(this, CleanArchitectureActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_code_review -> {
+                    val intent = Intent(this, CodeReviewChecklistActivity::class.java)
+                    startActivity(intent)
+                }
                 R.id.nav_change_provider -> showProviderSelectionDialog()
                 R.id.nav_change_model -> showModelSelectionDialog()
                 R.id.nav_new_chat -> showNewChatConfirmation()
