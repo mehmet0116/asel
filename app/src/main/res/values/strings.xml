@@ -257,4 +257,7 @@
     <string name="regex_valid">✅ Geçerli Regex</string>
     <string name="regex_invalid">❌ Geçersiz Regex: %s</string>
     <string name="copied_to_clipboard">Panoya kopyalandı</string>
+    <string name="enter_pattern">Pattern giriniz</string>
+    <string name="enter_text">Metin giriniz</string>
+    <string name="delete_snippet_button">Sil</string>
 </resources>

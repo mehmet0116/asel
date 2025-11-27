@@ -212,7 +212,7 @@ class DeveloperToolsActivity : AppCompatActivity() {
                 val testString = etTestString.text?.toString() ?: ""
 
                 if (pattern.isBlank()) {
-                    Toast.makeText(requireContext(), "Pattern giriniz", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), R.string.enter_pattern, Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
 
@@ -273,7 +273,7 @@ class DeveloperToolsActivity : AppCompatActivity() {
             btnGenerate.setOnClickListener {
                 val input = etInput.text?.toString() ?: ""
                 if (input.isBlank()) {
-                    Toast.makeText(requireContext(), "Metin giriniz", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), R.string.enter_text, Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
 

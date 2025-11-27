@@ -366,7 +366,7 @@ class SnippetsActivity : AppCompatActivity() {
         AlertDialog.Builder(this)
             .setTitle(R.string.delete_snippet)
             .setMessage(getString(R.string.delete_snippet_confirm, snippet.title))
-            .setPositiveButton(R.string.delete_session) { _, _ ->
+            .setPositiveButton(R.string.delete_snippet) { _, _ ->
                 lifecycleScope.launch(Dispatchers.IO) {
                     db.snippetDao().deleteSnippet(snippet)
                     withContext(Dispatchers.Main) {
