@@ -105,6 +105,17 @@
                 android:fontFamily="sans-serif"
                 android:textSize="16sp" />
 
+            <!-- Voice Input Button (Speech-to-Text) -->
+            <ImageButton
+                android:id="@+id/buttonVoice"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_mic"
+                android:contentDescription="@string/voice_input_description"
+                app:tint="@color/secondary_main" />
+
             <!-- Send Button with Gradient -->
             <ImageButton
                 android:id="@+id/buttonSend"

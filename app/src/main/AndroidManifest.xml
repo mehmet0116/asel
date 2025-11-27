@@ -67,6 +67,11 @@
             android:name=".SnippetsActivity"
             android:label="@string/snippets_title" />
 
+        <!-- Geliştirici Araçları Aktivitesi -->
+        <activity 
+            android:name=".DeveloperToolsActivity"
+            android:label="@string/dev_tools_title" />
+
     </application>
 
 </manifest>

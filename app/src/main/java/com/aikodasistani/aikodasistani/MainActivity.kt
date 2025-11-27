@@ -14,6 +14,9 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import android.text.method.LinkMovementMethod
 import android.util.Base64
 import android.util.Log
@@ -142,6 +145,7 @@ class MainActivity : AppCompatActivity(),
     private lateinit var buttonSend: ImageButton
     private lateinit var buttonAttachment: ImageButton
     private lateinit var buttonDeepThink: ImageButton
+    private lateinit var buttonVoice: ImageButton
     private lateinit var cancelSendButton: Button
     private lateinit var attachmentPreviewContainer: View
     private lateinit var imagePreviewList: LinearLayout
@@ -156,6 +160,10 @@ class MainActivity : AppCompatActivity(),
     private lateinit var dialogManager: DialogManager
     private lateinit var imageManager: ImageManager
     private lateinit var messageManager: MessageManager
+    
+    // Voice recognition
+    private var speechRecognizer: SpeechRecognizer? = null
+    private var isListening = false
 
     private val messageList = mutableListOf<Message>()
     private lateinit var messageAdapter: MessageAdapter
@@ -227,6 +235,19 @@ class MainActivity : AppCompatActivity(),
                 "Kamera izni olmadan bu özellik kullanılamaz.",
                 Toast.LENGTH_SHORT
             ).show()
+        }
+
+    private val requestMicrophonePermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
+                startVoiceRecognition()
+            } else {
+                Toast.makeText(
+                    this@MainActivity,
+                    R.string.voice_input_permission_required,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
 
     private val sessionsLauncher =
@@ -937,6 +958,7 @@ class MainActivity : AppCompatActivity(),
             setupCancelSendButton()
             setupAttachmentButton()
             setupDeepThinkButton()
+            setupVoiceButton()
 
             mainCoroutineScope.launch {
                 showLoading("Modeller yükleniyor...")
@@ -1010,6 +1032,7 @@ class MainActivity : AppCompatActivity(),
         editTextMessage = findViewById(R.id.editTextMessage)
         buttonSend = findViewById(R.id.buttonSend)
         buttonAttachment = findViewById(R.id.buttonAttachment)
+        buttonVoice = findViewById(R.id.buttonVoice)
         cancelSendButton = findViewById(R.id.buttonCancelSend)
         attachmentPreviewContainer = findViewById(R.id.attachmentPreviewContainer)
         imagePreviewList = findViewById(R.id.imagePreviewList)
@@ -1018,6 +1041,164 @@ class MainActivity : AppCompatActivity(),
         
         // Initialize dialog manager with loading views
         dialogManager.initializeLoadingViews(loadingOverlay, loadingText)
+    }
+
+    // ==================== VOICE INPUT FUNCTIONS ====================
+    
+    private fun setupVoiceButton() {
+        buttonVoice.setOnClickListener {
+            if (isListening) {
+                stopVoiceRecognition()
+            } else {
+                checkMicrophonePermissionAndStart()
+            }
+        }
+        
+        // Long press to show voice input info
+        buttonVoice.setOnLongClickListener {
+            Toast.makeText(this, R.string.voice_input_hint, Toast.LENGTH_SHORT).show()
+            true
+        }
+    }
+    
+    private fun checkMicrophonePermissionAndStart() {
+        when {
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                startVoiceRecognition()
+            }
+            else -> {
+                requestMicrophonePermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+            }
+        }
+    }
+    
+    private fun startVoiceRecognition() {
+        if (!SpeechRecognizer.isRecognitionAvailable(this)) {
+            Toast.makeText(this, R.string.voice_input_not_supported, Toast.LENGTH_LONG).show()
+            return
+        }
+        
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+        speechRecognizer?.setRecognitionListener(object : RecognitionListener {
+            override fun onReadyForSpeech(params: Bundle?) {
+                isListening = true
+                runOnUiThread {
+                    buttonVoice.setImageResource(R.drawable.ic_mic_active)
+                    buttonVoice.setColorFilter(ContextCompat.getColor(this@MainActivity, R.color.red))
+                    Toast.makeText(this@MainActivity, R.string.voice_input_started, Toast.LENGTH_SHORT).show()
+                }
+            }
+            
+            override fun onBeginningOfSpeech() {
+                Log.d("VoiceInput", "Speech beginning")
+            }
+            
+            override fun onRmsChanged(rmsdB: Float) {
+                // Optional: Animate button based on voice level
+            }
+            
+            override fun onBufferReceived(buffer: ByteArray?) {}
+            
+            override fun onEndOfSpeech() {
+                isListening = false
+                runOnUiThread {
+                    buttonVoice.setImageResource(R.drawable.ic_mic)
+                    buttonVoice.setColorFilter(ContextCompat.getColor(this@MainActivity, R.color.secondary_main))
+                }
+            }
+            
+            override fun onError(error: Int) {
+                isListening = false
+                runOnUiThread {
+                    buttonVoice.setImageResource(R.drawable.ic_mic)
+                    buttonVoice.setColorFilter(ContextCompat.getColor(this@MainActivity, R.color.secondary_main))
+                    
+                    val errorMessage = when (error) {
+                        SpeechRecognizer.ERROR_NO_MATCH -> getString(R.string.voice_input_no_match)
+                        SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> getString(R.string.voice_input_no_match)
+                        SpeechRecognizer.ERROR_AUDIO -> getString(R.string.voice_input_error)
+                        SpeechRecognizer.ERROR_CLIENT -> getString(R.string.voice_input_error)
+                        SpeechRecognizer.ERROR_NETWORK -> "Ağ hatası"
+                        SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "Ağ zaman aşımı"
+                        SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "Ses tanıma meşgul"
+                        SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> getString(R.string.voice_input_permission_required)
+                        else -> getString(R.string.voice_input_error)
+                    }
+                    if (error != SpeechRecognizer.ERROR_CLIENT) { // Ignore client errors (usually from stopping)
+                        Toast.makeText(this@MainActivity, errorMessage, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            
+            override fun onResults(results: Bundle?) {
+                isListening = false
+                val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                if (!matches.isNullOrEmpty()) {
+                    val recognizedText = matches[0]
+                    runOnUiThread {
+                        // Append recognized text to current input
+                        val currentText = editTextMessage.text?.toString() ?: ""
+                        val newText = if (currentText.isBlank()) {
+                            recognizedText
+                        } else {
+                            "$currentText $recognizedText"
+                        }
+                        editTextMessage.setText(newText)
+                        editTextMessage.setSelection(newText.length)
+                        
+                        Toast.makeText(
+                            this@MainActivity,
+                            getString(R.string.voice_input_text_detected, recognizedText.take(30) + if (recognizedText.length > 30) "..." else ""),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+                runOnUiThread {
+                    buttonVoice.setImageResource(R.drawable.ic_mic)
+                    buttonVoice.setColorFilter(ContextCompat.getColor(this@MainActivity, R.color.secondary_main))
+                }
+            }
+            
+            override fun onPartialResults(partialResults: Bundle?) {
+                val partialMatches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                if (!partialMatches.isNullOrEmpty()) {
+                    Log.d("VoiceInput", "Partial: ${partialMatches[0]}")
+                }
+            }
+            
+            override fun onEvent(eventType: Int, params: Bundle?) {}
+        })
+        
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "tr-TR") // Turkish
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "tr-TR")
+            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+            putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+        }
+        
+        try {
+            speechRecognizer?.startListening(intent)
+        } catch (e: Exception) {
+            Log.e("VoiceInput", "Error starting speech recognition", e)
+            Toast.makeText(this, R.string.voice_input_error, Toast.LENGTH_SHORT).show()
+        }
+    }
+    
+    private fun stopVoiceRecognition() {
+        try {
+            speechRecognizer?.stopListening()
+            speechRecognizer?.cancel()
+            isListening = false
+            buttonVoice.setImageResource(R.drawable.ic_mic)
+            buttonVoice.setColorFilter(ContextCompat.getColor(this, R.color.secondary_main))
+            Toast.makeText(this, R.string.voice_input_stopped, Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Log.e("VoiceInput", "Error stopping speech recognition", e)
+        }
     }
 
     private fun showLoading(message: String, allowCancel: Boolean = false) {
@@ -1135,6 +1316,10 @@ class MainActivity : AppCompatActivity(),
                 R.id.nav_snippets -> {
                     val intent = Intent(this, SnippetsActivity::class.java)
                     snippetsLauncher.launch(intent)
+                }
+                R.id.nav_dev_tools -> {
+                    val intent = Intent(this, DeveloperToolsActivity::class.java)
+                    startActivity(intent)
                 }
                 R.id.nav_change_provider -> showProviderSelectionDialog()
                 R.id.nav_change_model -> showModelSelectionDialog()
@@ -3524,5 +3709,9 @@ class MainActivity : AppCompatActivity(),
         currentFileReadingJob?.cancel()
         fileReadingScope.cancel()
         mainCoroutineScope.cancel()
+        
+        // Clean up speech recognizer
+        speechRecognizer?.destroy()
+        speechRecognizer = null
     }
 }

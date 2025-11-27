@@ -216,4 +216,45 @@
     <string name="snippet_title_required">Lütfen bir başlık girin</string>
     <string name="snippet_code_required">Lütfen kod girin</string>
     <string name="usage_count">Kullanım: %d</string>
+    
+    <!-- VOICE INPUT (SES TANIMA) STRING'LERİ -->
+    <string name="voice_input_description">Sesli giriş</string>
+    <string name="voice_input_hint">Dinliyorum...</string>
+    <string name="voice_input_error">Ses tanıma başarısız oldu</string>
+    <string name="voice_input_not_supported">Ses tanıma bu cihazda desteklenmiyor</string>
+    <string name="voice_input_permission_required">Ses tanıma için mikrofon izni gerekli</string>
+    <string name="voice_input_started">🎤 Dinleniyor... Konuşun</string>
+    <string name="voice_input_stopped">Ses kaydı durduruldu</string>
+    <string name="voice_input_no_match">Anlaşılamadı, lütfen tekrar deneyin</string>
+    <string name="voice_input_text_detected">Metin algılandı: %s</string>
+    
+    <!-- DEVELOPER TOOLS STRING'LERİ -->
+    <string name="dev_tools_title">🛠️ Geliştirici Araçları</string>
+    <string name="dev_tools_menu">Araçlar</string>
+    <string name="json_tool">JSON</string>
+    <string name="base64_tool">Base64</string>
+    <string name="regex_tool">Regex</string>
+    <string name="hash_tool">Hash</string>
+    <string name="json_input_hint">JSON giriniz...</string>
+    <string name="base64_input_hint">Metin giriniz...</string>
+    <string name="regex_pattern_hint">Regex pattern</string>
+    <string name="regex_test_string_hint">Test edilecek metin</string>
+    <string name="hash_input_hint">Hash hesaplanacak metin</string>
+    <string name="validate_format">Doğrula ve Formatla</string>
+    <string name="minify">Küçült</string>
+    <string name="encode">Encode</string>
+    <string name="decode">Decode</string>
+    <string name="test_regex">Test Et</string>
+    <string name="generate_hashes">Hash Oluştur</string>
+    <string name="output">Çıktı</string>
+    <string name="output_placeholder">Sonuç burada görünecek...</string>
+    <string name="json_valid">✅ Geçerli JSON</string>
+    <string name="json_invalid">❌ Geçersiz JSON</string>
+    <string name="common_patterns">Yaygın patternler:</string>
+    <string name="matches">Eşleşmeler</string>
+    <string name="no_matches">Eşleşme bulunamadı</string>
+    <string name="match_count">%d eşleşme bulundu</string>
+    <string name="regex_valid">✅ Geçerli Regex</string>
+    <string name="regex_invalid">❌ Geçersiz Regex: %s</string>
+    <string name="copied_to_clipboard">Panoya kopyalandı</string>
 </resources>
