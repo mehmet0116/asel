@@ -187,6 +187,21 @@
             android:name=".ColorPaletteActivity"
             android:label="@string/color_palette_title" />
 
+        <!-- Birim Dönüştürücü Aktivitesi -->
+        <activity 
+            android:name=".UnitConverterActivity"
+            android:label="@string/unit_converter" />
+
+        <!-- Sayı Tabanı Dönüştürücü Aktivitesi -->
+        <activity 
+            android:name=".NumberBaseConverterActivity"
+            android:label="@string/number_base_converter" />
+
+        <!-- Lorem Ipsum Üretici Aktivitesi -->
+        <activity 
+            android:name=".LoremIpsumGeneratorActivity"
+            android:label="@string/lorem_ipsum_generator" />
+
         <!-- Hatırlatma Alıcısı -->
         <receiver
             android:name=".ReminderReceiver"

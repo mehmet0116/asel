@@ -627,4 +627,41 @@
     <string name="copy_hex">HEX Kopyala</string>
     <string name="copy_rgb">RGB Kopyala</string>
     <string name="generate_palette">Palet Oluştur</string>
+    
+    <!-- UNIT CONVERTER STRING'LERİ -->
+    <string name="unit_converter">📐 Birim Dönüştürücü</string>
+    <string name="unit_converter_menu">Birim Dönüştürücü</string>
+    <string name="select_category">Kategori Seçin</string>
+    <string name="unit_length">Uzunluk</string>
+    <string name="unit_weight">Ağırlık</string>
+    <string name="unit_temperature">Sıcaklık</string>
+    <string name="unit_speed">Hız</string>
+    <string name="unit_data">Veri</string>
+    <string name="unit_area">Alan</string>
+    <string name="unit_volume">Hacim</string>
+    <string name="unit_time">Zaman</string>
+    <string name="from_unit">Kaynak Birim</string>
+    <string name="to_unit">Hedef Birim</string>
+    <string name="enter_value">Değer girin</string>
+    <string name="swap">Değiştir</string>
+    
+    <!-- NUMBER BASE CONVERTER STRING'LERİ -->
+    <string name="number_base_converter">🔢 Sayı Tabanı Dönüştürücü</string>
+    <string name="number_base_converter_menu">Sayı Tabanı</string>
+    <string name="input_base">Giriş Tabanı</string>
+    <string name="enter_number">Sayı girin</string>
+    <string name="conversion_results">Dönüşüm Sonuçları</string>
+    <string name="invalid_number_format">Geçersiz sayı formatı</string>
+    
+    <!-- LOREM IPSUM GENERATOR STRING'LERİ -->
+    <string name="lorem_ipsum_generator">📝 Lorem Ipsum</string>
+    <string name="lorem_ipsum_menu">Lorem Ipsum</string>
+    <string name="generation_type">Üretim Tipi</string>
+    <string name="lorem_paragraphs">Paragraf</string>
+    <string name="lorem_sentences">Cümle</string>
+    <string name="lorem_words">Kelime</string>
+    <string name="generate">Oluştur</string>
+    <string name="output">Çıktı</string>
+    <string name="lorem_placeholder">Lorem ipsum metni burada görünecek...</string>
+</resources>
 </resources>

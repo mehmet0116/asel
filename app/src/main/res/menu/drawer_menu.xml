@@ -113,6 +113,18 @@
             android:icon="@drawable/ic_palette"
             android:title="Renk Paleti" />
         <item
+            android:id="@+id/nav_unit_converter"
+            android:icon="@drawable/ic_unit"
+            android:title="Birim Dönüştürücü" />
+        <item
+            android:id="@+id/nav_number_base"
+            android:icon="@drawable/ic_binary"
+            android:title="Sayı Tabanı" />
+        <item
+            android:id="@+id/nav_lorem_ipsum"
+            android:icon="@drawable/ic_lorem"
+            android:title="Lorem Ipsum" />
+        <item
             android:id="@+id/nav_change_provider"
             android:icon="@drawable/ic_provider"
             android:title="Sağlayıcı Değiştir" />

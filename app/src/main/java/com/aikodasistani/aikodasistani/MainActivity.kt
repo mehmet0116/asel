@@ -1446,6 +1446,18 @@ class MainActivity : AppCompatActivity(),
                     val intent = Intent(this, ColorPaletteActivity::class.java)
                     startActivity(intent)
                 }
+                R.id.nav_unit_converter -> {
+                    val intent = Intent(this, UnitConverterActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_number_base -> {
+                    val intent = Intent(this, NumberBaseConverterActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_lorem_ipsum -> {
+                    val intent = Intent(this, LoremIpsumGeneratorActivity::class.java)
+                    startActivity(intent)
+                }
                 R.id.nav_change_provider -> showProviderSelectionDialog()
                 R.id.nav_change_model -> showModelSelectionDialog()
                 R.id.nav_new_chat -> showNewChatConfirmation()
