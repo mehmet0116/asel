@@ -459,4 +459,69 @@
     <string name="format_code">Formatla</string>
     <string name="minify_code">Küçült</string>
     <string name="output_empty">Çıktı boş</string>
+    
+    <!-- THEME MANAGER STRING'LERİ -->
+    <string name="theme_manager_title">🎨 Tema Ayarları</string>
+    <string name="theme_manager_menu">Tema Ayarları</string>
+    <string name="theme_mode_label">Tema Modu</string>
+    <string name="theme_light">☀️ Aydınlık Tema</string>
+    <string name="theme_dark">🌙 Karanlık Tema</string>
+    <string name="theme_system">📱 Sistem Ayarına Göre</string>
+    <string name="accent_color_label">Vurgu Rengi</string>
+    <string name="primary_color_label">Ana Renk</string>
+    <string name="font_size_label">Yazı Boyutu</string>
+    <string name="font_size_small">Küçük</string>
+    <string name="font_size_normal">Normal</string>
+    <string name="font_size_large">Büyük</string>
+    <string name="preview_label">Önizleme</string>
+    <string name="preview_text">AI Kod Asistanı Önizleme</string>
+    <string name="save_theme">Kaydet</string>
+    <string name="reset_theme">Sıfırla</string>
+    <string name="theme_saved">Tema ayarları kaydedildi ✓</string>
+    <string name="theme_reset">Tema varsayılanlara döndürüldü</string>
+    
+    <!-- PROJECT MANAGER STRING'LERİ -->
+    <string name="project_manager_title">📂 Projeler</string>
+    <string name="project_manager_menu">Projeler</string>
+    <string name="no_projects">Henüz proje yok</string>
+    <string name="no_projects_hint">Kod projelerinizi organize edin\nve yönetin</string>
+    <string name="add_project">Proje Ekle</string>
+    <string name="edit_project">Projeyi Düzenle</string>
+    <string name="project_name_hint">Proje Adı</string>
+    <string name="project_description_hint">Proje Açıklaması (opsiyonel)</string>
+    <string name="project_language_label">Programlama Dili</string>
+    <string name="project_color_label">Proje Rengi</string>
+    <string name="project_saved">Proje kaydedildi ✓</string>
+    <string name="project_deleted">Proje silindi</string>
+    <string name="project_name_required">Lütfen proje adı girin</string>
+    <string name="delete_project_title">Projeyi Sil</string>
+    <string name="delete_project_confirm">"%s" projesini silmek istediğinizden emin misiniz?</string>
+    <string name="no_description">Açıklama yok</string>
+    
+    <!-- REMINDERS STRING'LERİ -->
+    <string name="reminders_title">🔔 Hatırlatmalar</string>
+    <string name="reminders_menu">Hatırlatmalar</string>
+    <string name="no_reminders">Henüz hatırlatma yok</string>
+    <string name="no_reminders_hint">Kodlama hedefleriniz için\nhatırlatmalar ekleyin</string>
+    <string name="add_reminder">Hatırlatma Ekle</string>
+    <string name="edit_reminder">Hatırlatmayı Düzenle</string>
+    <string name="reminder_title_hint">Hatırlatma Başlığı</string>
+    <string name="reminder_description_hint">Açıklama (opsiyonel)</string>
+    <string name="reminder_time_label">Saat</string>
+    <string name="select_time">Saat Seç</string>
+    <string name="reminder_type_label">Tekrar Tipi</string>
+    <string name="reminder_type_daily">Günlük</string>
+    <string name="reminder_type_weekly">Haftalık</string>
+    <string name="reminder_type_once">Tek Seferlik</string>
+    <string name="reminder_days_label">Günler</string>
+    <string name="reminder_feature_label">Bağlı Özellik</string>
+    <string name="reminder_feature_none">Yok</string>
+    <string name="reminder_feature_challenge">Günlük Soru</string>
+    <string name="reminder_feature_learning">Öğrenme Merkezi</string>
+    <string name="reminder_feature_practice">Pratik Yap</string>
+    <string name="reminder_saved">Hatırlatma kaydedildi ✓</string>
+    <string name="reminder_deleted">Hatırlatma silindi</string>
+    <string name="reminder_title_required">Lütfen başlık girin</string>
+    <string name="delete_reminder_title">Hatırlatmayı Sil</string>
+    <string name="delete_reminder_confirm">"%s" hatırlatmasını silmek istediğinizden emin misiniz?</string>
 </resources>

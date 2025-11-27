@@ -8,8 +8,8 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import android.content.Context
 
 @Database(
-    entities = [Session::class, ArchivedMessage::class, Snippet::class, CodingChallenge::class, Lesson::class, CodeTemplate::class, UsageStats::class, Bookmark::class, QuickNote::class],
-    version = 8,
+    entities = [Session::class, ArchivedMessage::class, Snippet::class, CodingChallenge::class, Lesson::class, CodeTemplate::class, UsageStats::class, Bookmark::class, QuickNote::class, Project::class, Reminder::class],
+    version = 10,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -21,6 +21,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun usageStatsDao(): UsageStatsDao
     abstract fun bookmarkDao(): BookmarkDao
     abstract fun quickNoteDao(): QuickNoteDao
+    abstract fun projectDao(): ProjectDao
+    abstract fun reminderDao(): ReminderDao
 
     companion object {
         @Volatile
@@ -178,6 +180,47 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // Migration from version 8 to 9 - adds projects table
+        private val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS projects (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        name TEXT NOT NULL,
+                        description TEXT NOT NULL DEFAULT '',
+                        language TEXT NOT NULL DEFAULT 'kotlin',
+                        color TEXT NOT NULL DEFAULT '#4CAF50',
+                        filesCount INTEGER NOT NULL DEFAULT 0,
+                        snippetsCount INTEGER NOT NULL DEFAULT 0,
+                        templatesCount INTEGER NOT NULL DEFAULT 0,
+                        notesCount INTEGER NOT NULL DEFAULT 0,
+                        lastAccessed INTEGER NOT NULL,
+                        createdAt INTEGER NOT NULL
+                    )
+                """.trimIndent())
+            }
+        }
+
+        // Migration from version 9 to 10 - adds reminders table
+        private val MIGRATION_9_10 = object : Migration(9, 10) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS reminders (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        title TEXT NOT NULL,
+                        description TEXT NOT NULL DEFAULT '',
+                        type TEXT NOT NULL DEFAULT 'daily',
+                        time TEXT NOT NULL DEFAULT '09:00',
+                        days TEXT NOT NULL DEFAULT '1,2,3,4,5,6,7',
+                        isEnabled INTEGER NOT NULL DEFAULT 1,
+                        linkedFeature TEXT,
+                        lastTriggered INTEGER,
+                        createdAt INTEGER NOT NULL
+                    )
+                """.trimIndent())
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -185,7 +228,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "aiko_database"
                 )
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10)
                 .build()
                 INSTANCE = instance
                 instance

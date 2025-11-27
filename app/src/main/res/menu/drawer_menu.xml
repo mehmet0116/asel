@@ -65,6 +65,18 @@
             android:icon="@drawable/ic_format_code"
             android:title="Kod Formatla" />
         <item
+            android:id="@+id/nav_theme_manager"
+            android:icon="@drawable/ic_theme"
+            android:title="Tema Ayarları" />
+        <item
+            android:id="@+id/nav_project_manager"
+            android:icon="@drawable/ic_project"
+            android:title="Projeler" />
+        <item
+            android:id="@+id/nav_reminders"
+            android:icon="@drawable/ic_reminder"
+            android:title="Hatırlatmalar" />
+        <item
             android:id="@+id/nav_change_provider"
             android:icon="@drawable/ic_provider"
             android:title="Sağlayıcı Değiştir" />

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardProject"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Color indicator -->
+        <View
+            android:id="@+id/colorIndicator"
+            android:layout_width="match_parent"
+            android:layout_height="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <!-- Project name -->
+            <TextView
+                android:id="@+id/tvProjectName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Project Name"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <!-- Description -->
+            <TextView
+                android:id="@+id/tvProjectDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Description"
+                android:textSize="13sp"
+                android:textColor="@color/text_secondary"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:layout_marginTop="4dp" />
+
+            <!-- Language badge -->
+            <TextView
+                android:id="@+id/tvProjectLanguage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="KOTLIN"
+                android:textSize="10sp"
+                android:textColor="@android:color/white"
+                android:background="@drawable/bg_language_badge"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:layout_marginTop="8dp" />
+
+            <!-- Stats -->
+            <TextView
+                android:id="@+id/tvProjectStats"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="0 snippets • 0 notes"
+                android:textSize="11sp"
+                android:textColor="@color/text_hint"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

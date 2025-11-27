@@ -127,6 +127,26 @@
             android:name=".CodeFormatterActivity"
             android:label="@string/code_formatter_title" />
 
+        <!-- Tema Yöneticisi Aktivitesi -->
+        <activity 
+            android:name=".ThemeManagerActivity"
+            android:label="@string/theme_manager_title" />
+
+        <!-- Proje Yöneticisi Aktivitesi -->
+        <activity 
+            android:name=".ProjectManagerActivity"
+            android:label="@string/project_manager_title" />
+
+        <!-- Hatırlatmalar Aktivitesi -->
+        <activity 
+            android:name=".RemindersActivity"
+            android:label="@string/reminders_title" />
+
+        <!-- Hatırlatma Alıcısı -->
+        <receiver
+            android:name=".ReminderReceiver"
+            android:exported="false" />
+
         <!-- Ana Ekran Widget'ı -->
         <receiver
             android:name=".widget.QuickActionWidgetProvider"

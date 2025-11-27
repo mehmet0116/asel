@@ -1398,6 +1398,18 @@ class MainActivity : AppCompatActivity(),
                     val intent = Intent(this, CodeFormatterActivity::class.java)
                     startActivity(intent)
                 }
+                R.id.nav_theme_manager -> {
+                    val intent = Intent(this, ThemeManagerActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_project_manager -> {
+                    val intent = Intent(this, ProjectManagerActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_reminders -> {
+                    val intent = Intent(this, RemindersActivity::class.java)
+                    startActivity(intent)
+                }
                 R.id.nav_change_provider -> showProviderSelectionDialog()
                 R.id.nav_change_model -> showModelSelectionDialog()
                 R.id.nav_new_chat -> showNewChatConfirmation()
