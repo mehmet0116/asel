@@ -559,4 +559,28 @@
     <string name="solution">Çözüm</string>
     <string name="complexity">Karmaşıklık</string>
     <string name="practice_in_playground">Playground\'da Pratik Yap</string>
+    
+    <!-- COMPLEXITY ANALYZER STRING'LERİ -->
+    <string name="complexity_analyzer_title">🧮 Karmaşıklık Analizi</string>
+    <string name="complexity_analyzer_menu">Karmaşıklık Analizi</string>
+    <string name="time_complexity">Zaman Karmaşıklığı</string>
+    <string name="space_complexity">Alan Karmaşıklığı</string>
+    <string name="analyze_complexity">Karmaşıklığı Analiz Et</string>
+    <string name="example_algorithms">Örnek Algoritmalar</string>
+    
+    <!-- CODE QUIZ STRING'LERİ -->
+    <string name="code_quiz_title">🎮 Kod Quiz</string>
+    <string name="code_quiz_menu">Kod Quiz</string>
+    <string name="correct_answers">Doğru</string>
+    <string name="total_answered">Toplam</string>
+    <string name="current_streak">Seri</string>
+    <string name="quiz_explanation">Açıklama</string>
+    <string name="your_answer">Senin cevabın</string>
+    <string name="correct_answer">Doğru cevap</string>
+    
+    <!-- KEYBOARD SHORTCUTS STRING'LERİ -->
+    <string name="keyboard_shortcuts_title">⌨️ Klavye Kısayolları</string>
+    <string name="keyboard_shortcuts_menu">Kısayollar</string>
+    <string name="search_shortcuts">Kısayol ara...</string>
+    <string name="shortcut_copied">Kopyalandı</string>
 </resources>

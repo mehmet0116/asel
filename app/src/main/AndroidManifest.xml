@@ -157,6 +157,21 @@
             android:name=".InterviewPrepActivity"
             android:label="@string/interview_prep_title" />
 
+        <!-- Karmaşıklık Analizi Aktivitesi -->
+        <activity 
+            android:name=".ComplexityAnalyzerActivity"
+            android:label="@string/complexity_analyzer_title" />
+
+        <!-- Kod Quiz Aktivitesi -->
+        <activity 
+            android:name=".CodeQuizActivity"
+            android:label="@string/code_quiz_title" />
+
+        <!-- Klavye Kısayolları Aktivitesi -->
+        <activity 
+            android:name=".KeyboardShortcutsActivity"
+            android:label="@string/keyboard_shortcuts_title" />
+
         <!-- Hatırlatma Alıcısı -->
         <receiver
             android:name=".ReminderReceiver"

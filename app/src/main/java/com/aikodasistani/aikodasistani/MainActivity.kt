@@ -1422,6 +1422,18 @@ class MainActivity : AppCompatActivity(),
                     val intent = Intent(this, InterviewPrepActivity::class.java)
                     startActivity(intent)
                 }
+                R.id.nav_complexity_analyzer -> {
+                    val intent = Intent(this, ComplexityAnalyzerActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_code_quiz -> {
+                    val intent = Intent(this, CodeQuizActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_keyboard_shortcuts -> {
+                    val intent = Intent(this, KeyboardShortcutsActivity::class.java)
+                    startActivity(intent)
+                }
                 R.id.nav_change_provider -> showProviderSelectionDialog()
                 R.id.nav_change_model -> showModelSelectionDialog()
                 R.id.nav_new_chat -> showNewChatConfirmation()
