@@ -3,10 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="6dp"
-    app:cardBackgroundColor="@color/surface_primary"
+    android:layout_marginStart="4dp"
+    android:layout_marginEnd="4dp"
+    android:layout_marginBottom="10dp"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@color/surface_card"
     android:foreground="?attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true">
@@ -15,40 +17,44 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp"
         android:gravity="center_vertical">
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="@color/secondary_light">
+        <!-- Icon Container with Secondary Gradient Background -->
+        <FrameLayout
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:background="@drawable/bg_icon_container_secondary">
 
             <TextView
                 android:id="@+id/tvModelIcon"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="🧠"
-                android:textSize="32sp"
+                android:textSize="28sp"
                 android:gravity="center" />
-        </androidx.cardview.widget.CardView>
+        </FrameLayout>
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:layout_marginStart="16dp">
+            android:layout_marginStart="14dp">
 
             <TextView
                 android:id="@+id/tvModelName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Model Name"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold"
-                android:textColor="?attr/colorOnSurface" />
+                android:textColor="@color/text_primary"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.01" />
 
             <TextView
                 android:id="@+id/tvModelDescription"
@@ -56,15 +62,18 @@
                 android:layout_height="wrap_content"
                 android:text="Model description"
                 android:textSize="12sp"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:layout_marginTop="4dp" />
+                android:textColor="@color/text_secondary"
+                android:layout_marginTop="3dp"
+                android:maxLines="1"
+                android:ellipsize="end" />
         </LinearLayout>
 
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:src="@drawable/ic_arrow_forward"
-            app:tint="?attr/colorOnSurfaceVariant" />
+            app:tint="@color/text_tertiary"
+            android:alpha="0.7" />
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>
