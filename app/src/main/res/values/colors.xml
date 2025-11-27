@@ -34,6 +34,7 @@
 
     <!-- Accent Colors - Premium Edition -->
     <color name="accent_pink">#F472B6</color> <!-- Softer pink -->
+    <color name="accent_pink_light">#FBCFE8</color> <!-- Light pink -->
     <color name="accent_amber">#FBBF24</color> <!-- Warmer amber -->
     <color name="accent_blue">#60A5FA</color> <!-- Sky blue -->
     <color name="accent_rose">#FB7185</color> <!-- Rose -->

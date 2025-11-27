@@ -18,6 +18,7 @@
 
     <!-- Accent Colors -->
     <color name="accent_pink">#F9A8D4</color>
+    <color name="accent_pink_light">#831843</color> <!-- Dark pink for dark mode -->
     <color name="accent_amber">#FCD34D</color>
     <color name="accent_blue">#93C5FD</color>
     <color name="accent_rose">#FDA4AF</color>
