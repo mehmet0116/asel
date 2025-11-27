@@ -149,6 +149,18 @@
             android:icon="@drawable/ic_http"
             android:title="HTTP Kodları" />
         <item
+            android:id="@+id/nav_regex_patterns"
+            android:icon="@drawable/ic_regex"
+            android:title="Regex Kütüphanesi" />
+        <item
+            android:id="@+id/nav_css_guide"
+            android:icon="@drawable/ic_css"
+            android:title="CSS Rehberi" />
+        <item
+            android:id="@+id/nav_design_patterns"
+            android:icon="@drawable/ic_design_pattern"
+            android:title="Tasarım Kalıpları" />
+        <item
             android:id="@+id/nav_change_provider"
             android:icon="@drawable/ic_provider"
             android:title="Sağlayıcı Değiştir" />

@@ -741,4 +741,16 @@
     <string name="http_menu">HTTP Kodları</string>
     <string name="search_status_code">Kod veya açıklama ara...</string>
     
+    <!-- REGEX PATTERNS STRING'LERİ -->
+    <string name="regex_patterns_title">Regex Kütüphanesi</string>
+    <string name="regex_menu">Regex Kütüphanesi</string>
+    
+    <!-- CSS LAYOUT GUIDE STRING'LERİ -->
+    <string name="css_layout_guide_title">CSS Layout Rehberi</string>
+    <string name="css_menu">CSS Rehberi</string>
+    
+    <!-- DESIGN PATTERNS STRING'LERİ -->
+    <string name="design_patterns_title">Tasarım Kalıpları</string>
+    <string name="design_patterns_menu">Tasarım Kalıpları</string>
+    
 </resources>

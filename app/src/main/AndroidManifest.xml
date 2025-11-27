@@ -232,6 +232,21 @@
             android:name=".HttpStatusCodesActivity"
             android:label="@string/http_status_codes" />
 
+        <!-- Regex Patterns Aktivitesi -->
+        <activity 
+            android:name=".RegexPatternsActivity"
+            android:label="@string/regex_patterns_title" />
+
+        <!-- CSS Layout Guide Aktivitesi -->
+        <activity 
+            android:name=".CssLayoutGuideActivity"
+            android:label="@string/css_layout_guide_title" />
+
+        <!-- Design Patterns Aktivitesi -->
+        <activity 
+            android:name=".DesignPatternsActivity"
+            android:label="@string/design_patterns_title" />
+
         <!-- Hatırlatma Alıcısı -->
         <receiver
             android:name=".ReminderReceiver"

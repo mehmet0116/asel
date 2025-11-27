@@ -1482,6 +1482,18 @@ class MainActivity : AppCompatActivity(),
                     val intent = Intent(this, HttpStatusCodesActivity::class.java)
                     startActivity(intent)
                 }
+                R.id.nav_regex_patterns -> {
+                    val intent = Intent(this, RegexPatternsActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_css_guide -> {
+                    val intent = Intent(this, CssLayoutGuideActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_design_patterns -> {
+                    val intent = Intent(this, DesignPatternsActivity::class.java)
+                    startActivity(intent)
+                }
                 R.id.nav_change_provider -> showProviderSelectionDialog()
                 R.id.nav_change_model -> showModelSelectionDialog()
                 R.id.nav_new_chat -> showNewChatConfirmation()
