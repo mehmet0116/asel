@@ -286,4 +286,5 @@
     <string name="share_exported_file">Paylaş</string>
     <string name="open_exported_file">Aç</string>
     <string name="export_menu">Dışa Aktar</string>
+    <string name="md5_warning_label">MD5 ⚠️ (güvenlik amaçlı kullanmayın)</string>
 </resources>

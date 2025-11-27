@@ -53,7 +53,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="MD5"
+                android:text="@string/md5_warning_label"
                 android:textStyle="bold"
                 android:textSize="12sp" />
 
