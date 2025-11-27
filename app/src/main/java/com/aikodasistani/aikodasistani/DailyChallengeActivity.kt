@@ -182,14 +182,7 @@ class DailyChallengeActivity : AppCompatActivity() {
     }
 
     private fun openChallengeSolver(challenge: CodingChallenge) {
-        // Open Code Playground with the challenge
-        val intent = Intent(this, CodePlaygroundActivity::class.java).apply {
-            putExtra(CodePlaygroundActivity.EXTRA_CODE, challenge.starterCode)
-            putExtra(CodePlaygroundActivity.EXTRA_LANGUAGE, challenge.language)
-        }
-        startActivity(intent)
-
-        // Show challenge info dialog
+        // Show challenge info dialog first
         showChallengeDialog(challenge)
     }
 
@@ -198,7 +191,12 @@ class DailyChallengeActivity : AppCompatActivity() {
             .setTitle(challenge.title)
             .setMessage(challenge.description)
             .setPositiveButton(R.string.solve_challenge) { _, _ ->
-                // Already opened in playground
+                // Open Code Playground with the challenge
+                val intent = Intent(this, CodePlaygroundActivity::class.java).apply {
+                    putExtra(CodePlaygroundActivity.EXTRA_CODE, challenge.starterCode)
+                    putExtra(CodePlaygroundActivity.EXTRA_LANGUAGE, challenge.language)
+                }
+                startActivity(intent)
             }
 
         if (!challenge.hints.isNullOrBlank()) {

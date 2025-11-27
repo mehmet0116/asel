@@ -72,10 +72,14 @@ class ChallengeAdapter(
                 "data-structure" -> "🏗️"
                 else -> "📚"
             }
-            chipCategory.text = "$categoryEmoji ${challenge.category.replaceFirstChar { it.uppercase() }}"
+            chipCategory.text = "$categoryEmoji ${challenge.category.replaceFirstChar { 
+                if (it.isLowerCase()) it.titlecase(java.util.Locale.getDefault()) else it.toString() 
+            }}"
 
             // Language chip
-            chipLanguage.text = challenge.language.replaceFirstChar { it.uppercase() }
+            chipLanguage.text = challenge.language.replaceFirstChar { 
+                if (it.isLowerCase()) it.titlecase(java.util.Locale.getDefault()) else it.toString() 
+            }
 
             // Solve button
             btnSolve.text = if (challenge.isCompleted) {
