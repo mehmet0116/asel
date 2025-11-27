@@ -87,6 +87,16 @@
             android:name=".LearningHubActivity"
             android:label="@string/learning_hub_title" />
 
+        <!-- Kod Şablonları Aktivitesi -->
+        <activity 
+            android:name=".CodeTemplatesActivity"
+            android:label="@string/code_templates_title" />
+
+        <!-- İstatistikler Aktivitesi -->
+        <activity 
+            android:name=".StatisticsActivity"
+            android:label="@string/statistics_title" />
+
         <!-- Ana Ekran Widget'ı -->
         <receiver
             android:name=".widget.QuickActionWidgetProvider"

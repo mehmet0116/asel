@@ -332,4 +332,45 @@
     <string name="beginner">Başlangıç</string>
     <string name="intermediate">Orta</string>
     <string name="advanced">İleri</string>
+    
+    <!-- CODE TEMPLATES (KOD ŞABLONLARI) STRING'LERİ -->
+    <string name="code_templates_title">📋 Kod Şablonları</string>
+    <string name="code_templates_menu">Şablonlar</string>
+    <string name="search_templates">Şablon ara...</string>
+    <string name="no_templates">Henüz şablon yok</string>
+    <string name="no_templates_hint">Hazır kod şablonlarını kullanın\nveya kendi şablonlarınızı ekleyin</string>
+    <string name="add_template">Şablon Ekle</string>
+    <string name="edit_template">Şablonu Düzenle</string>
+    <string name="save_template">Kaydet</string>
+    <string name="use_template">Kullan</string>
+    <string name="template_title_hint">Başlık (örn: RecyclerView Adapter)</string>
+    <string name="template_description_hint">Açıklama</string>
+    <string name="template_code_hint">Kod şablonu</string>
+    <string name="template_tags_hint">Etiketler (virgülle ayırın)</string>
+    <string name="category_label">Kategori</string>
+    <string name="template_saved">Şablon kaydedildi ✓</string>
+    <string name="template_updated">Şablon güncellendi ✓</string>
+    <string name="template_deleted">Şablon silindi</string>
+    <string name="template_applied">Şablon uygulandı</string>
+    <string name="template_title_code_required">Başlık ve kod gerekli</string>
+    <string name="delete_template_title">Şablonu Sil</string>
+    <string name="delete_template_confirm">"%s" şablonunu silmek istediğinizden emin misiniz?</string>
+    <string name="replace_variables">Değişkenleri Değiştir</string>
+    <string name="replace_variables_hint">Şablondaki değişkenleri doldurun:</string>
+    
+    <!-- STATISTICS (İSTATİSTİKLER) STRING'LERİ -->
+    <string name="statistics_title">📊 İstatistikler</string>
+    <string name="statistics_menu">İstatistikler</string>
+    <string name="overall_stats">Genel İstatistikler</string>
+    <string name="today_stats">Bugünkü Aktivite</string>
+    <string name="weekly_activity">Haftalık Aktivite</string>
+    <string name="stat_messages">Mesaj</string>
+    <string name="stat_code_gen">Kod Üretimi</string>
+    <string name="stat_voice">Ses Girişi</string>
+    <string name="stat_active_days">Aktif Gün</string>
+    <string name="stat_challenges">Soru</string>
+    <string name="stat_lessons">Ders</string>
+    <string name="stat_code">Kod</string>
+    <string name="stat_tools">Araç</string>
+    <string name="stat_playground">Playground</string>
 </resources>

@@ -8,8 +8,8 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import android.content.Context
 
 @Database(
-    entities = [Session::class, ArchivedMessage::class, Snippet::class, CodingChallenge::class, Lesson::class],
-    version = 4,
+    entities = [Session::class, ArchivedMessage::class, Snippet::class, CodingChallenge::class, Lesson::class, CodeTemplate::class, UsageStats::class],
+    version = 6,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -17,6 +17,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun snippetDao(): SnippetDao
     abstract fun codingChallengeDao(): CodingChallengeDao
     abstract fun lessonDao(): LessonDao
+    abstract fun codeTemplateDao(): CodeTemplateDao
+    abstract fun usageStatsDao(): UsageStatsDao
 
     companion object {
         @Volatile
@@ -90,6 +92,54 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // Migration from version 4 to 5 - adds code_templates table
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS code_templates (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        title TEXT NOT NULL,
+                        description TEXT NOT NULL,
+                        code TEXT NOT NULL,
+                        language TEXT NOT NULL,
+                        category TEXT NOT NULL,
+                        tags TEXT,
+                        variables TEXT,
+                        usageCount INTEGER NOT NULL DEFAULT 0,
+                        isFavorite INTEGER NOT NULL DEFAULT 0,
+                        isBuiltIn INTEGER NOT NULL DEFAULT 1,
+                        createdAt INTEGER NOT NULL
+                    )
+                """.trimIndent())
+            }
+        }
+
+        // Migration from version 5 to 6 - adds usage_stats table
+        private val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS usage_stats (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        date TEXT NOT NULL,
+                        totalMessages INTEGER NOT NULL DEFAULT 0,
+                        codeGenerations INTEGER NOT NULL DEFAULT 0,
+                        voiceInputs INTEGER NOT NULL DEFAULT 0,
+                        snippetsSaved INTEGER NOT NULL DEFAULT 0,
+                        challengesCompleted INTEGER NOT NULL DEFAULT 0,
+                        lessonsCompleted INTEGER NOT NULL DEFAULT 0,
+                        templatesUsed INTEGER NOT NULL DEFAULT 0,
+                        toolsUsed INTEGER NOT NULL DEFAULT 0,
+                        playgroundRuns INTEGER NOT NULL DEFAULT 0,
+                        totalTokensUsed INTEGER NOT NULL DEFAULT 0,
+                        sessionDurationMinutes INTEGER NOT NULL DEFAULT 0,
+                        providersUsed TEXT,
+                        mostUsedFeature TEXT,
+                        createdAt INTEGER NOT NULL
+                    )
+                """.trimIndent())
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -97,7 +147,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "aiko_database"
                 )
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                 .build()
                 INSTANCE = instance
                 instance

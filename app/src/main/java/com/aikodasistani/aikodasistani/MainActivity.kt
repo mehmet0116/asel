@@ -1366,6 +1366,14 @@ class MainActivity : AppCompatActivity(),
                     val intent = Intent(this, LearningHubActivity::class.java)
                     startActivity(intent)
                 }
+                R.id.nav_templates -> {
+                    val intent = Intent(this, CodeTemplatesActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_statistics -> {
+                    val intent = Intent(this, StatisticsActivity::class.java)
+                    startActivity(intent)
+                }
                 R.id.nav_change_provider -> showProviderSelectionDialog()
                 R.id.nav_change_model -> showModelSelectionDialog()
                 R.id.nav_new_chat -> showNewChatConfirmation()
