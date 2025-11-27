@@ -205,8 +205,8 @@ class AIProviderUtilsTest {
 
     /**
      * Helper function to simulate DeepSeek response content extraction
-     * Returns content if available, otherwise reasoning_content, otherwise null
-     * Also handles literal "null" string
+     * Returns content if available, otherwise reasoning_content, otherwise null.
+     * Also handles literal "null" strings.
      */
     private fun extractDeepSeekContent(content: String?, reasoningContent: String?): String? {
         return when {

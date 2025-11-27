@@ -376,7 +376,7 @@ class MainActivity : AppCompatActivity(),
      */
     private fun requiresMaxCompletionTokens(model: String): Boolean {
         // New models that require max_completion_tokens:
-        // - gpt-5 family (gpt-5, gpt-5-mini, etc.)
+        // - gpt-5 family (gpt-5, gpt-5-turbo, gpt-5-mini, etc.)
         // - gpt-4.1 family (gpt-4.1, gpt-4.1-mini, gpt-4.1-nano, etc.)
         // - o1, o3 models (reasoning models)
         // - Newer gpt-4o variants (after certain date)
@@ -3326,8 +3326,8 @@ class MainActivity : AppCompatActivity(),
                                 root["choices"]?.jsonArray?.firstOrNull()?.jsonObject?.get("delta")?.jsonObject
                             
                             // Fix for DeepSeek: Check content first, then reasoning_content
-                            // This prevents "nullnullnull" from appearing in UI
-                            // Also handle cases where content is literally "null" string
+                            // This prevents "nullnullnull" from appearing in UI.
+                            // Also handle cases where content is a literal "null" string.
                             val rawContent = delta?.get("content")?.jsonPrimitive?.content
                             val rawReasoningContent = delta?.get("reasoning_content")?.jsonPrimitive?.content
                             
