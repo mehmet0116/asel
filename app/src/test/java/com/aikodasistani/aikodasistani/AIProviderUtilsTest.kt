@@ -15,6 +15,7 @@ class AIProviderUtilsTest {
      */
     private fun requiresMaxCompletionTokens(model: String): Boolean {
         return when {
+            model.startsWith("gpt-5") -> true           // GPT-5 and variants
             model.startsWith("gpt-4.1") -> true
             model.startsWith("o1") -> true
             model.startsWith("o3") -> true
@@ -141,6 +142,30 @@ class AIProviderUtilsTest {
         assertTrue(
             "o3-mini should require max_completion_tokens",
             requiresMaxCompletionTokens("o3-mini")
+        )
+    }
+
+    @Test
+    fun `test gpt-5 requires max_completion_tokens`() {
+        assertTrue(
+            "gpt-5 should require max_completion_tokens",
+            requiresMaxCompletionTokens("gpt-5")
+        )
+    }
+
+    @Test
+    fun `test gpt-5-turbo requires max_completion_tokens`() {
+        assertTrue(
+            "gpt-5-turbo should require max_completion_tokens",
+            requiresMaxCompletionTokens("gpt-5-turbo")
+        )
+    }
+
+    @Test
+    fun `test gpt-5-mini requires max_completion_tokens`() {
+        assertTrue(
+            "gpt-5-mini should require max_completion_tokens",
+            requiresMaxCompletionTokens("gpt-5-mini")
         )
     }
 
