@@ -2,7 +2,6 @@ package com.aikodasistani.aikodasistani
 
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -116,23 +115,34 @@ class CodeTemplatesActivity : AppCompatActivity() {
     
     private fun loadTemplates() {
         lifecycleScope.launch {
-            val flow = when (currentFilter) {
-                "favorites" -> database.codeTemplateDao().getFavorites()
-                "category" -> database.codeTemplateDao().getByCategory(currentCategory)
-                else -> database.codeTemplateDao().getAllTemplates()
-            }
-            
-            flow.collectLatest { templates ->
-                adapter.submitList(templates)
-                emptyView.visibility = if (templates.isEmpty()) View.VISIBLE else View.GONE
-                recyclerView.visibility = if (templates.isEmpty()) View.GONE else View.VISIBLE
+            when (currentFilter) {
+                "favorites" -> {
+                    val templates = database.codeTemplateDao().getFavorites()
+                    adapter.submitList(templates)
+                    emptyView.visibility = if (templates.isEmpty()) View.VISIBLE else View.GONE
+                    recyclerView.visibility = if (templates.isEmpty()) View.GONE else View.VISIBLE
+                }
+                "category" -> {
+                    database.codeTemplateDao().getByCategory(currentCategory).collectLatest { templates ->
+                        adapter.submitList(templates)
+                        emptyView.visibility = if (templates.isEmpty()) View.VISIBLE else View.GONE
+                        recyclerView.visibility = if (templates.isEmpty()) View.GONE else View.VISIBLE
+                    }
+                }
+                else -> {
+                    database.codeTemplateDao().getAllTemplates().collectLatest { templates ->
+                        adapter.submitList(templates)
+                        emptyView.visibility = if (templates.isEmpty()) View.VISIBLE else View.GONE
+                        recyclerView.visibility = if (templates.isEmpty()) View.GONE else View.VISIBLE
+                    }
+                }
             }
         }
     }
     
     private fun searchTemplates(query: String) {
         lifecycleScope.launch {
-            database.codeTemplateDao().search(query).collectLatest { templates ->
+            database.codeTemplateDao().search(query).collectLatest { templates: List<CodeTemplate> ->
                 adapter.submitList(templates)
                 emptyView.visibility = if (templates.isEmpty()) View.VISIBLE else View.GONE
                 recyclerView.visibility = if (templates.isEmpty()) View.GONE else View.VISIBLE
@@ -192,7 +202,7 @@ class CodeTemplatesActivity : AppCompatActivity() {
                 }
                 .setNegativeButton(getString(R.string.cancel), null)
                 .show()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             sendTemplateToMain(template.code)
         }
     }
@@ -211,7 +221,7 @@ class CodeTemplatesActivity : AppCompatActivity() {
             database.codeTemplateDao().incrementUsage(template.id)
         }
         
-        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("Code Template", template.code)
         clipboard.setPrimaryClip(clip)
         Toast.makeText(this, getString(R.string.copied_to_clipboard), Toast.LENGTH_SHORT).show()

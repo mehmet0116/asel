@@ -2,7 +2,6 @@ package com.aikodasistani.aikodasistani
 
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.Context
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -162,11 +161,11 @@ class PasswordGeneratorActivity : AppCompatActivity() {
         
         progressStrength.progress = score
         
-        val (strengthText, color) = when {
-            score >= 80 -> "Çok Güçlü 💪" to R.color.challenge_hard
-            score >= 60 -> "Güçlü ✅" to R.color.challenge_medium
-            score >= 40 -> "Orta ⚠️" to R.color.lang_javascript
-            else -> "Zayıf ❌" to R.color.challenge_easy
+        val (strengthText: String, color: Int) = when {
+            score >= 80 -> Pair("Çok Güçlü 💪", R.color.difficulty_hard)
+            score >= 60 -> Pair("Güçlü ✅", R.color.difficulty_medium)
+            score >= 40 -> Pair("Orta ⚠️", R.color.warning)
+            else -> Pair("Zayıf ❌", R.color.difficulty_easy)
         }
         
         tvStrength.text = strengthText
@@ -204,14 +203,14 @@ class PasswordGeneratorActivity : AppCompatActivity() {
     }
     
     private fun copyToClipboard(text: String) {
-        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("password", text)
         clipboard.setPrimaryClip(clip)
         Toast.makeText(this, "Şifre kopyalandı! 🔐", Toast.LENGTH_SHORT).show()
     }
     
     override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
+        onBackPressedDispatcher.onBackPressed()
         return true
     }
 }

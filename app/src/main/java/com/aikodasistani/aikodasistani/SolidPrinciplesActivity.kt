@@ -10,7 +10,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.card.MaterialCardView
 
 class SolidPrinciplesActivity : AppCompatActivity() {
     
@@ -169,7 +168,7 @@ class Square(private val side: Int) : Shape {
 
 // Her ikisi de Shape olarak güvenle kullanılabilir
 fun printArea(shape: Shape) {
-    println("Alan: \${shape.area()}")
+    println("Alan: ${'$'}{shape.area()}")
 }
                 """.trimIndent(),
                 benefits = listOf(

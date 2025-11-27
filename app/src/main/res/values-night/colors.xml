@@ -57,4 +57,12 @@
     <!-- Overlay -->
     <color name="overlay_dark">#90000000</color>
     <color name="overlay_light">#60000000</color>
+
+    <!-- Interview Question Difficulty Colors (same as light mode) -->
+    <color name="difficulty_easy">#4CAF50</color> <!-- Green -->
+    <color name="difficulty_medium">#FF9800</color> <!-- Orange -->
+    <color name="difficulty_hard">#F44336</color> <!-- Red -->
+
+    <!-- Text Color Alias -->
+    <color name="secondary_text">@color/text_secondary</color>
 </resources>

@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
@@ -396,10 +397,10 @@ class InterviewPrepActivity : AppCompatActivity() {
     
     private fun getDifficultyColor(difficulty: String): Int {
         return when (difficulty) {
-            "easy" -> getColor(R.color.difficulty_easy)
-            "medium" -> getColor(R.color.difficulty_medium)
-            "hard" -> getColor(R.color.difficulty_hard)
-            else -> getColor(R.color.secondary_text)
+            "easy" -> ContextCompat.getColor(this, R.color.difficulty_easy)
+            "medium" -> ContextCompat.getColor(this, R.color.difficulty_medium)
+            "hard" -> ContextCompat.getColor(this, R.color.difficulty_hard)
+            else -> ContextCompat.getColor(this, R.color.secondary_text)
         }
     }
     
