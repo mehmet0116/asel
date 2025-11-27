@@ -1,15 +1,20 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme for Dark Mode -->
+    <!-- Base application theme for Dark Mode - Premium Edition -->
     <style name="Base.Theme.AIKodAsistani" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Primary colors -->
         <item name="colorPrimary">@color/primary_main</item>
         <item name="colorPrimaryContainer">@color/primary_dark</item>
         <item name="colorOnPrimary">@color/text_on_primary</item>
+        <item name="colorPrimaryInverse">@color/primary_dark</item>
 
         <!-- Secondary colors -->
         <item name="colorSecondary">@color/secondary_main</item>
         <item name="colorSecondaryContainer">@color/secondary_dark</item>
         <item name="colorOnSecondary">@color/white</item>
+
+        <!-- Tertiary colors -->
+        <item name="colorTertiary">@color/accent_pink</item>
+        <item name="colorOnTertiary">@color/white</item>
 
         <!-- Background colors -->
         <item name="android:colorBackground">@color/background_primary</item>
@@ -22,16 +27,26 @@
         <item name="colorError">@color/error</item>
         <item name="colorOnError">@color/white</item>
         <item name="colorOutline">@color/border_color</item>
+        <item name="colorOutlineVariant">@color/divider_color</item>
 
-        <!-- Status bar -->
+        <!-- Status bar - Darker for dark mode -->
         <item name="android:statusBarColor">@color/background_primary</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
 
-        <!-- Navigation bar -->
-        <item name="android:navigationBarColor">@color/background_primary</item>
+        <!-- Navigation bar - Dark surface -->
+        <item name="android:navigationBarColor">@color/surface_card</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">false</item>
 
         <!-- Enable window content transitions -->
         <item name="android:windowContentTransitions" tools:targetApi="lollipop">true</item>
+        
+        <!-- Smooth animations -->
+        <item name="android:windowAnimationStyle">@style/WindowAnimationStyle</item>
+    </style>
+    
+    <!-- Window Animation Style for Dark Mode -->
+    <style name="WindowAnimationStyle">
+        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
     </style>
 </resources>

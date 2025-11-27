@@ -3,7 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="8dp">
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp"
+    android:paddingTop="6dp"
+    android:paddingBottom="6dp">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardViewMessage"
@@ -13,12 +16,14 @@
         android:focusable="true"
         android:foreground="?attr/selectableItemBackground"
         app:cardBackgroundColor="@android:color/transparent"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="4dp"
-        app:cardUseCompatPadding="true"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="3dp"
+        app:cardUseCompatPadding="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_max="wrap"
+        app:layout_constraintWidth_percent="0.92">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -26,16 +31,44 @@
             android:orientation="vertical"
             android:background="@drawable/bg_message_ai">
 
+            <!-- AI Icon Badge -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="20dp"
+                android:paddingTop="14dp"
+                android:paddingEnd="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🤖"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="AI Asistan"
+                    android:textSize="12sp"
+                    android:textColor="@color/secondary_dark"
+                    android:fontFamily="sans-serif-medium"
+                    android:letterSpacing="0.03" />
+
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/textViewMessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="20dp"
-                android:paddingTop="16dp"
+                android:paddingTop="10dp"
                 android:paddingEnd="20dp"
-                android:paddingBottom="12dp"
+                android:paddingBottom="14dp"
                 android:textColor="@color/text_primary"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:lineSpacingExtra="4dp"
                 android:fontFamily="sans-serif"
                 android:textIsSelectable="true"
@@ -45,21 +78,22 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="8dp"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:paddingBottom="10dp"
                 android:gravity="end">
 
                 <ImageButton
                     android:id="@+id/downloadButton"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/download_button_desc"
                     android:src="@drawable/ic_download"
                     android:visibility="gone"
                     app:tint="@color/secondary_main"
-                    android:padding="8dp" />
+                    android:padding="8dp"
+                    android:scaleType="centerInside" />
 
             </LinearLayout>
 
