@@ -62,6 +62,224 @@
         <!-- Oturumlar Aktivitesi -->
         <activity android:name=".SessionsActivity" />
 
+        <!-- Kod Parçaları Aktivitesi -->
+        <activity 
+            android:name=".SnippetsActivity"
+            android:label="@string/snippets_title" />
+
+        <!-- Geliştirici Araçları Aktivitesi -->
+        <activity 
+            android:name=".DeveloperToolsActivity"
+            android:label="@string/dev_tools_title" />
+
+        <!-- Kod Playground Aktivitesi -->
+        <activity 
+            android:name=".CodePlaygroundActivity"
+            android:label="@string/code_playground_title" />
+
+        <!-- Günlük Soru Aktivitesi -->
+        <activity 
+            android:name=".DailyChallengeActivity"
+            android:label="@string/daily_challenge_title" />
+
+        <!-- Öğrenme Merkezi Aktivitesi -->
+        <activity 
+            android:name=".LearningHubActivity"
+            android:label="@string/learning_hub_title" />
+
+        <!-- Kod Şablonları Aktivitesi -->
+        <activity 
+            android:name=".CodeTemplatesActivity"
+            android:label="@string/code_templates_title" />
+
+        <!-- İstatistikler Aktivitesi -->
+        <activity 
+            android:name=".StatisticsActivity"
+            android:label="@string/statistics_title" />
+
+        <!-- API Tester Aktivitesi -->
+        <activity 
+            android:name=".ApiTesterActivity"
+            android:label="@string/api_tester_title" />
+
+        <!-- Kod Karşılaştırma Aktivitesi -->
+        <activity 
+            android:name=".CodeDiffActivity"
+            android:label="@string/code_diff_title" />
+
+        <!-- Favoriler Merkezi Aktivitesi -->
+        <activity 
+            android:name=".FavoritesCenterActivity"
+            android:label="@string/favorites_center_title" />
+
+        <!-- Yer İmleri Aktivitesi -->
+        <activity 
+            android:name=".BookmarksActivity"
+            android:label="@string/bookmarks_title" />
+
+        <!-- Hızlı Notlar Aktivitesi -->
+        <activity 
+            android:name=".QuickNotesActivity"
+            android:label="@string/quick_notes_title" />
+
+        <!-- Kod Formatlayıcı Aktivitesi -->
+        <activity 
+            android:name=".CodeFormatterActivity"
+            android:label="@string/code_formatter_title" />
+
+        <!-- Tema Yöneticisi Aktivitesi -->
+        <activity 
+            android:name=".ThemeManagerActivity"
+            android:label="@string/theme_manager_title" />
+
+        <!-- Proje Yöneticisi Aktivitesi -->
+        <activity 
+            android:name=".ProjectManagerActivity"
+            android:label="@string/project_manager_title" />
+
+        <!-- Hatırlatmalar Aktivitesi -->
+        <activity 
+            android:name=".RemindersActivity"
+            android:label="@string/reminders_title" />
+
+        <!-- Git Yardımcısı Aktivitesi -->
+        <activity 
+            android:name=".GitHelperActivity"
+            android:label="@string/git_helper_title" />
+
+        <!-- Hata Analizi Aktivitesi -->
+        <activity 
+            android:name=".ErrorAnalyzerActivity"
+            android:label="@string/error_analyzer_title" />
+
+        <!-- Mülakat Hazırlık Aktivitesi -->
+        <activity 
+            android:name=".InterviewPrepActivity"
+            android:label="@string/interview_prep_title" />
+
+        <!-- Karmaşıklık Analizi Aktivitesi -->
+        <activity 
+            android:name=".ComplexityAnalyzerActivity"
+            android:label="@string/complexity_analyzer_title" />
+
+        <!-- Kod Quiz Aktivitesi -->
+        <activity 
+            android:name=".CodeQuizActivity"
+            android:label="@string/code_quiz_title" />
+
+        <!-- Klavye Kısayolları Aktivitesi -->
+        <activity 
+            android:name=".KeyboardShortcutsActivity"
+            android:label="@string/keyboard_shortcuts_title" />
+
+        <!-- Şifre Üretici Aktivitesi -->
+        <activity 
+            android:name=".PasswordGeneratorActivity"
+            android:label="@string/password_generator_title" />
+
+        <!-- Timestamp Dönüştürücü Aktivitesi -->
+        <activity 
+            android:name=".TimestampConverterActivity"
+            android:label="@string/timestamp_converter_title" />
+
+        <!-- Renk Paleti Aktivitesi -->
+        <activity 
+            android:name=".ColorPaletteActivity"
+            android:label="@string/color_palette_title" />
+
+        <!-- Birim Dönüştürücü Aktivitesi -->
+        <activity 
+            android:name=".UnitConverterActivity"
+            android:label="@string/unit_converter" />
+
+        <!-- Sayı Tabanı Dönüştürücü Aktivitesi -->
+        <activity 
+            android:name=".NumberBaseConverterActivity"
+            android:label="@string/number_base_converter" />
+
+        <!-- Lorem Ipsum Üretici Aktivitesi -->
+        <activity 
+            android:name=".LoremIpsumGeneratorActivity"
+            android:label="@string/lorem_ipsum_generator" />
+
+        <!-- QR Kod Üretici Aktivitesi -->
+        <activity 
+            android:name=".QrCodeGeneratorActivity"
+            android:label="@string/qr_code_generator" />
+
+        <!-- UUID Üretici Aktivitesi -->
+        <activity 
+            android:name=".UuidGeneratorActivity"
+            android:label="@string/uuid_generator" />
+
+        <!-- Markdown Önizleme Aktivitesi -->
+        <activity 
+            android:name=".MarkdownPreviewActivity"
+            android:label="@string/markdown_preview" />
+
+        <!-- SQL Query Builder Aktivitesi -->
+        <activity 
+            android:name=".SqlQueryBuilderActivity"
+            android:label="@string/sql_query_builder" />
+
+        <!-- Cron Helper Aktivitesi -->
+        <activity 
+            android:name=".CronHelperActivity"
+            android:label="@string/cron_helper" />
+
+        <!-- HTTP Status Codes Aktivitesi -->
+        <activity 
+            android:name=".HttpStatusCodesActivity"
+            android:label="@string/http_status_codes" />
+
+        <!-- Regex Patterns Aktivitesi -->
+        <activity 
+            android:name=".RegexPatternsActivity"
+            android:label="@string/regex_patterns_title" />
+
+        <!-- CSS Layout Guide Aktivitesi -->
+        <activity 
+            android:name=".CssLayoutGuideActivity"
+            android:label="@string/css_layout_guide_title" />
+
+        <!-- Design Patterns Aktivitesi -->
+        <activity 
+            android:name=".DesignPatternsActivity"
+            android:label="@string/design_patterns_title" />
+
+        <!-- SOLID Principles Aktivitesi -->
+        <activity 
+            android:name=".SolidPrinciplesActivity"
+            android:label="@string/solid_principles_title" />
+
+        <!-- Clean Architecture Aktivitesi -->
+        <activity 
+            android:name=".CleanArchitectureActivity"
+            android:label="@string/clean_architecture_title" />
+
+        <!-- Code Review Checklist Aktivitesi -->
+        <activity 
+            android:name=".CodeReviewChecklistActivity"
+            android:label="@string/code_review_checklist_title" />
+
+        <!-- Hatırlatma Alıcısı -->
+        <receiver
+            android:name=".ReminderReceiver"
+            android:exported="false" />
+
+        <!-- Ana Ekran Widget'ı -->
+        <receiver
+            android:name=".widget.QuickActionWidgetProvider"
+            android:exported="true"
+            android:label="@string/widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_quick_action_info" />
+        </receiver>
+
     </application>
 
 </manifest>

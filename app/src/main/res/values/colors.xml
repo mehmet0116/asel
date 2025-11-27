@@ -64,4 +64,35 @@
     <!-- Overlay -->
     <color name="overlay_dark">#80000000</color>
     <color name="overlay_light">#40000000</color>
+    
+    <!-- Programming Language Colors for Snippets -->
+    <color name="kotlin_color">#7F52FF</color>
+    <color name="java_color">#B07219</color>
+    <color name="python_color">#3572A5</color>
+    <color name="javascript_color">#F7DF1E</color>
+    <color name="html_color">#E34C26</color>
+    <color name="css_color">#563D7C</color>
+    <color name="json_color">#292929</color>
+    <color name="xml_color">#0060AC</color>
+    <color name="swift_color">#FA7343</color>
+    <color name="go_color">#00ADD8</color>
+    <color name="rust_color">#DEA584</color>
+    <color name="cpp_color">#F34B7D</color>
+    
+    <!-- Status Colors for API Tester -->
+    <color name="status_success">#4CAF50</color>
+    <color name="status_error">#F44336</color>
+    <color name="status_warning">#FF9800</color>
+    
+    <!-- Favorite Chips -->
+    <color name="chip_snippet">#7C3AED</color>
+    <color name="chip_template">#14B8A6</color>
+    <color name="chip_language">#6366F1</color>
+    
+    <!-- HTTP Status Code Colors -->
+    <color name="status_1xx">#2196F3</color>
+    <color name="status_2xx">#4CAF50</color>
+    <color name="status_3xx">#FF9800</color>
+    <color name="status_4xx">#F44336</color>
+    <color name="status_5xx">#9C27B0</color>
 </resources>

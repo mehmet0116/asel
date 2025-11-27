@@ -14,6 +14,9 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import android.text.method.LinkMovementMethod
 import android.util.Base64
 import android.util.Log
@@ -142,6 +145,7 @@ class MainActivity : AppCompatActivity(),
     private lateinit var buttonSend: ImageButton
     private lateinit var buttonAttachment: ImageButton
     private lateinit var buttonDeepThink: ImageButton
+    private lateinit var buttonVoice: ImageButton
     private lateinit var cancelSendButton: Button
     private lateinit var attachmentPreviewContainer: View
     private lateinit var imagePreviewList: LinearLayout
@@ -156,6 +160,10 @@ class MainActivity : AppCompatActivity(),
     private lateinit var dialogManager: DialogManager
     private lateinit var imageManager: ImageManager
     private lateinit var messageManager: MessageManager
+    
+    // Voice recognition
+    private var speechRecognizer: SpeechRecognizer? = null
+    private var isListening = false
 
     private val messageList = mutableListOf<Message>()
     private lateinit var messageAdapter: MessageAdapter
@@ -229,6 +237,19 @@ class MainActivity : AppCompatActivity(),
             ).show()
         }
 
+    private val requestMicrophonePermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
+                startVoiceRecognition()
+            } else {
+                Toast.makeText(
+                    this@MainActivity,
+                    R.string.voice_input_permission_required,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
     private val sessionsLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
@@ -249,6 +270,24 @@ class MainActivity : AppCompatActivity(),
                             val lastSession = sessionsList.firstOrNull()
                             if (lastSession != null) loadSession(lastSession.id) else createNewSession()
                         }
+                    }
+                }
+            }
+        }
+
+    private val snippetsLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val data = result.data
+                if (data?.getBooleanExtra(SnippetsActivity.RESULT_SNIPPET_SELECTED, false) == true) {
+                    val code = data.getStringExtra(SnippetsActivity.RESULT_CODE) ?: ""
+                    if (code.isNotBlank()) {
+                        // Insert the selected snippet code into the message input
+                        val currentText = editTextMessage.text?.toString() ?: ""
+                        val newText = if (currentText.isBlank()) code else "$currentText\n$code"
+                        editTextMessage.setText(newText)
+                        editTextMessage.setSelection(newText.length)
+                        Toast.makeText(this@MainActivity, R.string.snippet_used, Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -919,6 +958,7 @@ class MainActivity : AppCompatActivity(),
             setupCancelSendButton()
             setupAttachmentButton()
             setupDeepThinkButton()
+            setupVoiceButton()
 
             mainCoroutineScope.launch {
                 showLoading("Modeller yükleniyor...")
@@ -938,6 +978,38 @@ class MainActivity : AppCompatActivity(),
             Log.e("MainActivity", "OnCreate hatası", e)
             setContentView(R.layout.activity_main)
             Toast.makeText(this, "Uygulama başlatıldı, bazı özellikler kısıtlanmış olabilir", Toast.LENGTH_LONG).show()
+        }
+        
+        // Widget intent'lerini işle
+        handleWidgetIntent(intent)
+    }
+    
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleWidgetIntent(intent)
+    }
+    
+    private fun handleWidgetIntent(intent: Intent?) {
+        when (intent?.action) {
+            "com.aikodasistani.aikodasistani.ACTION_OPEN_VOICE" -> {
+                // Sesli giriş başlat
+                mainCoroutineScope.launch {
+                    kotlinx.coroutines.delay(500)
+                    checkMicrophonePermissionAndStart()
+                }
+            }
+            "com.aikodasistani.aikodasistani.ACTION_OPEN_PLAYGROUND" -> {
+                // Code Playground aç
+                startActivity(Intent(this, CodePlaygroundActivity::class.java))
+            }
+            "com.aikodasistani.aikodasistani.ACTION_OPEN_TOOLS" -> {
+                // Developer Tools aç
+                startActivity(Intent(this, DeveloperToolsActivity::class.java))
+            }
+            "com.aikodasistani.aikodasistani.ACTION_NEW_CHAT" -> {
+                // Yeni sohbet başlat
+                mainCoroutineScope.launch { createNewSession() }
+            }
         }
     }
 
@@ -992,6 +1064,7 @@ class MainActivity : AppCompatActivity(),
         editTextMessage = findViewById(R.id.editTextMessage)
         buttonSend = findViewById(R.id.buttonSend)
         buttonAttachment = findViewById(R.id.buttonAttachment)
+        buttonVoice = findViewById(R.id.buttonVoice)
         cancelSendButton = findViewById(R.id.buttonCancelSend)
         attachmentPreviewContainer = findViewById(R.id.attachmentPreviewContainer)
         imagePreviewList = findViewById(R.id.imagePreviewList)
@@ -1000,6 +1073,164 @@ class MainActivity : AppCompatActivity(),
         
         // Initialize dialog manager with loading views
         dialogManager.initializeLoadingViews(loadingOverlay, loadingText)
+    }
+
+    // ==================== VOICE INPUT FUNCTIONS ====================
+    
+    private fun setupVoiceButton() {
+        buttonVoice.setOnClickListener {
+            if (isListening) {
+                stopVoiceRecognition()
+            } else {
+                checkMicrophonePermissionAndStart()
+            }
+        }
+        
+        // Long press to show voice input info
+        buttonVoice.setOnLongClickListener {
+            Toast.makeText(this, R.string.voice_input_hint, Toast.LENGTH_SHORT).show()
+            true
+        }
+    }
+    
+    private fun checkMicrophonePermissionAndStart() {
+        when {
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                startVoiceRecognition()
+            }
+            else -> {
+                requestMicrophonePermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+            }
+        }
+    }
+    
+    private fun startVoiceRecognition() {
+        if (!SpeechRecognizer.isRecognitionAvailable(this)) {
+            Toast.makeText(this, R.string.voice_input_not_supported, Toast.LENGTH_LONG).show()
+            return
+        }
+        
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+        speechRecognizer?.setRecognitionListener(object : RecognitionListener {
+            override fun onReadyForSpeech(params: Bundle?) {
+                isListening = true
+                runOnUiThread {
+                    buttonVoice.setImageResource(R.drawable.ic_mic_active)
+                    buttonVoice.setColorFilter(ContextCompat.getColor(this@MainActivity, R.color.red))
+                    Toast.makeText(this@MainActivity, R.string.voice_input_started, Toast.LENGTH_SHORT).show()
+                }
+            }
+            
+            override fun onBeginningOfSpeech() {
+                Log.d("VoiceInput", "Speech beginning")
+            }
+            
+            override fun onRmsChanged(rmsdB: Float) {
+                // Optional: Animate button based on voice level
+            }
+            
+            override fun onBufferReceived(buffer: ByteArray?) {}
+            
+            override fun onEndOfSpeech() {
+                isListening = false
+                runOnUiThread {
+                    buttonVoice.setImageResource(R.drawable.ic_mic)
+                    buttonVoice.setColorFilter(ContextCompat.getColor(this@MainActivity, R.color.secondary_main))
+                }
+            }
+            
+            override fun onError(error: Int) {
+                isListening = false
+                runOnUiThread {
+                    buttonVoice.setImageResource(R.drawable.ic_mic)
+                    buttonVoice.setColorFilter(ContextCompat.getColor(this@MainActivity, R.color.secondary_main))
+                    
+                    val errorMessage = when (error) {
+                        SpeechRecognizer.ERROR_NO_MATCH -> getString(R.string.voice_input_no_match)
+                        SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> getString(R.string.voice_input_no_match)
+                        SpeechRecognizer.ERROR_AUDIO -> getString(R.string.voice_input_error)
+                        SpeechRecognizer.ERROR_CLIENT -> getString(R.string.voice_input_error)
+                        SpeechRecognizer.ERROR_NETWORK -> "Ağ hatası"
+                        SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "Ağ zaman aşımı"
+                        SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "Ses tanıma meşgul"
+                        SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> getString(R.string.voice_input_permission_required)
+                        else -> getString(R.string.voice_input_error)
+                    }
+                    if (error != SpeechRecognizer.ERROR_CLIENT) { // Ignore client errors (usually from stopping)
+                        Toast.makeText(this@MainActivity, errorMessage, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            
+            override fun onResults(results: Bundle?) {
+                isListening = false
+                val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                if (!matches.isNullOrEmpty()) {
+                    val recognizedText = matches[0]
+                    runOnUiThread {
+                        // Append recognized text to current input
+                        val currentText = editTextMessage.text?.toString() ?: ""
+                        val newText = if (currentText.isBlank()) {
+                            recognizedText
+                        } else {
+                            "$currentText $recognizedText"
+                        }
+                        editTextMessage.setText(newText)
+                        editTextMessage.setSelection(newText.length)
+                        
+                        Toast.makeText(
+                            this@MainActivity,
+                            getString(R.string.voice_input_text_detected, recognizedText.take(30) + if (recognizedText.length > 30) "..." else ""),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+                runOnUiThread {
+                    buttonVoice.setImageResource(R.drawable.ic_mic)
+                    buttonVoice.setColorFilter(ContextCompat.getColor(this@MainActivity, R.color.secondary_main))
+                }
+            }
+            
+            override fun onPartialResults(partialResults: Bundle?) {
+                val partialMatches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                if (!partialMatches.isNullOrEmpty()) {
+                    Log.d("VoiceInput", "Partial: ${partialMatches[0]}")
+                }
+            }
+            
+            override fun onEvent(eventType: Int, params: Bundle?) {}
+        })
+        
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "tr-TR") // Turkish
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "tr-TR")
+            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+            putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+        }
+        
+        try {
+            speechRecognizer?.startListening(intent)
+        } catch (e: Exception) {
+            Log.e("VoiceInput", "Error starting speech recognition", e)
+            Toast.makeText(this, R.string.voice_input_error, Toast.LENGTH_SHORT).show()
+        }
+    }
+    
+    private fun stopVoiceRecognition() {
+        try {
+            speechRecognizer?.stopListening()
+            speechRecognizer?.cancel()
+            isListening = false
+            buttonVoice.setImageResource(R.drawable.ic_mic)
+            buttonVoice.setColorFilter(ContextCompat.getColor(this, R.color.secondary_main))
+            Toast.makeText(this, R.string.voice_input_stopped, Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Log.e("VoiceInput", "Error stopping speech recognition", e)
+        }
     }
 
     private fun showLoading(message: String, allowCancel: Boolean = false) {
@@ -1114,6 +1345,167 @@ class MainActivity : AppCompatActivity(),
                     val intent = Intent(this, SessionsActivity::class.java)
                     sessionsLauncher.launch(intent)
                 }
+                R.id.nav_snippets -> {
+                    val intent = Intent(this, SnippetsActivity::class.java)
+                    snippetsLauncher.launch(intent)
+                }
+                R.id.nav_dev_tools -> {
+                    val intent = Intent(this, DeveloperToolsActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_playground -> {
+                    val intent = Intent(this, CodePlaygroundActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_export -> showExportDialog()
+                R.id.nav_daily_challenge -> {
+                    val intent = Intent(this, DailyChallengeActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_learning_hub -> {
+                    val intent = Intent(this, LearningHubActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_templates -> {
+                    val intent = Intent(this, CodeTemplatesActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_statistics -> {
+                    val intent = Intent(this, StatisticsActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_api_tester -> {
+                    val intent = Intent(this, ApiTesterActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_code_diff -> {
+                    val intent = Intent(this, CodeDiffActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_favorites -> {
+                    val intent = Intent(this, FavoritesCenterActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_bookmarks -> {
+                    val intent = Intent(this, BookmarksActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_quick_notes -> {
+                    val intent = Intent(this, QuickNotesActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_code_formatter -> {
+                    val intent = Intent(this, CodeFormatterActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_theme_manager -> {
+                    val intent = Intent(this, ThemeManagerActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_project_manager -> {
+                    val intent = Intent(this, ProjectManagerActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_reminders -> {
+                    val intent = Intent(this, RemindersActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_git_helper -> {
+                    val intent = Intent(this, GitHelperActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_error_analyzer -> {
+                    val intent = Intent(this, ErrorAnalyzerActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_interview_prep -> {
+                    val intent = Intent(this, InterviewPrepActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_complexity_analyzer -> {
+                    val intent = Intent(this, ComplexityAnalyzerActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_code_quiz -> {
+                    val intent = Intent(this, CodeQuizActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_keyboard_shortcuts -> {
+                    val intent = Intent(this, KeyboardShortcutsActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_password_generator -> {
+                    val intent = Intent(this, PasswordGeneratorActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_timestamp_converter -> {
+                    val intent = Intent(this, TimestampConverterActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_color_palette -> {
+                    val intent = Intent(this, ColorPaletteActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_unit_converter -> {
+                    val intent = Intent(this, UnitConverterActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_number_base -> {
+                    val intent = Intent(this, NumberBaseConverterActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_lorem_ipsum -> {
+                    val intent = Intent(this, LoremIpsumGeneratorActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_qr_code -> {
+                    val intent = Intent(this, QrCodeGeneratorActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_uuid -> {
+                    val intent = Intent(this, UuidGeneratorActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_markdown -> {
+                    val intent = Intent(this, MarkdownPreviewActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_sql_builder -> {
+                    val intent = Intent(this, SqlQueryBuilderActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_cron_helper -> {
+                    val intent = Intent(this, CronHelperActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_http_codes -> {
+                    val intent = Intent(this, HttpStatusCodesActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_regex_patterns -> {
+                    val intent = Intent(this, RegexPatternsActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_css_guide -> {
+                    val intent = Intent(this, CssLayoutGuideActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_design_patterns -> {
+                    val intent = Intent(this, DesignPatternsActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_solid_principles -> {
+                    val intent = Intent(this, SolidPrinciplesActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_clean_architecture -> {
+                    val intent = Intent(this, CleanArchitectureActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_code_review -> {
+                    val intent = Intent(this, CodeReviewChecklistActivity::class.java)
+                    startActivity(intent)
+                }
                 R.id.nav_change_provider -> showProviderSelectionDialog()
                 R.id.nav_change_model -> showModelSelectionDialog()
                 R.id.nav_new_chat -> showNewChatConfirmation()
@@ -1126,6 +1518,66 @@ class MainActivity : AppCompatActivity(),
             Log.e("MainActivity", "Navigation hatası", e)
             return false
         }
+    }
+    
+    // ==================== EXPORT FUNCTIONS ====================
+    
+    private fun showExportDialog() {
+        if (messageList.isEmpty()) {
+            Toast.makeText(this, "Dışa aktarılacak mesaj yok", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_export_chat, null)
+        val rbMarkdown = dialogView.findViewById<android.widget.RadioButton>(R.id.rbMarkdown)
+        val rbPdf = dialogView.findViewById<android.widget.RadioButton>(R.id.rbPdf)
+        val rbText = dialogView.findViewById<android.widget.RadioButton>(R.id.rbText)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
+        val btnExport = dialogView.findViewById<Button>(R.id.btnExport)
+        
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+        
+        btnCancel.setOnClickListener { dialog.dismiss() }
+        
+        btnExport.setOnClickListener {
+            val result = when {
+                rbMarkdown.isChecked -> com.aikodasistani.aikodasistani.util.ChatExportUtil.exportToMarkdown(
+                    this,
+                    messageList,
+                    "AI_Kod_Asistani"
+                )
+                rbPdf.isChecked -> com.aikodasistani.aikodasistani.util.ChatExportUtil.exportToPdf(
+                    this,
+                    messageList,
+                    "AI_Kod_Asistani"
+                )
+                else -> com.aikodasistani.aikodasistani.util.ChatExportUtil.exportToText(
+                    this,
+                    messageList,
+                    "AI_Kod_Asistani"
+                )
+            }
+            
+            dialog.dismiss()
+            
+            if (result.success && result.filePath != null) {
+                // Show success dialog with share option
+                AlertDialog.Builder(this)
+                    .setTitle(R.string.export_success)
+                    .setMessage(result.message)
+                    .setPositiveButton(R.string.share_exported_file) { _, _ ->
+                        com.aikodasistani.aikodasistani.util.ChatExportUtil.shareFile(this, result.filePath)
+                    }
+                    .setNegativeButton(R.string.cancel, null)
+                    .show()
+            } else {
+                Toast.makeText(this, result.message, Toast.LENGTH_LONG).show()
+            }
+        }
+        
+        dialog.show()
     }
 
     private fun readContentFromUri(uri: Uri, isImage: Boolean) {
@@ -3502,5 +3954,9 @@ class MainActivity : AppCompatActivity(),
         currentFileReadingJob?.cancel()
         fileReadingScope.cancel()
         mainCoroutineScope.cancel()
+        
+        // Clean up speech recognizer
+        speechRecognizer?.destroy()
+        speechRecognizer = null
     }
 }

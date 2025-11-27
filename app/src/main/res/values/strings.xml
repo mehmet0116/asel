@@ -182,4 +182,587 @@
     <string name="add_selected_models">Seçilenleri Ekle</string>
     <string name="models_added_count">%d model eklendi</string>
     <string name="no_models_selected">Hiçbir model seçilmedi</string>
+    
+    <!-- SNIPPETS (KOD PARÇALARI) STRING'LERİ -->
+    <string name="snippets_title">📝 Kod Parçaları</string>
+    <string name="search_snippets">Snippet ara...</string>
+    <string name="all_snippets">Tümü</string>
+    <string name="favorites">⭐ Favoriler</string>
+    <string name="most_used">🔥 En Çok Kullanılan</string>
+    <string name="no_snippets">Henüz kod parçası yok</string>
+    <string name="no_snippets_hint">AI yanıtlarındaki kodları kaydedin\nveya manuel olarak ekleyin</string>
+    <string name="add_snippet">Snippet Ekle</string>
+    <string name="add_snippet_title">Yeni Kod Parçası</string>
+    <string name="edit_snippet_title">Kod Parçasını Düzenle</string>
+    <string name="snippet_title_hint">Başlık (örn: Quick Sort)</string>
+    <string name="snippet_language_hint">Programlama Dili</string>
+    <string name="snippet_code_hint">Kod</string>
+    <string name="snippet_description_hint">Açıklama (opsiyonel)</string>
+    <string name="snippet_tags_hint">Etiketler</string>
+    <string name="snippet_tags_helper">Virgülle ayırın: sorting, algorithm, array</string>
+    <string name="save_snippet">Kaydet</string>
+    <string name="snippet_saved">Kod parçası kaydedildi ✓</string>
+    <string name="snippet_deleted">Kod parçası silindi</string>
+    <string name="snippet_copied">Kod kopyalandı</string>
+    <string name="snippet_used">Kod kullanıldı</string>
+    <string name="toggle_favorite">Favori olarak işaretle</string>
+    <string name="copy_code">Kodu kopyala</string>
+    <string name="use_snippet">Kullan</string>
+    <string name="more_options">Daha fazla seçenek</string>
+    <string name="edit_snippet">Düzenle</string>
+    <string name="delete_snippet">Sil</string>
+    <string name="delete_snippet_confirm">"%s" kod parçasını silmek istediğinizden emin misiniz?</string>
+    <string name="save_to_snippets">📝 Snippet\'lere Kaydet</string>
+    <string name="snippet_title_required">Lütfen bir başlık girin</string>
+    <string name="snippet_code_required">Lütfen kod girin</string>
+    <string name="usage_count">Kullanım: %d</string>
+    
+    <!-- VOICE INPUT (SES TANIMA) STRING'LERİ -->
+    <string name="voice_input_description">Sesli giriş</string>
+    <string name="voice_input_hint">Dinliyorum...</string>
+    <string name="voice_input_error">Ses tanıma başarısız oldu</string>
+    <string name="voice_input_not_supported">Ses tanıma bu cihazda desteklenmiyor</string>
+    <string name="voice_input_permission_required">Ses tanıma için mikrofon izni gerekli</string>
+    <string name="voice_input_started">🎤 Dinleniyor... Konuşun</string>
+    <string name="voice_input_stopped">Ses kaydı durduruldu</string>
+    <string name="voice_input_no_match">Anlaşılamadı, lütfen tekrar deneyin</string>
+    <string name="voice_input_text_detected">Metin algılandı: %s</string>
+    
+    <!-- DEVELOPER TOOLS STRING'LERİ -->
+    <string name="dev_tools_title">🛠️ Geliştirici Araçları</string>
+    <string name="dev_tools_menu">Araçlar</string>
+    <string name="json_tool">JSON</string>
+    <string name="base64_tool">Base64</string>
+    <string name="regex_tool">Regex</string>
+    <string name="hash_tool">Hash</string>
+    <string name="json_input_hint">JSON giriniz...</string>
+    <string name="base64_input_hint">Metin giriniz...</string>
+    <string name="regex_pattern_hint">Regex pattern</string>
+    <string name="regex_test_string_hint">Test edilecek metin</string>
+    <string name="hash_input_hint">Hash hesaplanacak metin</string>
+    <string name="validate_format">Doğrula ve Formatla</string>
+    <string name="minify">Küçült</string>
+    <string name="encode">Encode</string>
+    <string name="decode">Decode</string>
+    <string name="test_regex">Test Et</string>
+    <string name="generate_hashes">Hash Oluştur</string>
+    <string name="output">Çıktı</string>
+    <string name="output_placeholder">Sonuç burada görünecek...</string>
+    <string name="json_valid">✅ Geçerli JSON</string>
+    <string name="json_invalid">❌ Geçersiz JSON</string>
+    <string name="common_patterns">Yaygın patternler:</string>
+    <string name="matches">Eşleşmeler</string>
+    <string name="no_matches">Eşleşme bulunamadı</string>
+    <string name="match_count">%d eşleşme bulundu</string>
+    <string name="regex_valid">✅ Geçerli Regex</string>
+    <string name="regex_invalid">❌ Geçersiz Regex: %s</string>
+    <string name="copied_to_clipboard">Panoya kopyalandı</string>
+    <string name="enter_pattern">Pattern giriniz</string>
+    <string name="enter_text">Metin giriniz</string>
+    <string name="delete_snippet_button">Sil</string>
+    
+    <!-- CODE PLAYGROUND STRING'LERİ -->
+    <string name="code_playground_title">▶️ Kod Çalıştır</string>
+    <string name="code_playground_menu">Kod Çalıştır</string>
+    <string name="language_label">Dil:</string>
+    <string name="code_input">Kod</string>
+    <string name="code_playground_hint">Kodunuzu buraya yazın...</string>
+    <string name="js_code_hint">console.log("Merhaba Dünya!");</string>
+    <string name="html_code_hint">&lt;h1&gt;Merhaba&lt;/h1&gt;</string>
+    <string name="run_code">▶️ Çalıştır</string>
+    <string name="clear">Temizle</string>
+    <string name="enter_code">Lütfen kod girin</string>
+    <string name="code_execution_error">Kod çalıştırılırken hata oluştu</string>
+    
+    <!-- EXPORT (DIŞA AKTARMA) STRING'LERİ -->
+    <string name="export_chat_title">📤 Sohbeti Dışa Aktar</string>
+    <string name="export_chat_subtitle">Sohbeti farklı formatlarda kaydedin</string>
+    <string name="export_format_markdown">📝 Markdown (.md)</string>
+    <string name="export_format_pdf">📄 PDF (.pdf)</string>
+    <string name="export_format_text">📃 Düz Metin (.txt)</string>
+    <string name="export_button">Dışa Aktar</string>
+    <string name="export_success">Dosya başarıyla oluşturuldu</string>
+    <string name="export_error">Dışa aktarma hatası</string>
+    <string name="share_exported_file">Paylaş</string>
+    <string name="open_exported_file">Aç</string>
+    <string name="export_menu">Dışa Aktar</string>
+    <string name="md5_warning_label">MD5 ⚠️ (güvenlik amaçlı kullanmayın)</string>
+    
+    <!-- DAILY CHALLENGE (GÜNLÜK SORU) STRING'LERİ -->
+    <string name="daily_challenge_title">🎯 Günlük Soru</string>
+    <string name="daily_challenge_menu">Günlük Soru</string>
+    <string name="completed">Tamamlandı</string>
+    <string name="total_challenges">Toplam</string>
+    <string name="streak">Seri</string>
+    <string name="difficulty_easy">🟢 Kolay</string>
+    <string name="difficulty_medium">🟡 Orta</string>
+    <string name="difficulty_hard">🔴 Zor</string>
+    <string name="no_challenges">Henüz soru yok</string>
+    <string name="load_challenges">Soruları Yükle</string>
+    <string name="solve_challenge">Çöz</string>
+    <string name="view_solution">Çözümü Gör</string>
+    <string name="show_hint">İpucu</string>
+    <string name="submit_solution">Gönder</string>
+    <string name="challenge_completed">🎉 Tebrikler! Soru tamamlandı.</string>
+    <string name="your_solution">Çözümünüz</string>
+    <string name="starter_code">Başlangıç Kodu</string>
+    <string name="ask_ai_help">AI\'dan Yardım Al</string>
+    
+    <!-- WIDGET STRING'LERİ -->
+    <string name="widget_name">AI Kod Asistanı</string>
+    <string name="widget_description">Hızlı erişim widget\'ı - sesli giriş, kod çalıştırma, araçlar</string>
+    <string name="widget_voice">Sesli</string>
+    <string name="widget_playground">Kod</string>
+    <string name="widget_tools">Araçlar</string>
+    <string name="widget_new_chat">Yeni</string>
+    
+    <!-- LEARNING HUB (ÖĞRENME MERKEZİ) STRING'LERİ -->
+    <string name="learning_hub_title">📚 Öğrenme Merkezi</string>
+    <string name="learning_hub_menu">Öğren</string>
+    <string name="lessons_completed">Tamamlanan</string>
+    <string name="minutes_learned">Dakika</string>
+    <string name="total_lessons">Toplam Ders</string>
+    <string name="no_lessons">Henüz ders yok</string>
+    <string name="load_lessons">Dersleri Yükle</string>
+    <string name="start_lesson">Başla</string>
+    <string name="continue_lesson">Devam Et</string>
+    <string name="review_lesson">Tekrar Et</string>
+    <string name="lesson_completed">🎉 Ders tamamlandı!</string>
+    <string name="algorithms">Algoritmalar</string>
+    <string name="beginner">Başlangıç</string>
+    <string name="intermediate">Orta</string>
+    <string name="advanced">İleri</string>
+    
+    <!-- CODE TEMPLATES (KOD ŞABLONLARI) STRING'LERİ -->
+    <string name="code_templates_title">📋 Kod Şablonları</string>
+    <string name="code_templates_menu">Şablonlar</string>
+    <string name="search_templates">Şablon ara...</string>
+    <string name="no_templates">Henüz şablon yok</string>
+    <string name="no_templates_hint">Hazır kod şablonlarını kullanın\nveya kendi şablonlarınızı ekleyin</string>
+    <string name="add_template">Şablon Ekle</string>
+    <string name="edit_template">Şablonu Düzenle</string>
+    <string name="save_template">Kaydet</string>
+    <string name="use_template">Kullan</string>
+    <string name="template_title_hint">Başlık (örn: RecyclerView Adapter)</string>
+    <string name="template_description_hint">Açıklama</string>
+    <string name="template_code_hint">Kod şablonu</string>
+    <string name="template_tags_hint">Etiketler (virgülle ayırın)</string>
+    <string name="category_label">Kategori</string>
+    <string name="template_saved">Şablon kaydedildi ✓</string>
+    <string name="template_updated">Şablon güncellendi ✓</string>
+    <string name="template_deleted">Şablon silindi</string>
+    <string name="template_applied">Şablon uygulandı</string>
+    <string name="template_title_code_required">Başlık ve kod gerekli</string>
+    <string name="delete_template_title">Şablonu Sil</string>
+    <string name="delete_template_confirm">"%s" şablonunu silmek istediğinizden emin misiniz?</string>
+    <string name="replace_variables">Değişkenleri Değiştir</string>
+    <string name="replace_variables_hint">Şablondaki değişkenleri doldurun:</string>
+    
+    <!-- STATISTICS (İSTATİSTİKLER) STRING'LERİ -->
+    <string name="statistics_title">📊 İstatistikler</string>
+    <string name="statistics_menu">İstatistikler</string>
+    <string name="overall_stats">Genel İstatistikler</string>
+    <string name="today_stats">Bugünkü Aktivite</string>
+    <string name="weekly_activity">Haftalık Aktivite</string>
+    <string name="stat_messages">Mesaj</string>
+    <string name="stat_code_gen">Kod Üretimi</string>
+    <string name="stat_voice">Ses Girişi</string>
+    <string name="stat_active_days">Aktif Gün</string>
+    <string name="stat_challenges">Soru</string>
+    <string name="stat_lessons">Ders</string>
+    <string name="stat_code">Kod</string>
+    <string name="stat_tools">Araç</string>
+    <string name="stat_playground">Playground</string>
+    
+    <!-- API TESTER STRING'LERİ -->
+    <string name="api_tester_title">🔌 API Test</string>
+    <string name="api_tester_menu">API Test</string>
+    <string name="api_url_hint">https://api.example.com/endpoint</string>
+    <string name="api_url_required">Lütfen bir URL girin</string>
+    <string name="http_method">HTTP Metod</string>
+    <string name="api_headers_hint">Headers (Her satıra bir tane: Key: Value)</string>
+    <string name="api_body_hint">Request Body (JSON)</string>
+    <string name="send_request">🚀 İstek Gönder</string>
+    <string name="response">Yanıt</string>
+    <string name="response_time">%d ms</string>
+    
+    <!-- CODE DIFF STRING'LERİ -->
+    <string name="code_diff_title">🔍 Kod Karşılaştır</string>
+    <string name="code_diff_menu">Kod Karşılaştır</string>
+    <string name="original_code">Orijinal Kod</string>
+    <string name="modified_code">Değiştirilmiş Kod</string>
+    <string name="code_1_hint">İlk kod parçasını yapıştırın...</string>
+    <string name="code_2_hint">İkinci kod parçasını yapıştırın...</string>
+    <string name="compare_codes">🔍 Karşılaştır</string>
+    <string name="swap_codes">Kodları Değiştir</string>
+    <string name="unified_view">Birleşik</string>
+    <string name="side_by_side_view">Yan Yana</string>
+    <string name="diff_stats">+%d eklendi | -%d silindi | %d değişmedi</string>
+    <string name="diff_codes_required">Lütfen karşılaştırılacak kod girin</string>
+    
+    <!-- FAVORITES CENTER STRING'LERİ -->
+    <string name="favorites_center_title">⭐ Favorilerim</string>
+    <string name="favorites_center_menu">Favoriler</string>
+    <string name="all_favorites">Tümü</string>
+    <string name="snippets">Snippets</string>
+    <string name="templates">Şablonlar</string>
+    <string name="total_favorites">%d favori</string>
+    <string name="no_favorites">Henüz favori yok</string>
+    <string name="no_favorites_hint">Kod parçalarını ve şablonları\nfavorilere ekleyin</string>
+    <string name="type_snippet">Snippet</string>
+    <string name="type_template">Şablon</string>
+    
+    <!-- BOOKMARKS (YER İMLERİ) STRING'LERİ -->
+    <string name="bookmarks_title">🔖 Yer İmleri</string>
+    <string name="bookmarks_menu">Yer İmleri</string>
+    <string name="search_bookmarks">Yer imi ara...</string>
+    <string name="no_bookmarks">Henüz yer imi yok</string>
+    <string name="no_bookmarks_hint">AI yanıtlarını kaydedin\nve düzenleyin</string>
+    <string name="add_bookmark">Yer İmi Ekle</string>
+    <string name="edit_bookmark">Yer İmini Düzenle</string>
+    <string name="bookmark_saved">Yer imi kaydedildi ✓</string>
+    <string name="bookmark_deleted">Yer imi silindi</string>
+    <string name="bookmark_title_hint">Başlık</string>
+    <string name="bookmark_content_hint">İçerik</string>
+    <string name="bookmark_category_hint">Kategori (örn: Algoritmalar)</string>
+    <string name="bookmark_tags_hint">Etiketler (virgülle ayırın)</string>
+    <string name="bookmark_tags_helper">Örn: kotlin, android, recyclerview</string>
+    <string name="bookmark_title_content_required">Başlık ve içerik gerekli</string>
+    <string name="delete_bookmark_title">Yer İmini Sil</string>
+    <string name="delete_bookmark_confirm">"%s" yer imini silmek istediğinizden emin misiniz?</string>
+    <string name="close">Kapat</string>
+    
+    <!-- QUICK NOTES (HIZLI NOTLAR) STRING'LERİ -->
+    <string name="quick_notes_title">📝 Hızlı Notlar</string>
+    <string name="quick_notes_menu">Notlar</string>
+    <string name="search_notes">Not ara...</string>
+    <string name="no_notes">Henüz not yok</string>
+    <string name="no_notes_hint">Hızlı notlar ve kod parçaları\nekleyin</string>
+    <string name="add_note">Not Ekle</string>
+    <string name="edit_note">Notu Düzenle</string>
+    <string name="note_saved">Not kaydedildi ✓</string>
+    <string name="note_deleted">Not silindi</string>
+    <string name="note_pinned">Not sabitlendi</string>
+    <string name="note_unpinned">Not sabitleme kaldırıldı</string>
+    <string name="note_title_hint">Başlık (opsiyonel)</string>
+    <string name="note_content_hint">Notunuzu yazın...</string>
+    <string name="note_color_label">Renk</string>
+    <string name="note_content_required">Lütfen not içeriği girin</string>
+    <string name="delete_note_title">Notu Sil</string>
+    <string name="delete_note_confirm">"%s" notunu silmek istediğinizden emin misiniz?</string>
+    
+    <!-- CODE FORMATTER STRING'LERİ -->
+    <string name="code_formatter_title">🔧 Kod Formatlayıcı</string>
+    <string name="code_formatter_menu">Kod Formatla</string>
+    <string name="input_code">Giriş Kodu</string>
+    <string name="code_input_hint">Formatlanacak kodu yapıştırın...</string>
+    <string name="format_code">Formatla</string>
+    <string name="minify_code">Küçült</string>
+    <string name="output_empty">Çıktı boş</string>
+    
+    <!-- THEME MANAGER STRING'LERİ -->
+    <string name="theme_manager_title">🎨 Tema Ayarları</string>
+    <string name="theme_manager_menu">Tema Ayarları</string>
+    <string name="theme_mode_label">Tema Modu</string>
+    <string name="theme_light">☀️ Aydınlık Tema</string>
+    <string name="theme_dark">🌙 Karanlık Tema</string>
+    <string name="theme_system">📱 Sistem Ayarına Göre</string>
+    <string name="accent_color_label">Vurgu Rengi</string>
+    <string name="primary_color_label">Ana Renk</string>
+    <string name="font_size_label">Yazı Boyutu</string>
+    <string name="font_size_small">Küçük</string>
+    <string name="font_size_normal">Normal</string>
+    <string name="font_size_large">Büyük</string>
+    <string name="preview_label">Önizleme</string>
+    <string name="preview_text">AI Kod Asistanı Önizleme</string>
+    <string name="save_theme">Kaydet</string>
+    <string name="reset_theme">Sıfırla</string>
+    <string name="theme_saved">Tema ayarları kaydedildi ✓</string>
+    <string name="theme_reset">Tema varsayılanlara döndürüldü</string>
+    
+    <!-- PROJECT MANAGER STRING'LERİ -->
+    <string name="project_manager_title">📂 Projeler</string>
+    <string name="project_manager_menu">Projeler</string>
+    <string name="no_projects">Henüz proje yok</string>
+    <string name="no_projects_hint">Kod projelerinizi organize edin\nve yönetin</string>
+    <string name="add_project">Proje Ekle</string>
+    <string name="edit_project">Projeyi Düzenle</string>
+    <string name="project_name_hint">Proje Adı</string>
+    <string name="project_description_hint">Proje Açıklaması (opsiyonel)</string>
+    <string name="project_language_label">Programlama Dili</string>
+    <string name="project_color_label">Proje Rengi</string>
+    <string name="project_saved">Proje kaydedildi ✓</string>
+    <string name="project_deleted">Proje silindi</string>
+    <string name="project_name_required">Lütfen proje adı girin</string>
+    <string name="delete_project_title">Projeyi Sil</string>
+    <string name="delete_project_confirm">"%s" projesini silmek istediğinizden emin misiniz?</string>
+    <string name="no_description">Açıklama yok</string>
+    
+    <!-- REMINDERS STRING'LERİ -->
+    <string name="reminders_title">🔔 Hatırlatmalar</string>
+    <string name="reminders_menu">Hatırlatmalar</string>
+    <string name="no_reminders">Henüz hatırlatma yok</string>
+    <string name="no_reminders_hint">Kodlama hedefleriniz için\nhatırlatmalar ekleyin</string>
+    <string name="add_reminder">Hatırlatma Ekle</string>
+    <string name="edit_reminder">Hatırlatmayı Düzenle</string>
+    <string name="reminder_title_hint">Hatırlatma Başlığı</string>
+    <string name="reminder_description_hint">Açıklama (opsiyonel)</string>
+    <string name="reminder_time_label">Saat</string>
+    <string name="select_time">Saat Seç</string>
+    <string name="reminder_type_label">Tekrar Tipi</string>
+    <string name="reminder_type_daily">Günlük</string>
+    <string name="reminder_type_weekly">Haftalık</string>
+    <string name="reminder_type_once">Tek Seferlik</string>
+    <string name="reminder_days_label">Günler</string>
+    <string name="reminder_feature_label">Bağlı Özellik</string>
+    <string name="reminder_feature_none">Yok</string>
+    <string name="reminder_feature_challenge">Günlük Soru</string>
+    <string name="reminder_feature_learning">Öğrenme Merkezi</string>
+    <string name="reminder_feature_practice">Pratik Yap</string>
+    <string name="reminder_saved">Hatırlatma kaydedildi ✓</string>
+    <string name="reminder_deleted">Hatırlatma silindi</string>
+    <string name="reminder_title_required">Lütfen başlık girin</string>
+    <string name="delete_reminder_title">Hatırlatmayı Sil</string>
+    <string name="delete_reminder_confirm">"%s" hatırlatmasını silmek istediğinizden emin misiniz?</string>
+    
+    <!-- GIT HELPER STRING'LERİ -->
+    <string name="git_helper_title">🔀 Git Yardımcısı</string>
+    <string name="git_helper_menu">Git Yardımcısı</string>
+    <string name="git_search_hint">Komut ara...</string>
+    <string name="syntax">Sözdizimi</string>
+    <string name="description">Açıklama</string>
+    <string name="examples">Örnekler</string>
+    <string name="copy_command">Komutu Kopyala</string>
+    <string name="search">Ara</string>
+    <string name="copy">Kopyala</string>
+    
+    <!-- ERROR ANALYZER STRING'LERİ -->
+    <string name="error_analyzer_title">🔍 Hata Analizi</string>
+    <string name="error_analyzer_menu">Hata Analizi</string>
+    <string name="select_language">Programlama Dili Seçin</string>
+    <string name="paste_error_message">Hata Mesajını Yapıştırın</string>
+    <string name="error_input_hint">Hata mesajını veya stack trace yapıştırın...</string>
+    <string name="analyze_error">🔍 Hatayı Analiz Et</string>
+    <string name="error_type">Hata Türü</string>
+    <string name="explanation">Açıklama</string>
+    <string name="solutions">Çözümler</string>
+    <string name="code_example">Kod Örneği</string>
+    <string name="copy_solution">Çözümü Kopyala</string>
+    <string name="common_errors">Yaygın Hatalar</string>
+    <string name="error_analyzer_empty_input">Lütfen bir hata mesajı girin</string>
+    
+    <!-- INTERVIEW PREP STRING'LERİ -->
+    <string name="interview_prep_title">💼 Mülakat Hazırlık</string>
+    <string name="interview_prep_menu">Mülakat Hazırlık</string>
+    <string name="interview_stats_format">%d soru | %d Kolay | %d Orta | %d Zor</string>
+    <string name="hints">İpuçları</string>
+    <string name="solution">Çözüm</string>
+    <string name="complexity">Karmaşıklık</string>
+    <string name="practice_in_playground">Playground\'da Pratik Yap</string>
+    
+    <!-- COMPLEXITY ANALYZER STRING'LERİ -->
+    <string name="complexity_analyzer_title">🧮 Karmaşıklık Analizi</string>
+    <string name="complexity_analyzer_menu">Karmaşıklık Analizi</string>
+    <string name="time_complexity">Zaman Karmaşıklığı</string>
+    <string name="space_complexity">Alan Karmaşıklığı</string>
+    <string name="analyze_complexity">Karmaşıklığı Analiz Et</string>
+    <string name="example_algorithms">Örnek Algoritmalar</string>
+    
+    <!-- CODE QUIZ STRING'LERİ -->
+    <string name="code_quiz_title">🎮 Kod Quiz</string>
+    <string name="code_quiz_menu">Kod Quiz</string>
+    <string name="correct_answers">Doğru</string>
+    <string name="total_answered">Toplam</string>
+    <string name="current_streak">Seri</string>
+    <string name="quiz_explanation">Açıklama</string>
+    <string name="your_answer">Senin cevabın</string>
+    <string name="correct_answer">Doğru cevap</string>
+    
+    <!-- KEYBOARD SHORTCUTS STRING'LERİ -->
+    <string name="keyboard_shortcuts_title">⌨️ Klavye Kısayolları</string>
+    <string name="keyboard_shortcuts_menu">Kısayollar</string>
+    <string name="search_shortcuts">Kısayol ara...</string>
+    <string name="shortcut_copied">Kopyalandı</string>
+    
+    <!-- PASSWORD GENERATOR STRING'LERİ -->
+    <string name="password_generator_title">🔐 Şifre Üretici</string>
+    <string name="password_generator_menu">Şifre Üretici</string>
+    <string name="password_length">Uzunluk</string>
+    <string name="include_uppercase">Büyük Harfler (A-Z)</string>
+    <string name="include_lowercase">Küçük Harfler (a-z)</string>
+    <string name="include_numbers">Rakamlar (0-9)</string>
+    <string name="include_symbols">Semboller (!@#$%...)</string>
+    <string name="avoid_ambiguous">Karışan karakterlerden kaçın</string>
+    <string name="password_strength">Şifre Gücü</string>
+    <string name="strength_weak">Zayıf</string>
+    <string name="strength_medium">Orta</string>
+    <string name="strength_strong">Güçlü</string>
+    <string name="strength_very_strong">Çok Güçlü</string>
+    <string name="generate_password">Şifre Üret</string>
+    <string name="password_history">Son Şifreler</string>
+    
+    <!-- TIMESTAMP CONVERTER STRING'LERİ -->
+    <string name="timestamp_converter_title">⏱️ Zaman Dönüştürücü</string>
+    <string name="timestamp_converter_menu">Zaman Dönüştürücü</string>
+    <string name="current_timestamp">Şu Anki Zaman</string>
+    <string name="timestamp_to_date">Timestamp → Tarih</string>
+    <string name="date_to_timestamp">Tarih → Timestamp</string>
+    <string name="enter_timestamp">Unix timestamp girin...</string>
+    <string name="pick_date_time">Tarih ve Saat Seç</string>
+    <string name="all_formats">Tüm Formatlar</string>
+    
+    <!-- COLOR PALETTE STRING'LERİ -->
+    <string name="color_palette_title">🎨 Renk Paleti</string>
+    <string name="color_palette_menu">Renk Paleti</string>
+    <string name="color_preview">Renk Önizleme</string>
+    <string name="rgb_sliders">RGB Ayarları</string>
+    <string name="palette_generator">Palet Oluşturucu</string>
+    <string name="preset_colors">Hazır Renkler</string>
+    <string name="complementary">Tamamlayıcı</string>
+    <string name="analogous">Benzer</string>
+    <string name="triadic">Üçlü</string>
+    <string name="split_complementary">Bölünmüş Tamamlayıcı</string>
+    <string name="tetradic">Dörtlü</string>
+    <string name="monochromatic">Tek Renk</string>
+    <string name="copy_hex">HEX Kopyala</string>
+    <string name="copy_rgb">RGB Kopyala</string>
+    <string name="generate_palette">Palet Oluştur</string>
+    
+    <!-- UNIT CONVERTER STRING'LERİ -->
+    <string name="unit_converter">📐 Birim Dönüştürücü</string>
+    <string name="unit_converter_menu">Birim Dönüştürücü</string>
+    <string name="select_category">Kategori Seçin</string>
+    <string name="unit_length">Uzunluk</string>
+    <string name="unit_weight">Ağırlık</string>
+    <string name="unit_temperature">Sıcaklık</string>
+    <string name="unit_speed">Hız</string>
+    <string name="unit_data">Veri</string>
+    <string name="unit_area">Alan</string>
+    <string name="unit_volume">Hacim</string>
+    <string name="unit_time">Zaman</string>
+    <string name="from_unit">Kaynak Birim</string>
+    <string name="to_unit">Hedef Birim</string>
+    <string name="enter_value">Değer girin</string>
+    <string name="swap">Değiştir</string>
+    
+    <!-- NUMBER BASE CONVERTER STRING'LERİ -->
+    <string name="number_base_converter">🔢 Sayı Tabanı Dönüştürücü</string>
+    <string name="number_base_converter_menu">Sayı Tabanı</string>
+    <string name="input_base">Giriş Tabanı</string>
+    <string name="enter_number">Sayı girin</string>
+    <string name="conversion_results">Dönüşüm Sonuçları</string>
+    <string name="invalid_number_format">Geçersiz sayı formatı</string>
+    
+    <!-- LOREM IPSUM GENERATOR STRING'LERİ -->
+    <string name="lorem_ipsum_generator">📝 Lorem Ipsum</string>
+    <string name="lorem_ipsum_menu">Lorem Ipsum</string>
+    <string name="generation_type">Üretim Tipi</string>
+    <string name="lorem_paragraphs">Paragraf</string>
+    <string name="lorem_sentences">Cümle</string>
+    <string name="lorem_words">Kelime</string>
+    <string name="generate">Oluştur</string>
+    <string name="output">Çıktı</string>
+    <string name="lorem_placeholder">Lorem ipsum metni burada görünecek...</string>
+    
+    <!-- QR CODE GENERATOR STRING'LERİ -->
+    <string name="qr_code_generator">📱 QR Kod Üretici</string>
+    <string name="qr_code_menu">QR Kod</string>
+    <string name="qr_input">Metin veya URL</string>
+    <string name="qr_input_hint">QR koda dönüştürülecek metni girin...</string>
+    <string name="qr_templates">Hızlı Şablonlar</string>
+    <string name="qr_size">QR Boyutu</string>
+    <string name="generate_qr">QR Kod Oluştur</string>
+    <string name="qr_result">QR Kod</string>
+    <string name="qr_code">QR Kod</string>
+    <string name="share_qr">QR Kodu Paylaş</string>
+    <string name="qr_saved">QR Kod kaydedildi: %s</string>
+    <string name="qr_generated">QR Kod oluşturuldu!</string>
+    <string name="qr_generation_error">QR Kod oluşturma hatası</string>
+    <string name="enter_text_for_qr">Lütfen metin girin</string>
+    <string name="save">Kaydet</string>
+    <string name="save_error">Kaydetme hatası</string>
+    
+    <!-- UUID GENERATOR STRING'LERİ -->
+    <string name="uuid_generator">🔑 UUID Üretici</string>
+    <string name="uuid_menu">UUID</string>
+    <string name="uuid_format">Format</string>
+    <string name="uuid_count">Adet</string>
+    <string name="generate_uuid">UUID Oluştur</string>
+    <string name="uuid_generated">%d UUID oluşturuldu</string>
+    <string name="copy_all">Tümünü Kopyala</string>
+    <string name="clear">Temizle</string>
+    
+    <!-- MARKDOWN PREVIEW STRING'LERİ -->
+    <string name="markdown_preview">📝 Markdown Önizleme</string>
+    <string name="markdown_menu">Markdown</string>
+    <string name="editor">Düzenleyici</string>
+    <string name="preview">Önizleme</string>
+    <string name="markdown_input">Markdown metni girin...</string>
+    <string name="copy_html">HTML Kopyala</string>
+    
+    <!-- SQL QUERY BUILDER STRING'LERİ -->
+    <string name="sql_query_builder">🗃️ SQL Sorgu Oluşturucu</string>
+    <string name="sql_menu">SQL Oluşturucu</string>
+    <string name="query_type">Sorgu Tipi</string>
+    <string name="table_name">Tablo Adı</string>
+    <string name="table_name_hint">users, products, orders...</string>
+    <string name="table_name_required">Tablo adı gerekli</string>
+    <string name="columns">Sütunlar</string>
+    <string name="columns_hint">* veya: id, name, email</string>
+    <string name="where_clause">WHERE Koşulu</string>
+    <string name="where_hint">id = 1 AND status = \'active\'</string>
+    <string name="order_by">ORDER BY</string>
+    <string name="order_by_hint">created_at DESC</string>
+    <string name="limit">LIMIT</string>
+    <string name="limit_hint">10</string>
+    <string name="values">VALUES</string>
+    <string name="values_hint">\'John\', \'john@example.com\', 25</string>
+    <string name="set_clause">SET</string>
+    <string name="set_hint">name = \'Jane\', age = 30</string>
+    <string name="generated_query">Oluşturulan Sorgu</string>
+    
+    <!-- CRON HELPER STRING'LERİ -->
+    <string name="cron_helper">⏰ Cron Yardımcısı</string>
+    <string name="cron_menu">Cron</string>
+    <string name="cron_builder">Cron İfade Oluşturucu</string>
+    <string name="minute">Dakika</string>
+    <string name="hour">Saat</string>
+    <string name="day">Gün</string>
+    <string name="month">Ay</string>
+    <string name="weekday">Hafta Günü</string>
+    <string name="cron_expression">Cron İfadesi</string>
+    <string name="human_readable">Açıklama</string>
+    <string name="presets">Hazır Şablonlar</string>
+    <string name="syntax_reference">Sözdizimi Referansı</string>
+    <string name="cron_syntax_help">* = her değer\n*/n = her n birimde\nn = belirli değer\nn,m = n ve m değerleri\nn-m = n ile m arası\n\nDakika: 0-59\nSaat: 0-23\nGün: 1-31\nAy: 1-12\nHafta: 0-6 (0=Pazar)</string>
+    
+    <!-- HTTP STATUS CODES STRING'LERİ -->
+    <string name="http_status_codes">🌐 HTTP Durum Kodları</string>
+    <string name="http_menu">HTTP Kodları</string>
+    <string name="search_status_code">Kod veya açıklama ara...</string>
+    
+    <!-- REGEX PATTERNS STRING'LERİ -->
+    <string name="regex_patterns_title">Regex Kütüphanesi</string>
+    <string name="regex_menu">Regex Kütüphanesi</string>
+    
+    <!-- CSS LAYOUT GUIDE STRING'LERİ -->
+    <string name="css_layout_guide_title">CSS Layout Rehberi</string>
+    <string name="css_menu">CSS Rehberi</string>
+    
+    <!-- DESIGN PATTERNS STRING'LERİ -->
+    <string name="design_patterns_title">Tasarım Kalıpları</string>
+    <string name="design_patterns_menu">Tasarım Kalıpları</string>
+    
+    <!-- SOLID PRINCIPLES STRING'LERİ -->
+    <string name="solid_principles_title">SOLID Prensipleri</string>
+    <string name="solid_principles_menu">SOLID Prensipleri</string>
+    
+    <!-- CLEAN ARCHITECTURE STRING'LERİ -->
+    <string name="clean_architecture_title">Clean Architecture</string>
+    <string name="clean_architecture_menu">Clean Architecture</string>
+    
+    <!-- CODE REVIEW CHECKLIST STRING'LERİ -->
+    <string name="code_review_checklist_title">Kod İnceleme Listesi</string>
+    <string name="code_review_checklist_menu">Kod İnceleme</string>
+    
 </resources>

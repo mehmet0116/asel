@@ -9,6 +9,170 @@
             android:icon="@drawable/ic_history"
             android:title="Oturumlar" />
         <item
+            android:id="@+id/nav_snippets"
+            android:icon="@drawable/ic_code"
+            android:title="Kod Parçaları" />
+        <item
+            android:id="@+id/nav_dev_tools"
+            android:icon="@drawable/ic_tools"
+            android:title="Araçlar" />
+        <item
+            android:id="@+id/nav_playground"
+            android:icon="@drawable/ic_play"
+            android:title="Kod Çalıştır" />
+        <item
+            android:id="@+id/nav_export"
+            android:icon="@drawable/ic_export"
+            android:title="Sohbeti Dışa Aktar" />
+        <item
+            android:id="@+id/nav_daily_challenge"
+            android:icon="@drawable/ic_challenge"
+            android:title="Günlük Soru" />
+        <item
+            android:id="@+id/nav_learning_hub"
+            android:icon="@drawable/ic_learn"
+            android:title="Öğren" />
+        <item
+            android:id="@+id/nav_templates"
+            android:icon="@drawable/ic_templates"
+            android:title="Şablonlar" />
+        <item
+            android:id="@+id/nav_statistics"
+            android:icon="@drawable/ic_statistics"
+            android:title="İstatistikler" />
+        <item
+            android:id="@+id/nav_api_tester"
+            android:icon="@drawable/ic_api"
+            android:title="API Test" />
+        <item
+            android:id="@+id/nav_code_diff"
+            android:icon="@drawable/ic_diff"
+            android:title="Kod Karşılaştır" />
+        <item
+            android:id="@+id/nav_favorites"
+            android:icon="@drawable/ic_favorite"
+            android:title="Favoriler" />
+        <item
+            android:id="@+id/nav_bookmarks"
+            android:icon="@drawable/ic_bookmark"
+            android:title="Yer İmleri" />
+        <item
+            android:id="@+id/nav_quick_notes"
+            android:icon="@drawable/ic_notes"
+            android:title="Notlar" />
+        <item
+            android:id="@+id/nav_code_formatter"
+            android:icon="@drawable/ic_format_code"
+            android:title="Kod Formatla" />
+        <item
+            android:id="@+id/nav_theme_manager"
+            android:icon="@drawable/ic_theme"
+            android:title="Tema Ayarları" />
+        <item
+            android:id="@+id/nav_project_manager"
+            android:icon="@drawable/ic_project"
+            android:title="Projeler" />
+        <item
+            android:id="@+id/nav_reminders"
+            android:icon="@drawable/ic_reminder"
+            android:title="Hatırlatmalar" />
+        <item
+            android:id="@+id/nav_git_helper"
+            android:icon="@drawable/ic_git"
+            android:title="Git Yardımcısı" />
+        <item
+            android:id="@+id/nav_error_analyzer"
+            android:icon="@drawable/ic_error_outline"
+            android:title="Hata Analizi" />
+        <item
+            android:id="@+id/nav_interview_prep"
+            android:icon="@drawable/ic_interview"
+            android:title="Mülakat Hazırlık" />
+        <item
+            android:id="@+id/nav_complexity_analyzer"
+            android:icon="@drawable/ic_complexity"
+            android:title="Karmaşıklık Analizi" />
+        <item
+            android:id="@+id/nav_code_quiz"
+            android:icon="@drawable/ic_quiz"
+            android:title="Kod Quiz" />
+        <item
+            android:id="@+id/nav_keyboard_shortcuts"
+            android:icon="@drawable/ic_keyboard"
+            android:title="Kısayollar" />
+        <item
+            android:id="@+id/nav_password_generator"
+            android:icon="@drawable/ic_password"
+            android:title="Şifre Üretici" />
+        <item
+            android:id="@+id/nav_timestamp_converter"
+            android:icon="@drawable/ic_time"
+            android:title="Zaman Dönüştürücü" />
+        <item
+            android:id="@+id/nav_color_palette"
+            android:icon="@drawable/ic_palette"
+            android:title="Renk Paleti" />
+        <item
+            android:id="@+id/nav_unit_converter"
+            android:icon="@drawable/ic_unit"
+            android:title="Birim Dönüştürücü" />
+        <item
+            android:id="@+id/nav_number_base"
+            android:icon="@drawable/ic_binary"
+            android:title="Sayı Tabanı" />
+        <item
+            android:id="@+id/nav_lorem_ipsum"
+            android:icon="@drawable/ic_lorem"
+            android:title="Lorem Ipsum" />
+        <item
+            android:id="@+id/nav_qr_code"
+            android:icon="@drawable/ic_qr_code"
+            android:title="QR Kod" />
+        <item
+            android:id="@+id/nav_uuid"
+            android:icon="@drawable/ic_uuid"
+            android:title="UUID" />
+        <item
+            android:id="@+id/nav_markdown"
+            android:icon="@drawable/ic_markdown"
+            android:title="Markdown" />
+        <item
+            android:id="@+id/nav_sql_builder"
+            android:icon="@drawable/ic_sql"
+            android:title="SQL Oluşturucu" />
+        <item
+            android:id="@+id/nav_cron_helper"
+            android:icon="@drawable/ic_cron"
+            android:title="Cron" />
+        <item
+            android:id="@+id/nav_http_codes"
+            android:icon="@drawable/ic_http"
+            android:title="HTTP Kodları" />
+        <item
+            android:id="@+id/nav_regex_patterns"
+            android:icon="@drawable/ic_regex"
+            android:title="Regex Kütüphanesi" />
+        <item
+            android:id="@+id/nav_css_guide"
+            android:icon="@drawable/ic_css"
+            android:title="CSS Rehberi" />
+        <item
+            android:id="@+id/nav_design_patterns"
+            android:icon="@drawable/ic_design_pattern"
+            android:title="Tasarım Kalıpları" />
+        <item
+            android:id="@+id/nav_solid_principles"
+            android:icon="@drawable/ic_solid"
+            android:title="SOLID Prensipleri" />
+        <item
+            android:id="@+id/nav_clean_architecture"
+            android:icon="@drawable/ic_architecture"
+            android:title="Clean Architecture" />
+        <item
+            android:id="@+id/nav_code_review"
+            android:icon="@drawable/ic_checklist"
+            android:title="Kod İnceleme" />
+        <item
             android:id="@+id/nav_change_provider"
             android:icon="@drawable/ic_provider"
             android:title="Sağlayıcı Değiştir" />
