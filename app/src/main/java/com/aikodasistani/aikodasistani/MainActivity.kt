@@ -1386,6 +1386,18 @@ class MainActivity : AppCompatActivity(),
                     val intent = Intent(this, FavoritesCenterActivity::class.java)
                     startActivity(intent)
                 }
+                R.id.nav_bookmarks -> {
+                    val intent = Intent(this, BookmarksActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_quick_notes -> {
+                    val intent = Intent(this, QuickNotesActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_code_formatter -> {
+                    val intent = Intent(this, CodeFormatterActivity::class.java)
+                    startActivity(intent)
+                }
                 R.id.nav_change_provider -> showProviderSelectionDialog()
                 R.id.nav_change_model -> showModelSelectionDialog()
                 R.id.nav_new_chat -> showNewChatConfirmation()

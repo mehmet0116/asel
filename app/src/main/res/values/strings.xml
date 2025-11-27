@@ -411,4 +411,52 @@
     <string name="no_favorites_hint">Kod parçalarını ve şablonları\nfavorilere ekleyin</string>
     <string name="type_snippet">Snippet</string>
     <string name="type_template">Şablon</string>
+    
+    <!-- BOOKMARKS (YER İMLERİ) STRING'LERİ -->
+    <string name="bookmarks_title">🔖 Yer İmleri</string>
+    <string name="bookmarks_menu">Yer İmleri</string>
+    <string name="search_bookmarks">Yer imi ara...</string>
+    <string name="no_bookmarks">Henüz yer imi yok</string>
+    <string name="no_bookmarks_hint">AI yanıtlarını kaydedin\nve düzenleyin</string>
+    <string name="add_bookmark">Yer İmi Ekle</string>
+    <string name="edit_bookmark">Yer İmini Düzenle</string>
+    <string name="bookmark_saved">Yer imi kaydedildi ✓</string>
+    <string name="bookmark_deleted">Yer imi silindi</string>
+    <string name="bookmark_title_hint">Başlık</string>
+    <string name="bookmark_content_hint">İçerik</string>
+    <string name="bookmark_category_hint">Kategori (örn: Algoritmalar)</string>
+    <string name="bookmark_tags_hint">Etiketler (virgülle ayırın)</string>
+    <string name="bookmark_tags_helper">Örn: kotlin, android, recyclerview</string>
+    <string name="bookmark_title_content_required">Başlık ve içerik gerekli</string>
+    <string name="delete_bookmark_title">Yer İmini Sil</string>
+    <string name="delete_bookmark_confirm">"%s" yer imini silmek istediğinizden emin misiniz?</string>
+    <string name="close">Kapat</string>
+    
+    <!-- QUICK NOTES (HIZLI NOTLAR) STRING'LERİ -->
+    <string name="quick_notes_title">📝 Hızlı Notlar</string>
+    <string name="quick_notes_menu">Notlar</string>
+    <string name="search_notes">Not ara...</string>
+    <string name="no_notes">Henüz not yok</string>
+    <string name="no_notes_hint">Hızlı notlar ve kod parçaları\nekleyin</string>
+    <string name="add_note">Not Ekle</string>
+    <string name="edit_note">Notu Düzenle</string>
+    <string name="note_saved">Not kaydedildi ✓</string>
+    <string name="note_deleted">Not silindi</string>
+    <string name="note_pinned">Not sabitlendi</string>
+    <string name="note_unpinned">Not sabitleme kaldırıldı</string>
+    <string name="note_title_hint">Başlık (opsiyonel)</string>
+    <string name="note_content_hint">Notunuzu yazın...</string>
+    <string name="note_color_label">Renk</string>
+    <string name="note_content_required">Lütfen not içeriği girin</string>
+    <string name="delete_note_title">Notu Sil</string>
+    <string name="delete_note_confirm">"%s" notunu silmek istediğinizden emin misiniz?</string>
+    
+    <!-- CODE FORMATTER STRING'LERİ -->
+    <string name="code_formatter_title">🔧 Kod Formatlayıcı</string>
+    <string name="code_formatter_menu">Kod Formatla</string>
+    <string name="input_code">Giriş Kodu</string>
+    <string name="code_input_hint">Formatlanacak kodu yapıştırın...</string>
+    <string name="format_code">Formatla</string>
+    <string name="minify_code">Küçült</string>
+    <string name="output_empty">Çıktı boş</string>
 </resources>

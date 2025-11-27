@@ -112,6 +112,21 @@
             android:name=".FavoritesCenterActivity"
             android:label="@string/favorites_center_title" />
 
+        <!-- Yer İmleri Aktivitesi -->
+        <activity 
+            android:name=".BookmarksActivity"
+            android:label="@string/bookmarks_title" />
+
+        <!-- Hızlı Notlar Aktivitesi -->
+        <activity 
+            android:name=".QuickNotesActivity"
+            android:label="@string/quick_notes_title" />
+
+        <!-- Kod Formatlayıcı Aktivitesi -->
+        <activity 
+            android:name=".CodeFormatterActivity"
+            android:label="@string/code_formatter_title" />
+
         <!-- Ana Ekran Widget'ı -->
         <receiver
             android:name=".widget.QuickActionWidgetProvider"

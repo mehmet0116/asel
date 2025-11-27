@@ -8,8 +8,8 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import android.content.Context
 
 @Database(
-    entities = [Session::class, ArchivedMessage::class, Snippet::class, CodingChallenge::class, Lesson::class, CodeTemplate::class, UsageStats::class],
-    version = 6,
+    entities = [Session::class, ArchivedMessage::class, Snippet::class, CodingChallenge::class, Lesson::class, CodeTemplate::class, UsageStats::class, Bookmark::class, QuickNote::class],
+    version = 8,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -19,6 +19,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun lessonDao(): LessonDao
     abstract fun codeTemplateDao(): CodeTemplateDao
     abstract fun usageStatsDao(): UsageStatsDao
+    abstract fun bookmarkDao(): BookmarkDao
+    abstract fun quickNoteDao(): QuickNoteDao
 
     companion object {
         @Volatile
@@ -140,6 +142,42 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // Migration from version 6 to 7 - adds bookmarks table
+        private val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS bookmarks (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        title TEXT NOT NULL,
+                        content TEXT NOT NULL,
+                        category TEXT NOT NULL DEFAULT 'Genel',
+                        tags TEXT NOT NULL DEFAULT '',
+                        createdAt INTEGER NOT NULL,
+                        sessionId INTEGER NOT NULL DEFAULT -1,
+                        messageId INTEGER NOT NULL DEFAULT -1
+                    )
+                """.trimIndent())
+            }
+        }
+
+        // Migration from version 7 to 8 - adds quick_notes table
+        private val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS quick_notes (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        title TEXT NOT NULL,
+                        content TEXT NOT NULL,
+                        language TEXT,
+                        color TEXT NOT NULL DEFAULT '#FFFFFF',
+                        isPinned INTEGER NOT NULL DEFAULT 0,
+                        createdAt INTEGER NOT NULL,
+                        updatedAt INTEGER NOT NULL
+                    )
+                """.trimIndent())
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -147,7 +185,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "aiko_database"
                 )
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
                 .build()
                 INSTANCE = instance
                 instance

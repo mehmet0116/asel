@@ -53,6 +53,18 @@
             android:icon="@drawable/ic_favorite"
             android:title="Favoriler" />
         <item
+            android:id="@+id/nav_bookmarks"
+            android:icon="@drawable/ic_bookmark"
+            android:title="Yer İmleri" />
+        <item
+            android:id="@+id/nav_quick_notes"
+            android:icon="@drawable/ic_notes"
+            android:title="Notlar" />
+        <item
+            android:id="@+id/nav_code_formatter"
+            android:icon="@drawable/ic_format_code"
+            android:title="Kod Formatla" />
+        <item
             android:id="@+id/nav_change_provider"
             android:icon="@drawable/ic_provider"
             android:title="Sağlayıcı Değiştir" />
