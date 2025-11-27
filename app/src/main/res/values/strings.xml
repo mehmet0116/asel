@@ -583,4 +583,48 @@
     <string name="keyboard_shortcuts_menu">Kısayollar</string>
     <string name="search_shortcuts">Kısayol ara...</string>
     <string name="shortcut_copied">Kopyalandı</string>
+    
+    <!-- PASSWORD GENERATOR STRING'LERİ -->
+    <string name="password_generator_title">🔐 Şifre Üretici</string>
+    <string name="password_generator_menu">Şifre Üretici</string>
+    <string name="password_length">Uzunluk</string>
+    <string name="include_uppercase">Büyük Harfler (A-Z)</string>
+    <string name="include_lowercase">Küçük Harfler (a-z)</string>
+    <string name="include_numbers">Rakamlar (0-9)</string>
+    <string name="include_symbols">Semboller (!@#$%...)</string>
+    <string name="avoid_ambiguous">Karışan karakterlerden kaçın</string>
+    <string name="password_strength">Şifre Gücü</string>
+    <string name="strength_weak">Zayıf</string>
+    <string name="strength_medium">Orta</string>
+    <string name="strength_strong">Güçlü</string>
+    <string name="strength_very_strong">Çok Güçlü</string>
+    <string name="generate_password">Şifre Üret</string>
+    <string name="password_history">Son Şifreler</string>
+    
+    <!-- TIMESTAMP CONVERTER STRING'LERİ -->
+    <string name="timestamp_converter_title">⏱️ Zaman Dönüştürücü</string>
+    <string name="timestamp_converter_menu">Zaman Dönüştürücü</string>
+    <string name="current_timestamp">Şu Anki Zaman</string>
+    <string name="timestamp_to_date">Timestamp → Tarih</string>
+    <string name="date_to_timestamp">Tarih → Timestamp</string>
+    <string name="enter_timestamp">Unix timestamp girin...</string>
+    <string name="pick_date_time">Tarih ve Saat Seç</string>
+    <string name="all_formats">Tüm Formatlar</string>
+    
+    <!-- COLOR PALETTE STRING'LERİ -->
+    <string name="color_palette_title">🎨 Renk Paleti</string>
+    <string name="color_palette_menu">Renk Paleti</string>
+    <string name="color_preview">Renk Önizleme</string>
+    <string name="rgb_sliders">RGB Ayarları</string>
+    <string name="palette_generator">Palet Oluşturucu</string>
+    <string name="preset_colors">Hazır Renkler</string>
+    <string name="complementary">Tamamlayıcı</string>
+    <string name="analogous">Benzer</string>
+    <string name="triadic">Üçlü</string>
+    <string name="split_complementary">Bölünmüş Tamamlayıcı</string>
+    <string name="tetradic">Dörtlü</string>
+    <string name="monochromatic">Tek Renk</string>
+    <string name="copy_hex">HEX Kopyala</string>
+    <string name="copy_rgb">RGB Kopyala</string>
+    <string name="generate_palette">Palet Oluştur</string>
 </resources>

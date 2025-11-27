@@ -1434,6 +1434,18 @@ class MainActivity : AppCompatActivity(),
                     val intent = Intent(this, KeyboardShortcutsActivity::class.java)
                     startActivity(intent)
                 }
+                R.id.nav_password_generator -> {
+                    val intent = Intent(this, PasswordGeneratorActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_timestamp_converter -> {
+                    val intent = Intent(this, TimestampConverterActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_color_palette -> {
+                    val intent = Intent(this, ColorPaletteActivity::class.java)
+                    startActivity(intent)
+                }
                 R.id.nav_change_provider -> showProviderSelectionDialog()
                 R.id.nav_change_model -> showModelSelectionDialog()
                 R.id.nav_new_chat -> showNewChatConfirmation()

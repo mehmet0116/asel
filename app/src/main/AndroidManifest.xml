@@ -172,6 +172,21 @@
             android:name=".KeyboardShortcutsActivity"
             android:label="@string/keyboard_shortcuts_title" />
 
+        <!-- Şifre Üretici Aktivitesi -->
+        <activity 
+            android:name=".PasswordGeneratorActivity"
+            android:label="@string/password_generator_title" />
+
+        <!-- Timestamp Dönüştürücü Aktivitesi -->
+        <activity 
+            android:name=".TimestampConverterActivity"
+            android:label="@string/timestamp_converter_title" />
+
+        <!-- Renk Paleti Aktivitesi -->
+        <activity 
+            android:name=".ColorPaletteActivity"
+            android:label="@string/color_palette_title" />
+
         <!-- Hatırlatma Alıcısı -->
         <receiver
             android:name=".ReminderReceiver"
