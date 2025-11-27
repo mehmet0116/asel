@@ -1325,6 +1325,7 @@ class MainActivity : AppCompatActivity(),
                     val intent = Intent(this, CodePlaygroundActivity::class.java)
                     startActivity(intent)
                 }
+                R.id.nav_export -> showExportDialog()
                 R.id.nav_change_provider -> showProviderSelectionDialog()
                 R.id.nav_change_model -> showModelSelectionDialog()
                 R.id.nav_new_chat -> showNewChatConfirmation()
@@ -1337,6 +1338,66 @@ class MainActivity : AppCompatActivity(),
             Log.e("MainActivity", "Navigation hatası", e)
             return false
         }
+    }
+    
+    // ==================== EXPORT FUNCTIONS ====================
+    
+    private fun showExportDialog() {
+        if (messageList.isEmpty()) {
+            Toast.makeText(this, "Dışa aktarılacak mesaj yok", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_export_chat, null)
+        val rbMarkdown = dialogView.findViewById<android.widget.RadioButton>(R.id.rbMarkdown)
+        val rbPdf = dialogView.findViewById<android.widget.RadioButton>(R.id.rbPdf)
+        val rbText = dialogView.findViewById<android.widget.RadioButton>(R.id.rbText)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
+        val btnExport = dialogView.findViewById<Button>(R.id.btnExport)
+        
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+        
+        btnCancel.setOnClickListener { dialog.dismiss() }
+        
+        btnExport.setOnClickListener {
+            val result = when {
+                rbMarkdown.isChecked -> com.aikodasistani.aikodasistani.util.ChatExportUtil.exportToMarkdown(
+                    this,
+                    messageList,
+                    "AI_Kod_Asistani"
+                )
+                rbPdf.isChecked -> com.aikodasistani.aikodasistani.util.ChatExportUtil.exportToPdf(
+                    this,
+                    messageList,
+                    "AI_Kod_Asistani"
+                )
+                else -> com.aikodasistani.aikodasistani.util.ChatExportUtil.exportToText(
+                    this,
+                    messageList,
+                    "AI_Kod_Asistani"
+                )
+            }
+            
+            dialog.dismiss()
+            
+            if (result.success && result.filePath != null) {
+                // Show success dialog with share option
+                AlertDialog.Builder(this)
+                    .setTitle(R.string.export_success)
+                    .setMessage(result.message)
+                    .setPositiveButton(R.string.share_exported_file) { _, _ ->
+                        com.aikodasistani.aikodasistani.util.ChatExportUtil.shareFile(this, result.filePath)
+                    }
+                    .setNegativeButton(R.string.cancel, null)
+                    .show()
+            } else {
+                Toast.makeText(this, result.message, Toast.LENGTH_LONG).show()
+            }
+        }
+        
+        dialog.show()
     }
 
     private fun readContentFromUri(uri: Uri, isImage: Boolean) {

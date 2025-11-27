@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/export_chat_title"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="?attr/colorOnSurface" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/export_chat_subtitle"
+        android:textSize="14sp"
+        android:textColor="?attr/colorOnSurface"
+        android:alpha="0.7" />
+
+    <RadioGroup
+        android:id="@+id/exportFormatGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:id="@+id/rbMarkdown"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/export_format_markdown"
+            android:checked="true"
+            android:paddingStart="8dp"
+            android:paddingVertical="8dp" />
+
+        <RadioButton
+            android:id="@+id/rbPdf"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/export_format_pdf"
+            android:paddingStart="8dp"
+            android:paddingVertical="8dp" />
+
+        <RadioButton
+            android:id="@+id/rbText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/export_format_text"
+            android:paddingStart="8dp"
+            android:paddingVertical="8dp" />
+
+    </RadioGroup>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="end"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnCancel"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cancel" />
+
+        <Button
+            android:id="@+id/btnExport"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/export_button" />
+
+    </LinearLayout>
+
+</LinearLayout>

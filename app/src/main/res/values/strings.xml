@@ -273,4 +273,17 @@
     <string name="clear">Temizle</string>
     <string name="enter_code">Lütfen kod girin</string>
     <string name="code_execution_error">Kod çalıştırılırken hata oluştu</string>
+    
+    <!-- EXPORT (DIŞA AKTARMA) STRING'LERİ -->
+    <string name="export_chat_title">📤 Sohbeti Dışa Aktar</string>
+    <string name="export_chat_subtitle">Sohbeti farklı formatlarda kaydedin</string>
+    <string name="export_format_markdown">📝 Markdown (.md)</string>
+    <string name="export_format_pdf">📄 PDF (.pdf)</string>
+    <string name="export_format_text">📃 Düz Metin (.txt)</string>
+    <string name="export_button">Dışa Aktar</string>
+    <string name="export_success">Dosya başarıyla oluşturuldu</string>
+    <string name="export_error">Dışa aktarma hatası</string>
+    <string name="share_exported_file">Paylaş</string>
+    <string name="open_exported_file">Aç</string>
+    <string name="export_menu">Dışa Aktar</string>
 </resources>
