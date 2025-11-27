@@ -661,7 +661,6 @@
     <string name="lorem_sentences">Cümle</string>
     <string name="lorem_words">Kelime</string>
     <string name="generate">Oluştur</string>
-    <string name="output">Çıktı</string>
     <string name="lorem_placeholder">Lorem ipsum metni burada görünecek...</string>
     
     <!-- QR CODE GENERATOR STRING'LERİ -->
@@ -690,7 +689,6 @@
     <string name="generate_uuid">UUID Oluştur</string>
     <string name="uuid_generated">%d UUID oluşturuldu</string>
     <string name="copy_all">Tümünü Kopyala</string>
-    <string name="clear">Temizle</string>
     
     <!-- MARKDOWN PREVIEW STRING'LERİ -->
     <string name="markdown_preview">📝 Markdown Önizleme</string>
