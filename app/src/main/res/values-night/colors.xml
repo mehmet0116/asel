@@ -1,5 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Legacy color aliases for drawable resources -->
+    <color name="colorPrimary">@color/primary_main</color>
+    <color name="colorPrimaryLight">@color/primary_light</color>
+    <color name="colorAccent">@color/accent_amber</color>
+    <color name="surface">@color/surface_primary</color>
+    <color name="surface_dark">@color/surface_elevated</color>
+    <color name="divider">@color/divider_color</color>
+    <color name="background">@color/background_primary</color>
+    <color name="background_dark">@color/background_secondary</color>
+    <color name="text_code">#FFFFFF</color>
+    <color name="accent_color">@color/accent_amber</color>
+    <color name="background_color">@color/background_primary</color>
+    <color name="card_background">@color/surface_elevated</color>
+    <color name="code_text">@color/text_code</color>
+    <color name="primary">@color/primary_main</color>
+    <color name="secondary">@color/secondary_main</color>
+    <color name="primary_color">@color/primary_main</color>
+    <color name="text_hint">@color/text_tertiary</color>
+    <color name="error_color">@color/error</color>
+
     <!-- DARK MODE COLOR PALETTE -->
     <!-- Primary Colors - Softer versions for dark mode -->
     <color name="primary_gradient_start">#7C3AED</color> <!-- Purple -->
