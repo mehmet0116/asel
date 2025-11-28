@@ -29,6 +29,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
+// Animation constants
+private const val STREAMING_DELAY_FAST_MS = 10L
+private const val STREAMING_DELAY_NORMAL_MS = 50L
+private const val SLIDE_ANIMATION_OFFSET_PX = -10
+
 /**
  * Code viewer component with syntax highlighting and streaming animation.
  * Displays code line-by-line with real-time progress tracking.
@@ -55,8 +60,8 @@ fun CodeViewer(
         if (isStreaming && playbackState != PlaybackState.PAUSED) {
             visibleLineCount = 0
             val delayMs = when (playbackState) {
-                PlaybackState.FAST_FORWARD -> 10L
-                else -> 50L
+                PlaybackState.FAST_FORWARD -> STREAMING_DELAY_FAST_MS
+                else -> STREAMING_DELAY_NORMAL_MS
             }
             
             for (i in lines.indices) {
@@ -201,7 +206,7 @@ private fun CodeLine(
     
     AnimatedVisibility(
         visible = true,
-        enter = if (isNewLine) fadeIn() + slideInVertically { -10 } else fadeIn(snap())
+        enter = if (isNewLine) fadeIn() + slideInVertically { SLIDE_ANIMATION_OFFSET_PX } else fadeIn(snap())
     ) {
         Row(
             modifier = Modifier.fillMaxWidth()

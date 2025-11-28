@@ -23,6 +23,11 @@ class CanvasVisualizationViewModel(
     private val parentViewModel: AIProjectGeneratorViewModel
 ) : ViewModel() {
     
+    companion object {
+        /** Maximum number of events to keep in the event log */
+        private const val MAX_EVENT_LOG_SIZE = 100
+    }
+    
     private val _visualState = MutableStateFlow(CanvasVisualizationState())
     val visualState: StateFlow<CanvasVisualizationState> = _visualState.asStateFlow()
     
@@ -415,8 +420,8 @@ class CanvasVisualizationViewModel(
         )
         val events = _visualState.value.eventLog.toMutableList()
         events.add(event)
-        // Keep only last 100 events
-        if (events.size > 100) {
+        // Keep only last MAX_EVENT_LOG_SIZE events
+        if (events.size > MAX_EVENT_LOG_SIZE) {
             events.removeAt(0)
         }
         updateState { it.copy(eventLog = events) }

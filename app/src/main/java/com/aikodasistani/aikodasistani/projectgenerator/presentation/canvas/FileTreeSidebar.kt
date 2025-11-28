@@ -22,6 +22,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+// Tree indentation per depth level
+private const val TREE_INDENT_DP = 16
+
 /**
  * File tree sidebar component for project structure visualization.
  * Shows hierarchical structure with clickable files and status indicators.
@@ -122,7 +125,7 @@ private fun FileTreeItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = (node.depth * 16).dp)
+            .padding(start = (node.depth * TREE_INDENT_DP).dp)
             .clip(RoundedCornerShape(4.dp))
             .background(backgroundColor)
             .clickable(onClick = onItemClick)
