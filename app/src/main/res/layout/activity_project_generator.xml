@@ -75,6 +75,77 @@
                         android:textSize="14sp"
                         android:textColor="?android:attr/textColorSecondary"
                         android:layout_marginTop="4dp" />
+                    
+                    <!-- AI Provider/Model Selection -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="12dp">
+                        
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginEnd="8dp">
+                            
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/ai_provider_label"
+                                android:textSize="12sp"
+                                android:textColor="?android:attr/textColorSecondary" />
+                            
+                            <Button
+                                android:id="@+id/btnSelectProvider"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textAllCaps="false"
+                                style="@style/Widget.MaterialComponents.Button.OutlinedButton">
+                                <requestFocus />
+                            </Button>
+                            
+                            <TextView
+                                android:id="@+id/tvSelectedProvider"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/not_selected"
+                                android:textSize="12sp"
+                                android:gravity="center"
+                                android:textColor="?android:attr/textColorSecondary" />
+                        </LinearLayout>
+                        
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/ai_model_label"
+                                android:textSize="12sp"
+                                android:textColor="?android:attr/textColorSecondary" />
+                            
+                            <Button
+                                android:id="@+id/btnSelectModel"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textAllCaps="false"
+                                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+                            
+                            <TextView
+                                android:id="@+id/tvSelectedModel"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/not_selected"
+                                android:textSize="12sp"
+                                android:gravity="center"
+                                android:textColor="?android:attr/textColorSecondary" />
+                        </LinearLayout>
+                    </LinearLayout>
 
                     <EditText
                         android:id="@+id/etNaturalLanguage"

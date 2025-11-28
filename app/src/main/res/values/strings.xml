@@ -770,5 +770,10 @@
     <string name="generate_project">🚀 Proje Oluştur</string>
     <string name="project_generated">Proje başarıyla oluşturuldu</string>
     <string name="project_generation_failed">Proje oluşturulamadı</string>
+    <string name="select_ai_provider">Select AI Provider</string>
+    <string name="select_ai_model">Select AI Model</string>
+    <string name="ai_provider_label">AI Provider</string>
+    <string name="ai_model_label">AI Model</string>
+    <string name="not_selected">Not selected</string>
     
 </resources>
