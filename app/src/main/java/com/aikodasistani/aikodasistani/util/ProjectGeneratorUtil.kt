@@ -5,7 +5,6 @@ import android.net.Uri
 import android.os.Environment
 import android.util.Log
 import androidx.core.content.FileProvider
-import com.aikodasistani.aikodasistani.models.OutputFormat
 import com.aikodasistani.aikodasistani.models.ProjectFileEntry
 import com.aikodasistani.aikodasistani.models.ProjectGenerationRequest
 import com.aikodasistani.aikodasistani.models.ProjectGenerationResult
@@ -14,12 +13,75 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
-import java.io.OutputStreamWriter
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
+/**
+ * Utility object for generating complete, build-ready, and IDE-compliant project scaffolds.
+ * 
+ * This generator ensures that all generated projects:
+ * - Are immediately buildable and runnable without manual modifications
+ * - Follow platform-specific conventions and best practices
+ * - Include all necessary configuration files, manifests, and resources
+ * - Are compatible with standard IDEs (Android Studio, VS Code, etc.)
+ */
 object ProjectGeneratorUtil {
     private const val TAG = "ProjectGeneratorUtil"
+
+    /**
+     * Naming style options for different project types.
+     */
+    private enum class NamingStyle {
+        PASCAL_CASE,    // MyProject - for class names
+        PACKAGE_SAFE,   // myproject - for package names
+        SNAKE_CASE,     // my_project - for Python/Flutter
+        KEBAB_CASE      // my-project - for Node.js/npm
+    }
+
+    /**
+     * Sanitizes a project name for use in different contexts.
+     * Ensures consistent naming across all project types.
+     * 
+     * @param name The raw project name
+     * @param style The naming style to apply
+     */
+    private fun sanitizeName(name: String, style: NamingStyle): String {
+        val cleaned = name.trim()
+        return when (style) {
+            // For Android/Java class names: PascalCase, no spaces or hyphens
+            NamingStyle.PASCAL_CASE -> cleaned
+                .replace(Regex("[^a-zA-Z0-9 -]"), "")
+                .split(Regex("[ -]+"))
+                .filter { it.isNotEmpty() }
+                .joinToString("") { word -> 
+                    word.replaceFirstChar { it.uppercase() } 
+                }
+                .ifEmpty { "MyProject" }
+            // For package names: lowercase, no special chars
+            NamingStyle.PACKAGE_SAFE -> cleaned
+                .lowercase()
+                .replace(Regex("[^a-z0-9]"), "")
+                .ifEmpty { "myproject" }
+            // For Flutter/Python: snake_case
+            NamingStyle.SNAKE_CASE -> cleaned
+                .lowercase()
+                .replace(Regex("[^a-z0-9_-]"), "")
+                .replace("-", "_")
+                .replace(" ", "_")
+                .replace(Regex("_+"), "_")
+                .trim('_')
+                .ifEmpty { "my_project" }
+            // For Node.js/npm: kebab-case
+            NamingStyle.KEBAB_CASE -> cleaned
+                .lowercase()
+                .replace(Regex("[^a-z0-9-]"), "")
+                .replace(" ", "-")
+                .replace("_", "-")
+                .replace(Regex("-+"), "-")
+                .trim('-')
+                .ifEmpty { "my-project" }
+        }
+    }
 
     suspend fun generateProject(context: Context, request: ProjectGenerationRequest): ProjectGenerationResult = withContext(Dispatchers.IO) {
         try {
@@ -49,8 +111,8 @@ object ProjectGeneratorUtil {
      * Includes all necessary files for immediate use in Android Studio.
      */
     private fun generateAndroidKotlinProject(request: ProjectGenerationRequest): List<ProjectFileEntry> {
-        val name = request.projectName.replace(" ", "").replace("-", "")
-        val nameLower = name.lowercase()
+        val name = sanitizeName(request.projectName, NamingStyle.PASCAL_CASE)
+        val nameLower = sanitizeName(request.projectName, NamingStyle.PACKAGE_SAFE)
         val pkg = request.packageName ?: "com.example.$nameLower"
         val pkgPath = pkg.replace(".", "/")
         
@@ -632,7 +694,7 @@ MIT License
      * Includes all necessary files for immediate use in VS Code or Android Studio.
      */
     private fun generateFlutterProject(request: ProjectGenerationRequest): List<ProjectFileEntry> {
-        val name = request.projectName.lowercase().replace(" ", "_").replace("-", "_")
+        val name = sanitizeName(request.projectName, NamingStyle.SNAKE_CASE)
         val displayName = request.projectName
         
         return listOf(
@@ -1063,7 +1125,7 @@ MIT License
      * Includes all necessary files for immediate use with npm.
      */
     private fun generateNodeJsProject(request: ProjectGenerationRequest): List<ProjectFileEntry> {
-        val name = request.projectName.lowercase().replace(" ", "-")
+        val name = sanitizeName(request.projectName, NamingStyle.KEBAB_CASE)
         val displayName = request.projectName
         
         return listOf(
@@ -1405,7 +1467,7 @@ MIT License
      * Includes all necessary files for immediate use.
      */
     private fun generatePythonProject(request: ProjectGenerationRequest): List<ProjectFileEntry> {
-        val name = request.projectName.lowercase().replace(" ", "_").replace("-", "_")
+        val name = sanitizeName(request.projectName, NamingStyle.SNAKE_CASE)
         val displayName = request.projectName
         
         return listOf(
