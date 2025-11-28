@@ -262,6 +262,11 @@
             android:name=".CodeReviewChecklistActivity"
             android:label="@string/code_review_checklist_title" />
 
+        <!-- Proje Oluşturucu Aktivitesi -->
+        <activity 
+            android:name=".ProjectGeneratorActivity"
+            android:label="@string/project_generator_title" />
+
         <!-- Hatırlatma Alıcısı -->
         <receiver
             android:name=".ReminderReceiver"

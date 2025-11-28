@@ -763,4 +763,12 @@
     <string name="code_review_checklist_title">Kod İnceleme Listesi</string>
     <string name="code_review_checklist_menu">Kod İnceleme</string>
     
+    <!-- PROJECT GENERATOR STRING'LERİ -->
+    <string name="project_generator_title">🚀 Proje Oluşturucu</string>
+    <string name="project_generator_menu">Proje Oluşturucu</string>
+    <string name="package_name_hint">Paket Adı (opsiyonel)</string>
+    <string name="generate_project">🚀 Proje Oluştur</string>
+    <string name="project_generated">Proje başarıyla oluşturuldu</string>
+    <string name="project_generation_failed">Proje oluşturulamadı</string>
+    
 </resources>
