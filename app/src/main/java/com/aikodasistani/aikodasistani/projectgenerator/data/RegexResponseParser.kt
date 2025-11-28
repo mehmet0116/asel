@@ -187,9 +187,11 @@ object RegexResponseParser {
         // Reject Windows-style absolute paths
         if (path.length >= 2 && path[1] == ':') return false
 
-        // Must have a file extension (contains at least one dot that's not at the start)
+        // Validate filename: either has extension OR is a dotfile
         val fileName = path.substringAfterLast('/')
-        if (!fileName.contains('.') || fileName.startsWith('.')) return false
+        val hasDotExtension = fileName.contains('.') && !fileName.startsWith('.')
+        val isDotFile = fileName.startsWith('.') && fileName.length > 1
+        if (!hasDotExtension && !isDotFile) return false
 
         // Reject null bytes and other control characters
         if (path.any { it.code < 32 }) return false

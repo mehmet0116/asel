@@ -267,9 +267,9 @@ fun main() {}
         assertFalse("Should reject ..", RegexResponseParser.validatePath("../secret.txt"))
         assertFalse("Should reject leading slash", RegexResponseParser.validatePath("/etc/passwd"))
         assertFalse("Should reject Windows drive", RegexResponseParser.validatePath("C:\\Windows\\test.txt"))
-        assertFalse("Should reject dotfile", RegexResponseParser.validatePath(".gitignore")) // no extension after dot
         assertFalse("Should reject no extension", RegexResponseParser.validatePath("noextension"))
         assertFalse("Should reject blank", RegexResponseParser.validatePath(""))
+        assertFalse("Should reject just dot", RegexResponseParser.validatePath("."))
     }
 
     @Test
@@ -278,6 +278,10 @@ fun main() {}
         assertTrue("Should accept path with folder", RegexResponseParser.validatePath("src/main.kt"))
         assertTrue("Should accept nested path", RegexResponseParser.validatePath("src/main/java/App.kt"))
         assertTrue("Should accept multiple dots", RegexResponseParser.validatePath("config.min.js"))
+        // Dotfiles are valid and common in Android projects
+        assertTrue("Should accept .gitignore", RegexResponseParser.validatePath(".gitignore"))
+        assertTrue("Should accept .env", RegexResponseParser.validatePath(".env"))
+        assertTrue("Should accept dotfile in folder", RegexResponseParser.validatePath("app/.gitignore"))
     }
 
     @Test
