@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -31,7 +32,7 @@ class ProjectGeneratorActivity : AppCompatActivity() {
     private lateinit var btnGenerateFromText: Button
     private lateinit var progressBar: ProgressBar
     private lateinit var tvStatus: TextView
-    private lateinit var resultContainer: LinearLayout
+    private lateinit var resultContainer: CardView
     private lateinit var tvResultInfo: TextView
     private lateinit var btnOpenZip: Button
     private lateinit var btnShareZip: Button
