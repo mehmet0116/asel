@@ -49,6 +49,9 @@ class DefaultAiProviderAdapter(
         private const val TAG = "AiProviderAdapter"
         private const val TIMEOUT_SECONDS = 180L
         private const val MAX_TOKENS = 8000
+        // Default model used when no model is specified
+        // This is only a fallback - primary model selection comes from UI
+        private const val DEFAULT_GEMINI_MODEL = "gemini-2.5-flash"
     }
 
     private val http by lazy {
@@ -91,7 +94,7 @@ class DefaultAiProviderAdapter(
 
         return try {
             val generativeModel = GenerativeModel(
-                modelName = model.ifBlank { "gemini-2.5-flash" },
+                modelName = model.ifBlank { DEFAULT_GEMINI_MODEL },
                 apiKey = apiKey
             )
 

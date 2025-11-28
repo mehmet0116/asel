@@ -267,8 +267,9 @@ class ProjectStructureParser {
             if (content.isNotBlank()) {
                 val extension = languageToExtension(language)
                 val fileName = "file_$fileCounter.$extension"
+                // Use project root directly for unnamed code blocks
                 files.add(ProjectFile(
-                    path = "$projectName/src/$fileName",
+                    path = "$projectName/$fileName",
                     content = content
                 ))
                 fileCounter++

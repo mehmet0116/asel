@@ -232,7 +232,9 @@ class ProjectStructureParserTest {
 
     @Test
     fun `test handles large content`() {
-        val largeContent = "x".repeat(100000)
+        // Test with content size that exercises large file handling
+        val largeContentSize = 100_000 // 100K characters
+        val largeContent = "x".repeat(largeContentSize)
         val input = """
             /Project/
             large.txt:
@@ -241,7 +243,7 @@ class ProjectStructureParserTest {
 
         val result = parser.parse(input, "Project")
         
-        assertTrue("Should handle large content", result is ParserResult.Success)
+        assertTrue("Should handle large content ($largeContentSize chars)", result is ParserResult.Success)
     }
 
     // ==================== ProjectStructure/ProjectFile Tests ====================

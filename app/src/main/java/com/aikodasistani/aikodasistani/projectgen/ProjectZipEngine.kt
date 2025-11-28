@@ -123,11 +123,6 @@ class ProjectZipEngine(private val context: Context) {
                 val directories = mutableSetOf<String>()
                 
                 for (file in structure.files) {
-                    // Skip empty/directory entries
-                    if (file.content.isEmpty() && !file.path.endsWith("/")) {
-                        continue
-                    }
-
                     val entryPath = file.path
                     
                     // Add parent directories first
@@ -136,8 +131,9 @@ class ProjectZipEngine(private val context: Context) {
                         addParentDirectories(parentDir, directories, zipOut)
                     }
                     
-                    // Skip directory markers
-                    if (file.path.endsWith("/") || file.content.isEmpty()) {
+                    // Skip directory markers (path ends with /)
+                    // Note: We preserve empty files (like .gitkeep) - only skip if path is a directory
+                    if (file.path.endsWith("/")) {
                         directories.add(file.path.trimEnd('/'))
                         continue
                     }

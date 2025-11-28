@@ -51,9 +51,10 @@ data class ProjectFile(
     val directory: String get() = if (path.contains("/")) path.substringBeforeLast("/") else ""
     
     /**
-     * Whether this is a directory entry (empty content and path ends with /)
+     * Whether this is a directory entry (path ends with /)
+     * Note: Empty content alone does not make a file a directory - only the path suffix matters
      */
-    val isDirectory: Boolean get() = path.endsWith("/") || content.isEmpty()
+    val isDirectory: Boolean get() = path.endsWith("/")
 }
 
 /**
