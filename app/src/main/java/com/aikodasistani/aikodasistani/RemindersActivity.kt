@@ -1,12 +1,16 @@
 package com.aikodasistani.aikodasistani
 
+import android.Manifest
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.app.TimePickerDialog
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
@@ -18,6 +22,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -36,6 +42,11 @@ import java.util.Locale
 
 class RemindersActivity : AppCompatActivity() {
     
+    companion object {
+        private const val TAG = "RemindersActivity"
+        private const val REQUEST_POST_NOTIFICATIONS = 1001
+    }
+    
     private lateinit var database: AppDatabase
     private lateinit var recyclerView: RecyclerView
     private lateinit var emptyView: LinearLayout
@@ -49,8 +60,38 @@ class RemindersActivity : AppCompatActivity() {
         
         database = AppDatabase.getDatabase(this)
         
+        requestNotificationPermissionIfNeeded()
         setupViews()
         loadReminders()
+    }
+    
+    private fun requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) 
+                != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    REQUEST_POST_NOTIFICATIONS
+                )
+            }
+        }
+    }
+    
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_POST_NOTIFICATIONS) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "POST_NOTIFICATIONS permission granted")
+            } else {
+                Log.w(TAG, "POST_NOTIFICATIONS permission denied")
+                Toast.makeText(this, "Bildirim izni verilmedi", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
     
     private fun setupViews() {
@@ -396,16 +437,30 @@ class RemindersActivity : AppCompatActivity() {
 
 // Broadcast Receiver for reminders
 class ReminderReceiver : BroadcastReceiver() {
+    
+    companion object {
+        private const val TAG = "ReminderReceiver"
+    }
+    
     override fun onReceive(context: Context, intent: Intent) {
         val title = intent.getStringExtra("reminder_title") ?: "Hatırlatma"
         val description = intent.getStringExtra("reminder_description") ?: ""
         val linkedFeature = intent.getStringExtra("linked_feature")
         
+        // Check POST_NOTIFICATIONS permission for Android 13+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) 
+                != PackageManager.PERMISSION_GRANTED) {
+                Log.w(TAG, "POST_NOTIFICATIONS permission not granted, skipping notification")
+                return
+            }
+        }
+        
         // Create notification
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
         
         // Create channel for Android 8+
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = android.app.NotificationChannel(
                 "reminders",
                 "Hatırlatmalar",
@@ -423,10 +478,10 @@ class ReminderReceiver : BroadcastReceiver() {
             context, 
             0, 
             clickIntent, 
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
         
-        val notification = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             android.app.Notification.Builder(context, "reminders")
         } else {
             @Suppress("DEPRECATION")
