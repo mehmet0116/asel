@@ -1402,6 +1402,10 @@ class MainActivity : AppCompatActivity(),
                     val intent = Intent(this, ThemeManagerActivity::class.java)
                     startActivity(intent)
                 }
+                R.id.nav_project_generator -> {
+                    val intent = Intent(this, ProjectGeneratorActivity::class.java)
+                    startActivity(intent)
+                }
                 R.id.nav_project_manager -> {
                     val intent = Intent(this, ProjectManagerActivity::class.java)
                     startActivity(intent)

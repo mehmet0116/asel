@@ -69,6 +69,10 @@
             android:icon="@drawable/ic_theme"
             android:title="Tema Ayarları" />
         <item
+            android:id="@+id/nav_project_generator"
+            android:icon="@drawable/ic_project"
+            android:title="Proje Oluşturucu" />
+        <item
             android:id="@+id/nav_project_manager"
             android:icon="@drawable/ic_project"
             android:title="Projeler" />
