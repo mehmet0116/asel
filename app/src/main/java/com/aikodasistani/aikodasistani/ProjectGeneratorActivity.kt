@@ -4,9 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.content.FileProvider
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -14,9 +16,12 @@ import com.aikodasistani.aikodasistani.models.ProjectGenerationRequest
 import com.aikodasistani.aikodasistani.models.ProjectGenerationResult
 import com.aikodasistani.aikodasistani.models.ProjectType
 import com.aikodasistani.aikodasistani.models.TemplateCategories
+import com.aikodasistani.aikodasistani.projectgen.ProjectGenerationOutput
+import com.aikodasistani.aikodasistani.projectgen.ProjectGeneratorViewModel
 import com.aikodasistani.aikodasistani.util.ProjectGeneratorUtil
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -41,14 +46,22 @@ class ProjectGeneratorActivity : AppCompatActivity() {
     private var generatedFilePath: String? = null
     private var generatedFileUri: android.net.Uri? = null
     
+    // AI-driven generation mode
+    private var useAiGeneration = true
+    private lateinit var viewModel: ProjectGeneratorViewModel
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_project_generator)
+        
+        // Initialize ViewModel
+        viewModel = ViewModelProvider(this)[ProjectGeneratorViewModel::class.java]
         
         setupViews()
         setupProjectTypeGrid()
         setupCategoryChips()
         setupButtons()
+        observeViewModel()
     }
     
     private fun setupViews() {
@@ -134,14 +147,25 @@ class ProjectGeneratorActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
             
-            generateProject(
-                ProjectGenerationRequest(
-                    projectType = selectedProjectType,
+            if (useAiGeneration) {
+                // Use AI-driven generation
+                generateWithAi(
+                    projectType = selectedProjectType.displayName,
                     projectName = projectName,
                     packageName = etPackageName.text.toString().trim().ifEmpty { null },
                     description = etDescription.text.toString().trim().ifEmpty { null }
                 )
-            )
+            } else {
+                // Fallback to template-based generation
+                generateProject(
+                    ProjectGenerationRequest(
+                        projectType = selectedProjectType,
+                        projectName = projectName,
+                        packageName = etPackageName.text.toString().trim().ifEmpty { null },
+                        description = etDescription.text.toString().trim().ifEmpty { null }
+                    )
+                )
+            }
         }
         
         btnGenerateFromText.setOnClickListener {
@@ -151,16 +175,9 @@ class ProjectGeneratorActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
             
-            val projectType = ProjectGeneratorUtil.parseProjectRequest(input)
+            // Always use AI for natural language input
             val projectName = ProjectGeneratorUtil.extractProjectName(input)
-            
-            generateProject(
-                ProjectGenerationRequest(
-                    projectType = projectType,
-                    projectName = projectName,
-                    description = input
-                )
-            )
+            viewModel.generateFromPrompt(input, projectName)
         }
         
         btnOpenZip.setOnClickListener {
@@ -186,6 +203,156 @@ class ProjectGeneratorActivity : AppCompatActivity() {
                 }
                 startActivity(Intent.createChooser(shareIntent, "Projeyi Paylaş"))
             }
+        }
+    }
+    
+    /**
+     * Observe ViewModel state for AI-driven generation
+     */
+    private fun observeViewModel() {
+        lifecycleScope.launch {
+            viewModel.generationState.collectLatest { state ->
+                when (state) {
+                    is ProjectGeneratorViewModel.GenerationState.Idle -> {
+                        showLoading(false)
+                        tvStatus.text = ""
+                    }
+                    is ProjectGeneratorViewModel.GenerationState.Generating -> {
+                        showLoading(true)
+                        tvStatus.text = "🤖 ${state.message}"
+                        resultContainer.visibility = View.GONE
+                    }
+                    is ProjectGeneratorViewModel.GenerationState.Success -> {
+                        showLoading(false)
+                        handleAiSuccess(state.result)
+                    }
+                    is ProjectGeneratorViewModel.GenerationState.Error -> {
+                        showLoading(false)
+                        handleAiError(state.error)
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Generate project using AI
+     */
+    private fun generateWithAi(
+        projectType: String,
+        projectName: String,
+        packageName: String?,
+        description: String?
+    ) {
+        viewModel.generateTypedProject(
+            projectType = projectType,
+            projectName = projectName,
+            packageName = packageName,
+            description = description
+        )
+    }
+    
+    /**
+     * Handle successful AI generation
+     */
+    private fun handleAiSuccess(result: ProjectGenerationOutput.Success) {
+        generatedFilePath = result.zipPath
+        generatedFileUri = result.zipUri
+        
+        tvStatus.text = "✅ Proje başarıyla oluşturuldu!"
+        
+        val sizeStr = formatFileSize(result.totalSize)
+        val timeStr = formatDuration(result.generationTimeMs)
+        
+        tvResultInfo.text = """
+            📁 Proje: ${result.projectName}
+            📄 Dosya Sayısı: ${result.totalFiles}
+            💾 Boyut: $sizeStr
+            ⏱️ Süre: $timeStr
+        """.trimIndent()
+        
+        resultContainer.visibility = View.VISIBLE
+        
+        // Reset ViewModel state after handling
+        viewModel.resetState()
+    }
+    
+    /**
+     * Handle AI generation error
+     */
+    private fun handleAiError(error: ProjectGenerationOutput.Error) {
+        tvStatus.text = "❌ ${error.message}"
+        resultContainer.visibility = View.GONE
+        
+        // Show detailed error dialog if available
+        if (error.details != null) {
+            showErrorDialog(error.message, error.details)
+        }
+        
+        // If recoverable, offer to retry with template-based generation
+        if (error.recoverable || error.errorType == ProjectGenerationOutput.ErrorType.PROVIDER_UNREACHABLE) {
+            showRetryWithTemplateDialog()
+        }
+        
+        // Reset ViewModel state
+        viewModel.resetState()
+    }
+    
+    /**
+     * Show error details dialog
+     */
+    private fun showErrorDialog(message: String, details: String?) {
+        AlertDialog.Builder(this)
+            .setTitle("Hata Detayları")
+            .setMessage("$message\n\n${details ?: ""}")
+            .setPositiveButton("Tamam", null)
+            .show()
+    }
+    
+    /**
+     * Offer to retry with template-based generation
+     */
+    private fun showRetryWithTemplateDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("AI Bağlantı Sorunu")
+            .setMessage("AI servisi şu an kullanılamıyor. Şablon tabanlı temel proje oluşturmak ister misiniz?")
+            .setPositiveButton("Şablon ile Oluştur") { _, _ ->
+                useAiGeneration = false
+                val projectName = etProjectName.text.toString().trim()
+                if (projectName.isNotEmpty()) {
+                    generateProject(
+                        ProjectGenerationRequest(
+                            projectType = selectedProjectType,
+                            projectName = projectName,
+                            packageName = etPackageName.text.toString().trim().ifEmpty { null },
+                            description = etDescription.text.toString().trim().ifEmpty { null }
+                        )
+                    )
+                }
+            }
+            .setNegativeButton("İptal", null)
+            .show()
+    }
+    
+    /**
+     * Format file size for display
+     */
+    private fun formatFileSize(bytes: Long): String {
+        return when {
+            bytes < 1024 -> "$bytes B"
+            bytes < 1024 * 1024 -> "${bytes / 1024} KB"
+            else -> String.format("%.2f MB", bytes / (1024.0 * 1024.0))
+        }
+    }
+    
+    /**
+     * Format duration for display
+     */
+    private fun formatDuration(ms: Long): String {
+        return when {
+            ms < 1000 -> "${ms}ms"
+            ms < 60000 -> String.format("%.1fs", ms / 1000.0)
+            else -> String.format("%.1f dakika", ms / 60000.0)
         }
     }
     
