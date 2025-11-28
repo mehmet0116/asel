@@ -397,7 +397,7 @@
     <string name="swap_codes">Kodları Değiştir</string>
     <string name="unified_view">Birleşik</string>
     <string name="side_by_side_view">Yan Yana</string>
-    <string name="diff_stats">+%d eklendi | -%d silindi | %d değişmedi</string>
+    <string name="diff_stats">+%1$d eklendi | -%2$d silindi | %3$d değişmedi</string>
     <string name="diff_codes_required">Lütfen karşılaştırılacak kod girin</string>
     
     <!-- FAVORITES CENTER STRING'LERİ -->
@@ -554,7 +554,7 @@
     <!-- INTERVIEW PREP STRING'LERİ -->
     <string name="interview_prep_title">💼 Mülakat Hazırlık</string>
     <string name="interview_prep_menu">Mülakat Hazırlık</string>
-    <string name="interview_stats_format">%d soru | %d Kolay | %d Orta | %d Zor</string>
+    <string name="interview_stats_format">%1$d soru | %2$d Kolay | %3$d Orta | %4$d Zor</string>
     <string name="hints">İpuçları</string>
     <string name="solution">Çözüm</string>
     <string name="complexity">Karmaşıklık</string>
