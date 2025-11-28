@@ -29,7 +29,21 @@ class AiProviderAdapter(
     private val settingsManager: SettingsManager
 ) : AiProvider {
     
-    private val TAG = "AiProviderAdapter"
+    companion object {
+        private const val TAG = "AiProviderAdapter"
+        
+        /**
+         * Maximum tokens for project generation responses.
+         * This is set high to support large project structures with many files.
+         */
+        private const val MAX_OUTPUT_TOKENS = 16000
+        
+        /**
+         * Temperature for project generation.
+         * Set to 0.7 for a balance between creativity and consistency.
+         */
+        private const val GENERATION_TEMPERATURE = 0.7
+    }
     
     private val httpClient by lazy {
         OkHttpClient.Builder()
@@ -121,11 +135,11 @@ class AiProviderAdapter(
             }
             // Use correct token parameter based on model
             if (requiresMaxCompletionTokens(model)) {
-                put("max_completion_tokens", 16000)
+                put("max_completion_tokens", MAX_OUTPUT_TOKENS)
             } else {
-                put("max_tokens", 16000)
+                put("max_tokens", MAX_OUTPUT_TOKENS)
             }
-            put("temperature", 0.7)
+            put("temperature", GENERATION_TEMPERATURE)
         }.toString()
         
         val request = Request.Builder()
@@ -240,8 +254,8 @@ class AiProviderAdapter(
                 }
             }
             putJsonObject("generationConfig") {
-                put("maxOutputTokens", 16000)
-                put("temperature", 0.7)
+                put("maxOutputTokens", MAX_OUTPUT_TOKENS)
+                put("temperature", GENERATION_TEMPERATURE)
             }
         }.toString()
         

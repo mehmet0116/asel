@@ -44,18 +44,39 @@ object ProjectStructureParser {
         fun w(tag: String, message: String)
     }
     
+    /**
+     * Android-specific logger implementation.
+     * Catches RuntimeException specifically to handle test environments where
+     * android.util.Log is not available.
+     */
     private class AndroidLogger : Logger {
         override fun d(tag: String, message: String) {
-            try { android.util.Log.d(tag, message) } catch (e: Exception) { /* ignore in tests */ }
+            try { 
+                android.util.Log.d(tag, message) 
+            } catch (_: RuntimeException) { 
+                // Expected in unit test environments where Android Log is not available
+            }
         }
         override fun v(tag: String, message: String) {
-            try { android.util.Log.v(tag, message) } catch (e: Exception) { /* ignore in tests */ }
+            try { 
+                android.util.Log.v(tag, message) 
+            } catch (_: RuntimeException) { 
+                // Expected in unit test environments where Android Log is not available
+            }
         }
         override fun e(tag: String, message: String) {
-            try { android.util.Log.e(tag, message) } catch (e: Exception) { /* ignore in tests */ }
+            try { 
+                android.util.Log.e(tag, message) 
+            } catch (_: RuntimeException) { 
+                // Expected in unit test environments where Android Log is not available
+            }
         }
         override fun w(tag: String, message: String) {
-            try { android.util.Log.w(tag, message) } catch (e: Exception) { /* ignore in tests */ }
+            try { 
+                android.util.Log.w(tag, message) 
+            } catch (_: RuntimeException) { 
+                // Expected in unit test environments where Android Log is not available
+            }
         }
     }
     
