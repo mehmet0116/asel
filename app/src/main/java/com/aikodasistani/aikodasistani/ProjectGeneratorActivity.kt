@@ -290,7 +290,9 @@ class ProjectGeneratorActivity : AppCompatActivity() {
                     packageName = etPackageName.text.toString().trim().ifEmpty { null },
                     description = etDescription.text.toString().trim().ifEmpty { null }
                 )
-                viewModel.generateProject(projectName, prompt)
+                
+                // Launch visualization activity with auto-start
+                launchVisualization(projectName, prompt, autoStart = true)
             } else {
                 // Use template-based generation (fallback)
                 generateProjectFromTemplate(
@@ -313,7 +315,9 @@ class ProjectGeneratorActivity : AppCompatActivity() {
             
             // Always use AI for natural language input
             val projectName = ProjectGeneratorUtil.extractProjectName(input)
-            viewModel.generateProject(projectName, input)
+            
+            // Launch visualization activity with auto-start
+            launchVisualization(projectName, input, autoStart = true)
         }
         
         btnOpenZip.setOnClickListener {
@@ -340,6 +344,19 @@ class ProjectGeneratorActivity : AppCompatActivity() {
                 startActivity(Intent.createChooser(shareIntent, "Share Project"))
             }
         }
+    }
+    
+    /**
+     * Launches the visualization activity for real-time code generation viewing.
+     */
+    private fun launchVisualization(projectName: String, prompt: String, autoStart: Boolean) {
+        val intent = GenerationVisualizationActivity.createIntent(
+            context = this,
+            projectName = projectName,
+            prompt = prompt,
+            autoStart = autoStart
+        )
+        startActivity(intent)
     }
     
     private fun buildProjectPrompt(

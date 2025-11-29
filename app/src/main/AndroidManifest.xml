@@ -270,6 +270,12 @@
             android:name=".ProjectGeneratorActivity"
             android:label="@string/project_generator_title" />
 
+        <!-- Code Generation Visualization Activity -->
+        <activity 
+            android:name=".GenerationVisualizationActivity"
+            android:label="Code Generation"
+            android:theme="@style/Theme.AIKodAsistani" />
+
         <!-- Hatırlatma Alıcısı -->
         <receiver
             android:name=".ReminderReceiver"
